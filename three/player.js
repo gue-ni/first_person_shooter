@@ -89,15 +89,8 @@ class Player extends Component {
         }
 
         if (this.keySpace && Math.abs(this.gameObject.velocity.y) == 0){ // SPACE
-            console.log("jump")
             this.gameObject.velocity.y += 7
         }
-
-        //var gun = this.gameObject.getComponent("weapon")
-        //let d = 2
-        //gun.position.set(this.direction.x*d, this.direction.y*d, this.direction.z*d)
-
-        //this.ray.origin = p5.Vector.sub(this.position, createVector(0, 40, 0))
 	}
 }
 

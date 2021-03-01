@@ -55,14 +55,9 @@ class AABB extends Component {
 		super(gameObject)
 		this.name = "aabb"
 		this.size = size;
-		var geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-		var material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
-		this.gameObject.transform.add(new THREE.Mesh(geometry, material))
-		/*
-		var geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-		var material = new THREE.MeshStandardMaterial( { color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
-		this.gameObject.transform.add(new THREE.Mesh (geometry, material))
-		*/
+		//var geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
+		//var material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
+		//this.gameObject.transform.add(new THREE.Mesh(geometry, material))
 	}
 
 	get minX(){	return this.gameObject.position.x - this.size.x/2 }
@@ -141,15 +136,22 @@ class Gravity extends Component {
 	}
 }
 
-class Weapon extends Component {
-	constructor(gameObject){
+class SemiAutomaticWeapon extends Component {
+	constructor(gameObject, rays){
 		super(gameObject);
 		this.name = "weapon"
 		var geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
 		var material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
 		var mesh = new THREE.Mesh(geometry, material)
-		mesh.position.set(-0.5, -0.5, 0)
+		mesh.position.set(-0.5, -0.5, 1)
 		this.gameObject.transform.add(mesh)
+
+		var player = this.gameObject.getComponent("player")
+
+		document.body.addEventListener("mousedown", e => {
+			//console.log("fire")
+			rays[rays.length] = new Ray(this.gameObject.position, player.direction)
+		})	
 	}
 }
 
@@ -157,9 +159,11 @@ class Ray {
 	constructor(origin, direction){
 		this.origin 	= origin.clone()
 		this.direction 	= direction.normalize().clone()
+		this.checked_collision = false;
 	}
 
 	intersect(box){
+		this.checked_collision = true
 		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 		let min = box.min
 		let max = box.max

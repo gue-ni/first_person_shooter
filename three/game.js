@@ -40,12 +40,13 @@ const map_width = 50
 const map_depth = 50
 
 var objects = []
+var rays = []
 
 for (var i = 0; i < 10; i++){
 	var testObject = new GameObject(scene);
-	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
-	testObject.addComponent(new Box(testObject, new THREE.Vector3(1,1,1), 0xff0051))
 	testObject.addComponent(new Gravity(testObject));
+	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
+	testObject.addComponent(new Box(testObject, new THREE.Vector3(2,2,2), 0xff0051))
 	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, 30, Math.floor(Math.random()*map_depth)-map_depth/2)
 	objects.push(testObject)
 }
@@ -60,9 +61,9 @@ var playerObject = new GameObject(scene);
 var player = new Player(playerObject)
 playerObject.addComponent(player)
 playerObject.addComponent(new Gravity(playerObject))
+playerObject.addComponent(new SemiAutomaticWeapon(playerObject, rays))
 playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
-playerObject.addComponent(new Box(playerObject, new THREE.Vector3(0.75, 1.5, 0.75), 0xff0051))
-playerObject.addComponent(new Weapon(playerObject))
+playerObject.addComponent(new Box(playerObject, new THREE.Vector3(1, 2, 1), 0xff0051))
 playerObject.position.set(5,2,10)
 objects.push(playerObject)
 
@@ -78,7 +79,6 @@ function mouse(event){
     player.direction.y = Math.sin(pitch*(Math.PI/180))
     player.direction.z = Math.sin(player.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
     player.direction.normalize()
-
 }
 
 camera.position.set(5,2,10)
@@ -93,12 +93,11 @@ scene.add(pointLight);
 
 let then = 0
 function animate(now) {
-	now *= 0.001;
-	const dt = now - then;
-	then = now;
+	now 		*= 0.001;
+	const dt 	= now - then;
+	then 		= now;
 
-	var ray = new Ray(playerObject.position, player.direction)
-	
+
 	for (let object of objects){
 		object.update(dt);
 
@@ -109,17 +108,19 @@ function animate(now) {
 		}
 
 		ground_aabb.collide(object)
-
-		if (ray.intersect(object.getComponent("aabb")) && object != playerObject){
-			console.log("col")
+		
+		for (let ray of rays){
+			if (ray.intersect(object.getComponent("aabb")) && object != playerObject){
+				console.log("hit")
+			}
 		}
-
 	}
+	rays.length = 0
 
-
-	camera.position.set(playerObject.position.x, playerObject.position.y, playerObject.position.z)
+	camera.position.copy(playerObject.position)
 	camera.lookAt(player.cameraCenter)
 	playerObject.transform.lookAt(player.cameraCenter)
+
 	renderer.render(scene, camera)
 	requestAnimationFrame(animate)
 }
