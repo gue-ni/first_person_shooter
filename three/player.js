@@ -23,7 +23,7 @@ class Player extends GravityObject {
     }
 
 	update(dt){
-        let speed = 4 
+        let speed = 7 
         if (this.keyW){ // W
             let tmp = this.direction.clone()
             tmp.multiplyScalar(speed)
@@ -53,7 +53,7 @@ class Player extends GravityObject {
 
         if (this.keySpace && Math.abs(this.velocity.y) == 0){ // SPACE
             console.log("jump")
-            this.velocity.y += 5
+            this.velocity.y += 7
         }
 
         super.update(dt)

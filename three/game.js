@@ -1,6 +1,8 @@
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 const renderer = new THREE.WebGLRenderer({ antialias: true})
+renderer.shadowMap.enabled = true;
+
 
 renderer.setSize( window.innerWidth, window.innerHeight )
 renderer.setClearColor("#222222")
@@ -18,14 +20,8 @@ document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
 var player = new Player(0, 3, 10)
 
 function mouse(event){
-	//console.log(event.movementY)
 	player.yaw   += (event.movementX * 0.1)
     player.pitch += (event.movementY * 0.1)
-
-    //console.log(-player.pitch)
-
-
-
     player.direction.x = Math.cos( player.yaw  *(Math.PI/180)) * Math.cos(-player.pitch*(Math.PI/180))
     player.direction.y = Math.sin(-player.pitch*(Math.PI/180))
     player.direction.z = Math.sin( player.yaw  *(Math.PI/180)) * Math.cos(-player.pitch*(Math.PI/180))
@@ -41,7 +37,6 @@ function lockChangeAlert() {
 		document.removeEventListener("mousemove", mouse, false);
 	}
 }
-
 
 window.addEventListener( 'resize', () => {
 	let width = window.innerWidth
@@ -95,16 +90,18 @@ document.addEventListener("keyup", (event) => {
 	}
 })
 
+const map_width = 100
+const map_depth = 100
 
 var objects = []
 objects.push(player)
 
-var ground = new AABB(new THREE.Vector3(0, 0, 0), 100, 0.1, 100, 0x3bb446)
+var ground = new AABB(new THREE.Vector3(0, 0, 0), map_width, 0.1, map_depth, 0x3bb446)
 scene.add(ground.mesh)
 
-for (var i = 0; i < 10; i++){
-	let pos = new THREE.Vector3(Math.floor(Math.random()*100)-50, 10, Math.floor(Math.random()*100)-50)
-	var box = new GravityObject(pos, 1, 1, 1, 0xff0051)
+for (var i = 0; i < 5; i++){
+	let pos = new THREE.Vector3(Math.floor(Math.random()*map_width)-map_width/2, 10, Math.floor(Math.random()*map_depth)-map_depth/2)
+	var box = new GravityObject(pos, 3, 3, 3, 0xff0051)
 	scene.add(box.mesh)
 	objects.push(box)
 }
@@ -118,21 +115,19 @@ pointLight.position.set( 25, 50, 25 );
 scene.add( pointLight );
 
 let then = 0
-let cnt = 0
-
-
 function animate(now) {
-	cnt++;
 	now *= 0.001;
 	const dt = now - then;
 	then = now;
-	console.log()
-
-
 
 	for (let object of objects){
-		object.update(dt)	
-		ground.collide(object)
+		object.update(dt);
+		for (let other of objects){
+			if (other != objects){
+				other.collide(object)
+			}
+		}
+		ground.collide(object);
 	}
 
 	camera.position.set(player.position.x, player.position.y+player.h/2, player.position.z)
