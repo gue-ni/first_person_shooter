@@ -1,34 +1,70 @@
-class Box {
-	constructor(position, w, h, d){
-		this.position = position
-		this.h = h
-		this.w = w
-		this.d = d	
-	}
 
-	update(){}
-
-	draw(){
-		push()
-		translate(this.position.x, this.position.y, this.position.z)
-		box(this.w, this.h, this.d)
-		pop()
-	}	
-}
 
 class Ray {
 	constructor(origin, direction){
-		this.origin = origin
-		this.direction = direction
+		this.origin 	= origin
+		this.direction 	= direction.normalize()
 	}
 
 	intersect(box){
 		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+
+		let min = box.min
+		let max = box.max
+
+	    let tmin = (min.x - this.origin.x) / this.direction.x; 
+	    let tmax = (max.x - this.origin.x) / this.direction.x; 
+	 
+	    if (tmin > tmax){
+	    	let tmp = tmax
+	    	tmax = tmin
+	    	tmin = tmp
+	    } 
+	 
+	    let tymin = (min.y - this.origin.y) / this.direction.y; 
+	    let tymax = (max.y - this.origin.y) / this.direction.y; 
+	 
+
+		if (tymin > tymax){
+	    	let tmp = tymax
+	    	tymax = tymin
+	    	tymin = tmp
+	    } 
+	 
+	    if ((tmin > tymax) || (tymin > tmax)) 
+	        return false; 
+	 
+	    if (tymin > tmin) 
+	        tmin = tymin; 
+	 
+	    if (tymax < tmax) 
+	        tmax = tymax; 
+	 
+	    let tzmin = (min.z - this.origin.z) / this.direction.z; 
+	    let tzmax = (max.z - this.origin.z) / this.direction.z; 
+	
+	 	if (tzmin > tzmax){
+	    	let tmp = tzmax
+	    	tzmax = tzmin
+	    	tzmin = tmp
+	    }
+	 
+	    if ((tmin > tzmax) || (tzmin > tmax)) 
+	        return false; 
+	 
+	    if (tzmin > tmin) 
+	        tmin = tzmin; 
+	 
+	    if (tzmax < tmax) 
+	        tmax = tzmax; 
+	 
+    return true; 
+
 	}
 }
 
 // axis aligned bounding box
-class BoundingBox extends Box {
+class AABB extends Box {
 	constructor(position, w, h, d){
 		super(position, w,h,d)
 	}
@@ -56,25 +92,6 @@ class BoundingBox extends Box {
 		} else {
 			return false
 		}
-	}
-
-	intersectRay(ray){
-		/*
-		let A = this.min
-		let B = this.max
-
-		let tAx = (A.x - ray.origin.x) / ray.direction.x
-		let tAy = (A.y - ray.origin.y) / ray.direction.y
-		let tAz = (A.z - ray.origin.z) / ray.direction.z
-		let tBx = (B.x - ray.origin.x) / ray.direction.x
-		let tBy = (B.y - ray.origin.y) / ray.direction.y
-		let tBz = (B.z - ray.origin.z) / ray.direction.z
-
-		//let tA = p5.Vector.div(p5.Vector.sub(A, ray.origin), ray.direction)
-
-		let tmin = (tAx > )
-		*/
-
 	}
 
 	collide(b){
@@ -117,7 +134,8 @@ class BoundingBox extends Box {
 	}
 }
 
-class PhysicsBox extends BoundingBox {
+// has gravity
+class GravityObject extends AABB {
 	constructor(position, w, h, d){
 		super(position, w, h, d)
 		this.velocity 		= createVector(0,0,0)

@@ -1,4 +1,4 @@
-class Character extends PhysicsBox {
+class Character extends GravityObject {
 	center;
 	constructor(x, y, z){
         super(createVector(x,y,z), 100, 50, 100)
@@ -7,6 +7,7 @@ class Character extends PhysicsBox {
 		this.camera 	= createCamera()
 		this.yaw 		= -0.5 * PI
 		this.pitch 		= 0
+        this.ray        = new Ray(this.position.copy(), this.direction.copy())
 	}
 
 	shoot(){
@@ -21,6 +22,8 @@ class Character extends PhysicsBox {
         this.direction.y = sin(this.pitch)
         this.direction.z = sin(this.yaw) * cos(this.pitch)
         this.direction.normalize()
+
+        
 
         const speed = 0.3
 
@@ -60,12 +63,32 @@ class Character extends PhysicsBox {
 
 	update(){
         super.update()
+        //this.ray.origin = p5.Vector.sub(this.position, createVector(0, 40, 0))
+
 	}
+
+
+    get cameraPos(){
+        return createVector(this.position.x, this.position.y, this.position.z)
+    }
+
+    get cameraDir(){
+        return createVector(this.direction.x, this.direction.y, this.direction.z)
+    }
+
+    cameraRay(){
+        //let pos = createVector(this.position.x, this.position.y-40, this.position.z)
+//        return new Ray(pos, this.direction.copy())
+
+        let pos = createVector(this.position.x, this.position.y-40, this.position.z)
+        this.ray.origin = pos 
+        this.ray.direction = this.direction
+        return this.ray
+    }
 
     draw(){
         this.center = p5.Vector.add(this.position, this.direction);
         this.camera.setPosition(this.position.x, this.position.y-40, this.position.z)
         this.camera.lookAt(this.center.x,this.center.y-40,this.center.z)
     }
-
 }
