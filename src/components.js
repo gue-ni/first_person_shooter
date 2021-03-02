@@ -182,12 +182,23 @@ class SemiAutomaticWeapon extends Component {
 	constructor(gameObject, rays){
 		super(gameObject);
 		this.name = "weapon"
+		/*
 		let geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
 		let material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
-		this.mesh = new THREE.Mesh(geometry, material)
-		this.mesh.position.set(0.5, -0.5, -1)
-		this.gameObject.transform.add(this.mesh)
+		let mesh = new THREE.Mesh(geometry, material)
+		*/
 
+		const loader = new THREE.GLTFLoader();;
+		loader.load('../assets/gun.glb', function(gltf){
+			gltf.position.set(0, 0, -1)
+			this.gameObject.transform.add(gltf)
+		})	
+
+
+
+		//mesh.position.set(0.5, -0.5, -1)
+
+		//this.gameObject.transform.add(mesh)
 		let player = this.gameObject.getComponent("player")
 
 		document.body.addEventListener("mousedown", e => {
