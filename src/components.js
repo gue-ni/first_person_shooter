@@ -41,14 +41,14 @@ class Component {
 }
 
 class Box extends Component {
-	constructor(gameObject, size, box_color, cast, receive){
+	constructor(gameObject, size, box_color, castShadow, receiveShadow){
 		super(gameObject)
 		this.name = "box"
 		let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
 		let material = new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
 		let box = new THREE.Mesh(geometry, material)
-		box.castShadow = cast
-		box.receiveShadow = receive
+		box.castShadow = castShadow
+		box.receiveShadow = receiveShadow
 		this.gameObject.transform.add(box)
 	}
 }
@@ -87,6 +87,8 @@ class AABB extends Component {
 	collideAABB(aabb){
 		let d0, d1, x, y, z
 		if (this.intersect(aabb)){
+			//console.log("collides")
+
 			if (this.gameObject.velocity.length() < aabb.gameObject.velocity.length()){
 				d0 = aabb.maxX - this.minX
 				d1 = this.maxX - aabb.minX
@@ -102,9 +104,10 @@ class AABB extends Component {
 
 				if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
 					aabb.gameObject.position.setY(aabb.gameObject.position.y-y)
-					aabb.gameObject.velocity.y = 0
+					aabb.gameObject.velocity.setY(0)
 					return
 				}
+
 
 				if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
 					aabb.gameObject.position.setX(aabb.gameObject.position.x-x)  

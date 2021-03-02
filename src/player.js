@@ -88,7 +88,7 @@ class Player extends Component {
             this.gameObject.velocity.z = 0
         }
 
-        if (this.keySpace && Math.abs(this.gameObject.velocity.y) == 0){ // SPACE
+        if (this.keySpace && Math.abs(this.gameObject.velocity.y) < 0.5){ // SPACE
             this.gameObject.velocity.y += 7
         }
 	}
