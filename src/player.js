@@ -1,4 +1,8 @@
-class Player extends Component {
+import { Component } from './components.js'
+import * as THREE from './three/build/three.module.js';
+
+
+export class Player extends Component {
 	constructor(gameObject){
         super(gameObject)
         this.name = "player"

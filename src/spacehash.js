@@ -2,9 +2,10 @@
 /*
 	TODO: only update the ones that have actually moved
 */
+import * as THREE from './three/build/three.module.js';
 
 
-class SpaceHash {
+export class SpaceHash {
 	constructor(size){
 		this.size = size
 		this.space = new Map()

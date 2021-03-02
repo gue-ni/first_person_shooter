@@ -1,4 +1,10 @@
 
+import * as THREE from './three/build/three.module.js';
+import { GameObject, AABB, Box, Gravity, Ray, SemiAutomaticWeapon } from './components.js';
+
+import {Player} from './player.js'
+import {SpaceHash} from './spacehash.js'
+
 const canvas = document.querySelector('#c');
 const window_width 	= canvas.width
 const window_height = canvas.height
@@ -8,8 +14,10 @@ const camera 	= new THREE.PerspectiveCamera(75, window_width / window_height, 0.
 const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true})
 renderer.setClearColor("#222222")
 
+
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap
+
 
 window.addEventListener('resize', () => {
 	let width = window_width
@@ -39,9 +47,9 @@ const map_width = 50, map_depth = 50
 const objects 	= []
 const rays 		= []
 
-for (let i = 0; i < 50; i++){
-	let testObject = new GameObject(scene);
-	testObject.addComponent(new Gravity(testObject));
+for (let i = 0; i < 100; i++){
+	let testObject = new GameObject(scene)
+	testObject.addComponent(new Gravity(testObject))
 	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
 	testObject.addComponent(new Box(testObject,  new THREE.Vector3(2,2,2), 0xff0051, true, false))
 	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, 
@@ -51,21 +59,25 @@ for (let i = 0; i < 50; i++){
 }
 
 // Create the Ground
-let ground = new GameObject(scene);
+let ground 		= new GameObject(scene)
 let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,2,map_depth)))
 ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325, false, true))
 ground.position.set(0,-2,0)
 
 // Create the Player
-let playerObject = new GameObject(scene);
+let playerObject = new GameObject(scene)
 let player 	= playerObject.addComponent(new Player(playerObject))
 let gun 	= playerObject.addComponent(new SemiAutomaticWeapon(playerObject, rays))
 playerObject.addComponent(new Gravity(playerObject))
-playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
-playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1,2,1), 0xff0051, false, false))
-playerObject.position.set(0,5,0)
-playerObject.transform.add(camera)
+playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,0.5)))
+playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1,2,0.5), 0xff0051, true, false))
+playerObject.position.set(5,10,0)
 objects.push(playerObject)
+
+
+let g = new GameObject(scene)
+g.addComponent(new SemiAutomaticWeapon(g, rays))
+g.position.set(0,0,0)
 
 function mouse(event){
 	player.yaw   += (event.movementX * 0.1)
@@ -84,13 +96,11 @@ function mouse(event){
 let space_hash = new SpaceHash(2)
 
 // create ligths
-let ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
-scene.add(ambientLight)
+scene.add(new THREE.AmbientLight(0xffffff, 0.2))
 
 /*
 let pointLight1 = new THREE.PointLight(0xffffff, 1);
 pointLight1.position.set(25, 50, 25);
-pointLight1.castShadow = true
 scene.add(pointLight1);
 */
 
@@ -100,18 +110,18 @@ scene.add(pointLight2);
 
 const light = new THREE.DirectionalLight(0xffffff, 1, 100);
 light.position.set(0, 50, 50); 
-light.castShadow 			= true; 
-light.shadow.mapSize.width 	= 128; 
-light.shadow.mapSize.height = 128; 
-light.shadow.camera.near 	= 0.5; 
-light.shadow.camera.far 	= 500; 
+light.castShadow 			=  true; 
+light.shadow.mapSize.width 	=  512; 
+light.shadow.mapSize.height =  512; 
+light.shadow.camera.near 	=  0.5; 
+light.shadow.camera.far 	=  500; 
 light.shadow.camera.left 	= -100
 light.shadow.camera.bottom 	= -100
 light.shadow.camera.top  	=  100
 light.shadow.camera.right	=  100
 scene.add(light)
-//scene.add(new THREE.CameraHelper( light.shadow.camera ))
 
+playerObject.transform.add(camera)
 
 let then = 0, dt = 0
 function animate(now) {
@@ -143,10 +153,9 @@ function animate(now) {
 
 	rays.length = 0
 
-
-
-	//debug.innerText = `${playerObject.velocity.y}`
-
+	// debug
+	//camera.position.set(playerObject.position.x+5, playerObject.position.y+5, playerObject.z)
+	//camera.lookAt(playerObject.position)
 
 	playerObject.transform.lookAt(player.cameraCenter)
 	

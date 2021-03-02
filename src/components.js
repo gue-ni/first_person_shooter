@@ -1,5 +1,8 @@
+import * as THREE from './three/build/three.module.js';
+import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 
-class GameObject {
+
+export class GameObject {
 	constructor(parent){
 		this.components = []
 		this.transform 	= new THREE.Object3D()
@@ -32,7 +35,7 @@ class GameObject {
 	}
 }
 
-class Component {
+export class Component {
 	constructor(gameObject){
 		this.gameObject = gameObject
 		this.name = "component"
@@ -40,7 +43,7 @@ class Component {
 	update(dt){}
 }
 
-class Box extends Component {
+export class Box extends Component {
 	constructor(gameObject, size, box_color, castShadow, receiveShadow){
 		super(gameObject)
 		this.name = "box"
@@ -53,7 +56,7 @@ class Box extends Component {
 	}
 }
 
-class AABB extends Component {
+export class AABB extends Component {
 	constructor(gameObject, size){
 		super(gameObject)
 		this.name = "aabb"
@@ -166,7 +169,7 @@ class AABB extends Component {
 	}
 }
 
-class Gravity extends Component {
+export class Gravity extends Component {
 	constructor(gameObject){
 		super(gameObject)
 		this.name = "gravity"
@@ -178,36 +181,38 @@ class Gravity extends Component {
 	}
 }
 
-class SemiAutomaticWeapon extends Component {
+export class SemiAutomaticWeapon extends Component {
 	constructor(gameObject, rays){
 		super(gameObject);
 		this.name = "weapon"
-		/*
-		let geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
-		let material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
-		let mesh = new THREE.Mesh(geometry, material)
-		*/
+		//let geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
+		//let material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
+		//let mesh = new THREE.Mesh(geometry, material)
 
-		const loader = new THREE.GLTFLoader();;
-		loader.load('../assets/gun.glb', function(gltf){
-			gltf.position.set(0, 0, -1)
-			this.gameObject.transform.add(gltf)
-		})	
+     	const gltfLoader = new GLTFLoader();
+	    gltfLoader.load('assets/gun.glb', (gltf) => {
+	      let model = gltf.scene;
+	      model.position.set(0.5, -0.7, -1)
+	      model.rotateY(-Math.PI/2)
+	      model.scale.set(0.2, 0.2, 0.2)
+	      this.gameObject.transform.add(model);
+	    });
 
+		
 
 
 		//mesh.position.set(0.5, -0.5, -1)
-
 		//this.gameObject.transform.add(mesh)
+		/*
 		let player = this.gameObject.getComponent("player")
-
 		document.body.addEventListener("mousedown", e => {
 			rays[rays.length] = new Ray(this.gameObject.position, player.direction)
-		})	
+		})
+		*/	
 	}
 }
 
-class Ray {
+export class Ray {
 	constructor(origin, direction){
 		this.origin 	= origin.clone()
 		this.direction 	= direction.normalize().clone()
