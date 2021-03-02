@@ -44,8 +44,8 @@ class Box extends Component {
 	constructor(gameObject, size, box_color){
 		super(gameObject)
 		this.name = "box"
-		var geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-		var material = new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
+		let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
+		let material = new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
 		this.gameObject.transform.add(new THREE.Mesh(geometry, material))
 	}
 }
@@ -55,8 +55,8 @@ class AABB extends Component {
 		super(gameObject)
 		this.name = "aabb"
 		this.size = size;
-		//var geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-		//var material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
+		//let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
+		//let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
 		//this.gameObject.transform.add(new THREE.Mesh(geometry, material))
 	}
 
@@ -119,7 +119,7 @@ class AABB extends Component {
 	}
 
 	collide(gameObject){
-		var b = gameObject.getComponent("aabb")
+		let b = gameObject.getComponent("aabb")
 		if (b != undefined){
 			let d0, d1, x, y, z
 			if (this.intersect(b)){
@@ -176,13 +176,13 @@ class SemiAutomaticWeapon extends Component {
 	constructor(gameObject, rays){
 		super(gameObject);
 		this.name = "weapon"
-		var geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
-		var material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
+		let geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
+		let material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
 		this.mesh = new THREE.Mesh(geometry, material)
 		this.mesh.position.set(-0.5, -0.5, 1)
 		this.gameObject.transform.add(this.mesh)
 
-		var player = this.gameObject.getComponent("player")
+		let player = this.gameObject.getComponent("player")
 
 		document.body.addEventListener("mousedown", e => {
 			//console.log("fire")

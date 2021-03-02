@@ -29,16 +29,16 @@ function lockChangeAlert() {
 	}
 }
 
-let debug = document.querySelector('#debug')
+const debug = document.querySelector('#debug')
 
 const map_width = 50
 const map_depth = 50
 
-var objects = []
-var rays = []
+const objects = []
+const rays = []
 
-for (var i = 0; i < 10; i++){
-	var testObject = new GameObject(scene);
+for (let i = 0; i < 10; i++){
+	let testObject = new GameObject(scene);
 	testObject.addComponent(new Gravity(testObject));
 	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
 	testObject.addComponent(new Box(testObject, new THREE.Vector3(2,2,2), 0xff0051))
@@ -46,16 +46,18 @@ for (var i = 0; i < 10; i++){
 	objects.push(testObject)
 }
 
-var ground = new GameObject(scene);
-ground.position.set(0,0,0)
-var ground_aabb = new AABB(ground, new THREE.Vector3(100,2,100))
+// Create the Ground
+let ground = new GameObject(scene);
+let ground_aabb = new AABB(ground, new THREE.Vector3(map_width,2,map_depth))
 ground.addComponent(ground_aabb)
-ground.addComponent(new Box(ground, new THREE.Vector3(100,2,100), 0x90b325))
+ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325))
+ground.position.set(0,0,0)
 
-var playerObject = new GameObject(scene);
-var player = new Player(playerObject)
+// Create the Player
+let playerObject = new GameObject(scene);
+let player = new Player(playerObject)
 playerObject.addComponent(player)
-var gun = new SemiAutomaticWeapon(playerObject, rays)
+let gun = new SemiAutomaticWeapon(playerObject, rays)
 playerObject.addComponent(gun)
 playerObject.addComponent(new Gravity(playerObject))
 playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
@@ -80,20 +82,20 @@ function mouse(event){
 let space_hash = new SpaceHash(200)
 
 
-var ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
+let ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
 scene.add(ambientLight)
 
-var pointLight = new THREE.PointLight(0xffffff, 1);
+let pointLight = new THREE.PointLight(0xffffff, 1);
 pointLight.position.set(25, 50, 25);
 scene.add(pointLight);
 
 camera.position.copy(playerObject.position)
 
-let then = 0
+let then = 0, dt = 0
 function animate(now) {
-	now 		*= 0.001;
-	const dt 	= now - then;
-	then 		= now;
+	now *= 0.001;
+	dt   = now - then;
+	then = now;
 
 	space_hash.clear()
     objects.forEach(object => space_hash.insert(object.getComponent("aabb")))
@@ -102,9 +104,9 @@ function animate(now) {
 		object.update(dt);
 		let aabb = object.getComponent("aabb")
 
-		for (let others of space_hash.search(aabb)){
-			if (others != object){
-				others.collideAABB(aabb)
+		for (let other of space_hash.search(aabb)){
+			if (other != object){
+				other.collideAABB(aabb)
 			}
 		}
 
@@ -118,12 +120,9 @@ function animate(now) {
 	}
 	rays.length = 0
 
-	//camera.position.copy(playerObject.position)
-	//camera.lookAt(player.cameraCenter)
+	camera.position.copy(playerObject.position)
+	camera.lookAt(player.cameraCenter)
 	playerObject.transform.lookAt(player.cameraCenter)
-	//gun.mesh.lookAt(player.cameraCenter)
-
-	camera.lookAt(playerObject.position)
 	
 	renderer.render(scene, camera)
 	requestAnimationFrame(animate)
