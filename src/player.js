@@ -56,7 +56,7 @@ class Player extends Component {
 	}
 
     get cameraCenter(){
-        return this.center.addVectors(this.gameObject.position, this.direction)
+        return this.center.subVectors(this.gameObject.position, this.direction)
     } 
 
 	update(dt){

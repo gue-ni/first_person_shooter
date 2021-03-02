@@ -31,18 +31,17 @@ function lockChangeAlert() {
 
 const debug = document.querySelector('#debug')
 
-const map_width = 50
-const map_depth = 50
+const map_width = 50, map_depth = 50
 
-const objects = []
-const rays = []
+const objects 	= []
+const rays 		= []
 
-for (let i = 0; i < 10; i++){
+for (let i = 0; i < 150; i++){
 	let testObject = new GameObject(scene);
 	testObject.addComponent(new Gravity(testObject));
 	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
 	testObject.addComponent(new Box(testObject, new THREE.Vector3(2,2,2), 0xff0051))
-	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, 30, Math.floor(Math.random()*map_depth)-map_depth/2)
+	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random() * 70), Math.floor(Math.random()*map_depth)-map_depth/2)
 	objects.push(testObject)
 }
 
@@ -63,6 +62,7 @@ playerObject.addComponent(new Gravity(playerObject))
 playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
 playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1, 2, 1), 0xff0051))
 playerObject.position.set(5,2,10)
+playerObject.transform.add(camera)
 objects.push(playerObject)
 
 function mouse(event){
@@ -79,17 +79,20 @@ function mouse(event){
     player.direction.normalize()
 }
 
-let space_hash = new SpaceHash(200)
+let space_hash = new SpaceHash(2)
 
-
+// create ligths
 let ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
 scene.add(ambientLight)
 
-let pointLight = new THREE.PointLight(0xffffff, 1);
-pointLight.position.set(25, 50, 25);
-scene.add(pointLight);
+let pointLight1 = new THREE.PointLight(0xffffff, 0.75);
+pointLight1.position.set(25, 50, 25);
+scene.add(pointLight1);
 
-camera.position.copy(playerObject.position)
+let pointLight2 = new THREE.PointLight(0xffffff, 0.75);
+pointLight2.position.set(-25, 20, -25);
+scene.add(pointLight2);
+
 
 let then = 0, dt = 0
 function animate(now) {
@@ -104,7 +107,7 @@ function animate(now) {
 		object.update(dt);
 		let aabb = object.getComponent("aabb")
 
-		for (let other of space_hash.search(aabb)){
+		for (let other of space_hash.find_possible_collisions(aabb)){
 			if (other != object){
 				other.collideAABB(aabb)
 			}
@@ -120,8 +123,6 @@ function animate(now) {
 	}
 	rays.length = 0
 
-	camera.position.copy(playerObject.position)
-	camera.lookAt(player.cameraCenter)
 	playerObject.transform.lookAt(player.cameraCenter)
 	
 	renderer.render(scene, camera)
@@ -129,5 +130,4 @@ function animate(now) {
 }
 
 requestAnimationFrame(animate)
-
 

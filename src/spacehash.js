@@ -1,4 +1,9 @@
 
+/*
+	TODO: only update the ones that have actually moved
+*/
+
+
 class SpaceHash {
 	constructor(size){
 		this.size = size
@@ -37,7 +42,7 @@ class SpaceHash {
 		//console.log(this.space)		
 	}
 
-	search(aabb){
+	find_possible_collisions(aabb){
 		let min = this.hash(aabb.min)
 		let max = this.hash(aabb.max)
 		
