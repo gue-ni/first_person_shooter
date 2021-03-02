@@ -5,8 +5,11 @@ const window_height = canvas.height
 
 const scene 	= new THREE.Scene()
 const camera 	= new THREE.PerspectiveCamera(75, window_width / window_height, 0.1, 1000)
-const renderer 	= new THREE.WebGLRenderer({canvas})
+const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true})
 renderer.setClearColor("#222222")
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.BasicShadowMap
+//renderer.shadowMap.autoUpdate  = false
 
 window.addEventListener('resize', () => {
 	let width = window_width
@@ -36,11 +39,11 @@ const map_width = 50, map_depth = 50
 const objects 	= []
 const rays 		= []
 
-for (let i = 0; i < 150; i++){
+for (let i = 0; i < 100; i++){
 	let testObject = new GameObject(scene);
 	testObject.addComponent(new Gravity(testObject));
 	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
-	testObject.addComponent(new Box(testObject, new THREE.Vector3(2,2,2), 0xff0051))
+	testObject.addComponent(new Box(testObject, new THREE.Vector3(2,2,2), 0xff0051, true, false))
 	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random() * 70), Math.floor(Math.random()*map_depth)-map_depth/2)
 	objects.push(testObject)
 }
@@ -49,7 +52,7 @@ for (let i = 0; i < 150; i++){
 let ground = new GameObject(scene);
 let ground_aabb = new AABB(ground, new THREE.Vector3(map_width,2,map_depth))
 ground.addComponent(ground_aabb)
-ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325))
+ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325, false, true))
 ground.position.set(0,0,0)
 
 // Create the Player
@@ -60,7 +63,7 @@ let gun = new SemiAutomaticWeapon(playerObject, rays)
 playerObject.addComponent(gun)
 playerObject.addComponent(new Gravity(playerObject))
 playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
-playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1, 2, 1), 0xff0051))
+playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1, 2, 1), 0xff0051, false, false))
 playerObject.position.set(5,2,10)
 playerObject.transform.add(camera)
 objects.push(playerObject)
@@ -85,13 +88,17 @@ let space_hash = new SpaceHash(2)
 let ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
 scene.add(ambientLight)
 
-let pointLight1 = new THREE.PointLight(0xffffff, 0.75);
+let pointLight1 = new THREE.PointLight(0xffffff, 1);
 pointLight1.position.set(25, 50, 25);
+pointLight1.castShadow = true
 scene.add(pointLight1);
 
-let pointLight2 = new THREE.PointLight(0xffffff, 0.75);
+
+let pointLight2 = new THREE.PointLight(0xffffff, 0.25);
 pointLight2.position.set(-25, 20, -25);
 scene.add(pointLight2);
+
+
 
 
 let then = 0, dt = 0
@@ -122,6 +129,8 @@ function animate(now) {
 		}
 	}
 	rays.length = 0
+
+	console.log(playerObject.position.y)
 
 	playerObject.transform.lookAt(player.cameraCenter)
 	

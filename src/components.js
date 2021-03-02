@@ -41,12 +41,15 @@ class Component {
 }
 
 class Box extends Component {
-	constructor(gameObject, size, box_color){
+	constructor(gameObject, size, box_color, cast, receive){
 		super(gameObject)
 		this.name = "box"
 		let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
 		let material = new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
-		this.gameObject.transform.add(new THREE.Mesh(geometry, material))
+		let box = new THREE.Mesh(geometry, material)
+		box.castShadow = cast
+		box.receiveShadow = receive
+		this.gameObject.transform.add(box)
 	}
 }
 
