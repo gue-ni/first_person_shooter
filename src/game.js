@@ -43,27 +43,26 @@ for (let i = 0; i < 50; i++){
 	let testObject = new GameObject(scene);
 	testObject.addComponent(new Gravity(testObject));
 	testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
-	testObject.addComponent(new Box(testObject, new THREE.Vector3(2,2,2), 0xff0051, true, false))
-	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random() * 70), Math.floor(Math.random()*map_depth)-map_depth/2)
+	testObject.addComponent(new Box(testObject,  new THREE.Vector3(2,2,2), 0xff0051, true, false))
+	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, 
+							Math.floor(Math.random() * 70), 
+							Math.floor(Math.random()*map_depth)-map_depth/2)
 	objects.push(testObject)
 }
 
 // Create the Ground
 let ground = new GameObject(scene);
-let ground_aabb = new AABB(ground, new THREE.Vector3(map_width,2,map_depth))
-ground.addComponent(ground_aabb)
+let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,2,map_depth)))
 ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325, false, true))
 ground.position.set(0,-2,0)
 
 // Create the Player
 let playerObject = new GameObject(scene);
-let player = new Player(playerObject)
-playerObject.addComponent(player)
-let gun = new SemiAutomaticWeapon(playerObject, rays)
-playerObject.addComponent(gun)
+let player 	= playerObject.addComponent(new Player(playerObject))
+let gun 	= playerObject.addComponent(new SemiAutomaticWeapon(playerObject, rays))
 playerObject.addComponent(new Gravity(playerObject))
 playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
-playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1, 2, 1), 0xff0051, false, false))
+playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1,2,1), 0xff0051, false, false))
 playerObject.position.set(0,5,0)
 playerObject.transform.add(camera)
 objects.push(playerObject)

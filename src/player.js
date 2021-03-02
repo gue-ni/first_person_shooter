@@ -3,7 +3,7 @@ class Player extends Component {
         super(gameObject)
         this.name = "player"
 		this.id 		= Math.floor(Math.random() * 100) + 1
-        this.direction  = new THREE.Vector3(0, 0,-1)
+        this.direction  = new THREE.Vector3(1, 0, 0)
         this.center     = new THREE.Vector3(0, 0, 0)
 		this.yaw 		= -0.5 * Math.PI
 		this.pitch 		= 0
