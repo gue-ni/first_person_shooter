@@ -1,19 +1,12 @@
 
-const window_width 	= 640
-const window_height = 480
+const canvas = document.querySelector('#c');
+const window_width 	= canvas.width
+const window_height = canvas.height
 
 const scene 	= new THREE.Scene()
-//const camera 	= new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 const camera 	= new THREE.PerspectiveCamera(75, window_width / window_height, 0.1, 1000)
-const canvas = document.querySelector('#c');
 const renderer 	= new THREE.WebGLRenderer({canvas})
 renderer.setClearColor("#222222")
-
-//renderer.setSize( window.innerWidth, window.innerHeight )
-/*renderer.setSize(window_width, window_height)
-var canvas = renderer.domElement
-document.body.appendChild(canvas)
-*/
 
 window.addEventListener('resize', () => {
 	let width = window_width
@@ -23,10 +16,10 @@ window.addEventListener('resize', () => {
 	camera.updateProjectionMatrix()
 })
 
-canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
-document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
+document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
 canvas.onclick = function() { canvas.requestPointerLock(); };
-document.addEventListener('pointerlockchange', lockChangeAlert, false);
+document.addEventListener('pointerlockchange', 	  lockChangeAlert, false);
 document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
 function lockChangeAlert() {
 	if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
@@ -35,6 +28,8 @@ function lockChangeAlert() {
 		document.removeEventListener("mousemove", mouse, false);
 	}
 }
+
+let debug = document.querySelector('#debug')
 
 const map_width = 50
 const map_depth = 50
@@ -60,10 +55,11 @@ ground.addComponent(new Box(ground, new THREE.Vector3(100,2,100), 0x90b325))
 var playerObject = new GameObject(scene);
 var player = new Player(playerObject)
 playerObject.addComponent(player)
+var gun = new SemiAutomaticWeapon(playerObject, rays)
+playerObject.addComponent(gun)
 playerObject.addComponent(new Gravity(playerObject))
-playerObject.addComponent(new SemiAutomaticWeapon(playerObject, rays))
 playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,1)))
-playerObject.addComponent(new Box(playerObject, new THREE.Vector3(1, 2, 1), 0xff0051))
+playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1, 2, 1), 0xff0051))
 playerObject.position.set(5,2,10)
 objects.push(playerObject)
 
@@ -81,8 +77,8 @@ function mouse(event){
     player.direction.normalize()
 }
 
-camera.position.set(5,2,10)
-camera.lookAt(0,0,0)
+let space_hash = new SpaceHash(200)
+
 
 var ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
 scene.add(ambientLight)
@@ -91,36 +87,44 @@ var pointLight = new THREE.PointLight(0xffffff, 1);
 pointLight.position.set(25, 50, 25);
 scene.add(pointLight);
 
+camera.position.copy(playerObject.position)
+
 let then = 0
 function animate(now) {
 	now 		*= 0.001;
 	const dt 	= now - then;
 	then 		= now;
 
+	space_hash.clear()
+    objects.forEach(object => space_hash.insert(object.getComponent("aabb")))
 
 	for (let object of objects){
 		object.update(dt);
+		let aabb = object.getComponent("aabb")
 
-		for (let others of objects){
+		for (let others of space_hash.search(aabb)){
 			if (others != object){
-				others.getComponent("aabb").collide(object)
+				others.collideAABB(aabb)
 			}
 		}
 
-		ground_aabb.collide(object)
+		ground_aabb.collideAABB(aabb)
 		
 		for (let ray of rays){
-			if (ray.intersect(object.getComponent("aabb")) && object != playerObject){
+			if (ray.intersect(aabb) && object != playerObject){
 				console.log("hit")
 			}
 		}
 	}
 	rays.length = 0
 
-	camera.position.copy(playerObject.position)
-	camera.lookAt(player.cameraCenter)
+	//camera.position.copy(playerObject.position)
+	//camera.lookAt(player.cameraCenter)
 	playerObject.transform.lookAt(player.cameraCenter)
+	//gun.mesh.lookAt(player.cameraCenter)
 
+	camera.lookAt(playerObject.position)
+	
 	renderer.render(scene, camera)
 	requestAnimationFrame(animate)
 }

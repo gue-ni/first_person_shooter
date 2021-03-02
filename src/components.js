@@ -75,15 +75,51 @@ class AABB extends Component {
          	   (point.x >= this.minX/2 && point.x <= this.maxX)
 	}
 
-	intersect(b){
-		return (this.minX < b.maxX && this.maxX > b.minX) &&
-	           (this.minY < b.maxY && this.maxY > b.minY) &&
-		       (this.minZ < b.maxZ && this.maxZ > b.minZ)
+	intersect(aabb){
+		return (this.minX < aabb.maxX && this.maxX > aabb.minX) &&
+	           (this.minY < aabb.maxY && this.maxY > aabb.minY) &&
+		       (this.minZ < aabb.maxZ && this.maxZ > aabb.minZ)
+	}
+
+	collideAABB(aabb){
+		let d0, d1, x, y, z
+		if (this.intersect(aabb)){
+			if (this.gameObject.velocity.length() < aabb.gameObject.velocity.length()){
+				d0 = aabb.maxX - this.minX
+				d1 = this.maxX - aabb.minX
+				x = (d0 < d1 ? d0 : -d1)
+
+				d0 = aabb.maxY - this.minY
+				d1 = this.maxY - aabb.minY
+				y = (d0 < d1 ? d0 : -d1)
+
+				d0 = aabb.maxZ - this.minZ
+				d1 = this.maxZ - aabb.minZ
+				z = (d0 < d1 ? d0 : -d1)
+
+				if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
+					aabb.gameObject.position.setY(aabb.gameObject.position.y-y)
+					aabb.gameObject.velocity.y = 0
+					return
+				}
+
+				if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
+					aabb.gameObject.position.setX(aabb.gameObject.position.x-x)  
+					aabb.gameObject.velocity.x = 0
+					return
+				}
+
+				if (Math.abs(y) > Math.abs(z) && Math.abs(x) > Math.abs(z)){
+					aabb.gameObject.position.setZ(aabb.gameObject.position.z-z)  
+					aabb.gameObject.velocity.z = 0
+					return
+				}
+			}
+		}
 	}
 
 	collide(gameObject){
 		var b = gameObject.getComponent("aabb")
-
 		if (b != undefined){
 			let d0, d1, x, y, z
 			if (this.intersect(b)){
@@ -102,19 +138,19 @@ class AABB extends Component {
 					z = (d0 < d1 ? d0 : -d1)
 
 					if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
-						gameObject.position.set(gameObject.position.x, gameObject.position.y-y, gameObject.position.z)  
+						gameObject.position.setX(b.gameObject.position.x-x)  
 						gameObject.velocity.y = 0
 						return
 					}
 
 					if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
-						gameObject.position.set(gameObject.position.x-x, gameObject.position.y, gameObject.position.z)  
+						gameObject.position.setY(gameObject.position.y-y)  
 						gameObject.velocity.x = 0
 						return
 					}
 
 					if (Math.abs(y) > Math.abs(z) && Math.abs(x) > Math.abs(z)){
-						gameObject.position.set(gameObject.position.x, gameObject.position.y, gameObject.position.z-z)  
+						gameObject.position.setZ(gameObject.position.z-z)  
 						gameObject.velocity.z = 0
 						return
 					}
@@ -142,9 +178,9 @@ class SemiAutomaticWeapon extends Component {
 		this.name = "weapon"
 		var geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
 		var material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
-		var mesh = new THREE.Mesh(geometry, material)
-		mesh.position.set(-0.5, -0.5, 1)
-		this.gameObject.transform.add(mesh)
+		this.mesh = new THREE.Mesh(geometry, material)
+		this.mesh.position.set(-0.5, -0.5, 1)
+		this.gameObject.transform.add(this.mesh)
 
 		var player = this.gameObject.getComponent("player")
 
