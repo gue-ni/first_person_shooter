@@ -185,13 +185,12 @@ class SemiAutomaticWeapon extends Component {
 		let geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
 		let material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
 		this.mesh = new THREE.Mesh(geometry, material)
-		this.mesh.position.set(-0.5, -0.5, 1)
+		this.mesh.position.set(0.5, -0.5, -1)
 		this.gameObject.transform.add(this.mesh)
 
 		let player = this.gameObject.getComponent("player")
 
 		document.body.addEventListener("mousedown", e => {
-			//console.log("fire")
 			rays[rays.length] = new Ray(this.gameObject.position, player.direction)
 		})	
 	}
