@@ -1,11 +1,6 @@
+# 3d multiplayer shooter in three.js and websockets
 
-# Sprites
-https://editor.p5js.org/codingtrain/sketches/vhnFx1mml
-
-# 3d multiplayer shooter in p5js and websockets
-
-# structure
-
+https://developer.mozilla.org/en-US/docs/Games
 
 
 
