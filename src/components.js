@@ -190,11 +190,13 @@ export class SemiAutomaticWeapon extends Component {
 		//let mesh = new THREE.Mesh(geometry, material)
 
      	const gltfLoader = new GLTFLoader();
-	    gltfLoader.load('assets/gun.glb', (gltf) => {
+	    gltfLoader.load('assets/ak47.glb', (gltf) => {
 	      let model = gltf.scene;
-	      model.position.set(0.5, -0.7, -1)
+	      model.position.set(0.24, -0.32, -0.7)
 	      model.rotateY(-Math.PI/2)
-	      model.scale.set(0.2, 0.2, 0.2)
+	      //model.rotateZ(-0.03491)
+
+	      model.scale.set(0.075, 0.075, 0.075)
 	      this.gameObject.transform.add(model);
 	    });
 

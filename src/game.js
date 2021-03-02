@@ -10,14 +10,14 @@ const window_width 	= canvas.width
 const window_height = canvas.height
 
 const scene 	= new THREE.Scene()
-const camera 	= new THREE.PerspectiveCamera(75, window_width / window_height, 0.1, 1000)
+const camera 	= new THREE.PerspectiveCamera(60, window_width / window_height, 0.1, 1000)
 const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true})
 renderer.setClearColor("#222222")
 
-
+/*
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap
-
+*/
 
 window.addEventListener('resize', () => {
 	let width = window_width
@@ -98,16 +98,17 @@ let space_hash = new SpaceHash(2)
 // create ligths
 scene.add(new THREE.AmbientLight(0xffffff, 0.2))
 
-/*
-let pointLight1 = new THREE.PointLight(0xffffff, 1);
+
+let pointLight1 = new THREE.PointLight(0xffffff, 0.5);
 pointLight1.position.set(25, 50, 25);
 scene.add(pointLight1);
-*/
+
 
 let pointLight2 = new THREE.PointLight(0xffffff, 0.5);
 pointLight2.position.set(-25, 20, -25);
 scene.add(pointLight2);
 
+/*
 const light = new THREE.DirectionalLight(0xffffff, 1, 100);
 light.position.set(0, 50, 50); 
 light.castShadow 			=  true; 
@@ -120,6 +121,7 @@ light.shadow.camera.bottom 	= -100
 light.shadow.camera.top  	=  100
 light.shadow.camera.right	=  100
 scene.add(light)
+*/
 
 playerObject.transform.add(camera)
 
