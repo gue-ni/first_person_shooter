@@ -1,21 +1,25 @@
-
 import * as THREE from './three/build/three.module.js';
-import { GameObject, AABB, Box, Gravity, Ray, SemiAutomaticWeapon } from './components.js';
 
-import {Player} from './player.js'
-import {SpaceHash} from './spacehash.js'
+import { AABB, Box, Gravity, SemiAutomaticWeapon } from './components.js';
+import { GameObject} from './gameobject.js'
+import { WASDMovement, FPSCamera } from './input.js'
+import { Ray } from './ray.js'
+import { SpaceHash } from './spacehash.js'
 
-const canvas = document.querySelector('#c');
+const canvas  = document.querySelector('#c');
+const slider1 = document.querySelector('#slider')
 const window_width 	= canvas.width
 const window_height = canvas.height
 
 const scene 	= new THREE.Scene()
 const camera 	= new THREE.PerspectiveCamera(60, window_width / window_height, 0.1, 1000)
-const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true})
+const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: false})
 renderer.setClearColor("#222222")
 
+/*
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap
+*/
 
 window.addEventListener('resize', () => {
 	let width = window_width
@@ -24,7 +28,6 @@ window.addEventListener('resize', () => {
 	camera.aspect = width / height
 	camera.updateProjectionMatrix()
 })
-
 canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
 document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
 canvas.onclick = function() { canvas.requestPointerLock(); };
@@ -63,14 +66,15 @@ ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x
 ground.position.set(0,-2,0)
 
 // Create the Player
-let playerObject = new GameObject(scene)
-let player 	= playerObject.addComponent(new Player(playerObject))
-let gun 	= playerObject.addComponent(new SemiAutomaticWeapon(playerObject, rays))
-playerObject.addComponent(new Gravity(playerObject))
-playerObject.addComponent(new AABB(playerObject, new THREE.Vector3(1,2,0.5)))
-playerObject.addComponent(new Box(playerObject,  new THREE.Vector3(1,2,0.5), 0xff0051, true, false))
-playerObject.position.set(5,10,0)
-objects.push(playerObject)
+let player = new GameObject(scene)
+player.addComponent(new WASDMovement(player))
+let gun 	= player.addComponent(new SemiAutomaticWeapon(player, rays))
+let fpv = player.addComponent(new FPSCamera(player, camera))
+player.addComponent(new Gravity(player))
+player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
+player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, true, false))
+player.position.set(5,10,0)
+objects.push(player)
 
 
 let g = new GameObject(scene)
@@ -78,17 +82,17 @@ g.addComponent(new SemiAutomaticWeapon(g, rays))
 g.position.set(0,0,0)
 
 function mouse(event){
-	player.yaw   += (event.movementX * 0.1)
-    player.pitch += (event.movementY * 0.1)
+fpv.yaw   += (event.movementX * 0.1)
+fpv.pitch += (event.movementY * 0.1)
 
-    let pitch = -player.pitch;
-    if (pitch >  89) pitch =  89
-    if (pitch < -89) pitch = -89
+let pitch = -fpv.pitch;
+if (pitch >  89) pitch =  89
+if (pitch < -89) pitch = -89
 
-    player.direction.x = Math.cos(player.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-    player.direction.y = Math.sin(pitch*(Math.PI/180))
-    player.direction.z = Math.sin(player.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-    player.direction.normalize()
+player.direction.x = Math.cos(fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
+player.direction.y = Math.sin(pitch*(Math.PI/180))
+player.direction.z = Math.sin(fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
+player.direction.normalize()
 }
 
 let space_hash = new SpaceHash(2)
@@ -108,6 +112,7 @@ scene.add(pointLight2);
 
 const light = new THREE.DirectionalLight(0xffffff, 1, 100);
 light.position.set(0, 50, 50); 
+/*
 light.castShadow 			=  true; 
 light.shadow.mapSize.width 	=  512; 
 light.shadow.mapSize.height =  512; 
@@ -117,9 +122,10 @@ light.shadow.camera.left 	= -100
 light.shadow.camera.bottom 	= -100
 light.shadow.camera.top  	=  100
 light.shadow.camera.right	=  100
+*/
 scene.add(light)
 
-playerObject.transform.add(camera)
+//player.transform.add(camera)
 
 let then = 0, dt = 0
 function animate(now) {
@@ -143,7 +149,7 @@ function animate(now) {
 		ground_aabb.collideAABB(aabb)
 
 		for (let ray of rays){
-			if (ray.intersect(aabb) && object != playerObject){
+			if (ray.intersect(aabb) && object != player){
 				console.log("hit")
 			}
 		}
@@ -151,11 +157,12 @@ function animate(now) {
 
 	rays.length = 0
 
-	// debug
-	//camera.position.set(playerObject.position.x+5, playerObject.position.y+5, playerObject.z)
-	//camera.lookAt(playerObject.position)
 
-	playerObject.transform.lookAt(player.cameraCenter)
+	// debug
+	//camera.position.set(player.position.x+5, player.position.y+5, player.z)
+	//camera.lookAt(player.position)
+
+	//player.transform.lookAt(player.cameraCenter)
 	
 	renderer.render(scene, camera)
 	requestAnimationFrame(animate)

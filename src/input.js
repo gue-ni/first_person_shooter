@@ -2,16 +2,10 @@ import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 
 
-export class Player extends Component {
+export class WASDMovement extends Component {
 	constructor(gameObject){
         super(gameObject)
-        this.name = "player"
-		this.id 		= Math.floor(Math.random() * 100) + 1
-        this.direction  = new THREE.Vector3(1, 0, 0)
-        this.center     = new THREE.Vector3(0, 0, 0)
-		this.yaw 		= -0.5 * Math.PI
-		this.pitch 		= 0
-
+        this.name = "wasd"
         this.keyD       = false;   
         this.keyA       = false;   
         this.keyS       = false;   
@@ -59,31 +53,27 @@ export class Player extends Component {
         })
 	}
 
-    get cameraCenter(){
-        return this.center.subVectors(this.gameObject.position, this.direction)
-    } 
-
 	update(dt){
         let speed = 7 
         if (this.keyW){ // W
-            let tmp = this.direction.clone()
+            let tmp = this.gameObject.direction.clone()
             tmp.multiplyScalar(speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
 
         } else if(this.keyS){   // S
-            let tmp = this.direction.clone()
+            let tmp = this.gameObject.direction.clone()
             tmp.multiplyScalar(-speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
            
         } else if (this.keyD){  // D
-            let tmp = this.direction.clone().multiplyScalar(speed)
+            let tmp = this.gameObject.direction.clone().multiplyScalar(speed)
             this.gameObject.velocity.x = -tmp.z
             this.gameObject.velocity.z =  tmp.x 
 
         } else if (this.keyA){  // A
-            let tmp = this.direction.clone().multiplyScalar(speed)
+            let tmp = this.gameObject.direction.clone().multiplyScalar(speed)
             this.gameObject.velocity.x =  tmp.z
             this.gameObject.velocity.z = -tmp.x 
 
@@ -98,6 +88,15 @@ export class Player extends Component {
 	}
 }
 
-
+export class FPSCamera extends Component {
+    constructor(gameObject, camera){
+        super(gameObject)
+        this.name = "camera";
+        camera.position.set(0,0, 0)
+        this.gameObject.transform.add(camera)
+        this.yaw        = -0.5 * Math.PI
+        this.pitch      = 0
+    } 
+}
 
 
