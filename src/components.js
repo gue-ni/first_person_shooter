@@ -14,7 +14,7 @@ export class Box extends Component {
 	constructor(gameObject, size, box_color, castShadow, receiveShadow){
 		super(gameObject)
 		this.name = "box"
-		let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
+		let geometry = new THREE.BoxBufferGeometry(size.x, size.y, size.z)
 		let material = new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
 		let box = new THREE.Mesh(geometry, material)
 		box.castShadow = castShadow
@@ -28,6 +28,8 @@ export class AABB extends Component {
 		super(gameObject)
 		this.name = "aabb"
 		this.size = size;
+		//this._min = new THREE.Vector3(this.minX, this.minY, this.minZ)
+		//this._max =new THREE.Vector3(this.maxX, this.maxY, this.maxZ) }
 		//let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
 		//let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
 		//this.gameObject.transform.add(new THREE.Mesh(geometry, material))
@@ -148,38 +150,4 @@ export class Gravity extends Component {
 	}
 }
 
-
-
-export class SemiAutomaticWeapon extends Component {
-	constructor(gameObject, rays){
-		super(gameObject);
-		this.name = "weapon"
-		//let geometry = new THREE.BoxGeometry(0.5, 0.5, 1)
-		//let material = new THREE.MeshStandardMaterial({ color: 0xff0051, flatShading: true, metalness: 0, roughness: 1 })
-		//let mesh = new THREE.Mesh(geometry, material)
-
-     	const gltfLoader = new GLTFLoader();
-	    gltfLoader.load('assets/ak47.glb', (gltf) => {
-	      let model = gltf.scene;
-	      model.position.set(0.24, -0.32, -0.7)
-	      model.rotateY(-Math.PI/2)
-	      //model.rotateZ(-0.03491)
-
-	      model.scale.set(0.075, 0.075, 0.075)
-	      this.gameObject.transform.add(model);
-	    });
-
-		
-
-
-		//mesh.position.set(0.5, -0.5, -1)
-		//this.gameObject.transform.add(mesh)
-		/*
-		let player = this.gameObject.getComponent("player")
-		document.body.addEventListener("mousedown", e => {
-			rays[rays.length] = new Ray(this.gameObject.position, player.direction)
-		})
-		*/	
-	}
-}
 

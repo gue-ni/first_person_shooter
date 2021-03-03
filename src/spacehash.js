@@ -9,10 +9,16 @@ export class SpaceHash {
 	constructor(size){
 		this.size = size
 		this.space = new Map()
+		this._hash = new THREE.Vector3()
 	}
 
 	hash(vec){
-		return new THREE.Vector3(Math.floor(vec.x/this.size),Math.floor(vec.y/this.size),Math.floor(vec.z/this.size))
+		//var hash2 = new THREE.Vector3(Math.floor(vec.x/this.size),Math.floor(vec.y/this.size),Math.floor(vec.z/this.size))
+		this._hash.x = Math.floor(vec.x/this.size)
+		this._hash.y = Math.floor(vec.y/this.size)
+		this._hash.z = Math.floor(vec.z/this.size)
+//		return this._hash
+		return this._hash.clone()
 	}
 
 	clear(){
