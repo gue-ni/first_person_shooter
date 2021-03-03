@@ -1,9 +1,9 @@
 import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
-import { SemiAutomaticWeapon } from './weapons.js'
-import { AABB, Box, Gravity  } from './components.js';
-import { GameObject} from './gameobject.js'
+import { SemiAutomaticWeapon, FullyAutomaticWeapon } from './weapons.js'
+import { AABB, Box, Gravity } from './components.js';
+import { GameObject, GameObjectArray} from './gameobject.js'
 import { WASDMovement, FPSCamera } from './input.js'
 import { Ray } from './ray.js'
 import { SpaceHash } from './spacehash.js'
@@ -25,6 +25,7 @@ document.body.appendChild(stats.dom)
 
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap
+//renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.shadowMap.autoUpdate = false
 
 window.addEventListener('resize', () => {
@@ -48,23 +49,20 @@ function lockChangeAlert() {
 }
 
 const debug = document.querySelector('#debug')
-
 const map_width = 50, map_depth = 50
-
-const objects 	= []
-const boxes = []
-const rays 		= []
+const boxes 	= []
+const bullets 		= []
 const space_hash = new SpaceHash(2)
+const gameObjectArray = new GameObjectArray()
 
 
-for (let i = 0; i < 100; i++){
-	let testObject = new GameObject(scene)
-	//testObject.addComponent(new Gravity(testObject))
-	let aabb = testObject.addComponent(new AABB(testObject, new THREE.Vector3(2,2,2)))
-	testObject.addComponent(new Box(testObject,  new THREE.Vector3(2,2,2), 0xff0051, true, false))
+for (let i = 0; i < 5; i++){
+	let size 		= new THREE.Vector3(2,2,2)
+	let testObject 	= new GameObject(scene)
+	let aabb 		= testObject.addComponent(new AABB(testObject, size))
 
-	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, 
-							Math.floor(Math.random() * 10), 
+	testObject.addComponent(new Box(testObject,  size, 0xff0051, true, false))
+	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*10), 
 							Math.floor(Math.random()*map_depth)-map_depth/2)
 
 	testObject.transform.matrixAutoUpdate = false
@@ -75,27 +73,34 @@ for (let i = 0; i < 100; i++){
 }
 
 // Create the Ground
+
 let ground 		= new GameObject(scene)
 let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,2,map_depth)))
 ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325, false, true))
 ground.position.set(0,-2,0)
+ground.transform.matrixAutoUpdate = false
+ground.transform.updateMatrix();
+
 
 // Create the Player
+
 let player = new GameObject(scene)
-player.addComponent(new WASDMovement(player))
-//let gun = player.addComponent(new SemiAutomaticWeapon(player, rays))
 let fpv = player.addComponent(new FPSCamera(player, camera))
+player.addComponent(new WASDMovement(player))
+player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
+//player.addComponent(new SemiAutomaticWeapon(player, bullets))
 player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
-player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, true, false))
+player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, false, false))
 player.position.set(10,10,0)
-objects.push(player)
+gameObjectArray.add(player)
 
-/*
-let g = new GameObject(scene)
-g.addComponent(new SemiAutomaticWeapon(g, rays))
-g.position.set(0,0,0)
-*/
+let otherPlayer = new GameObject(scene);
+otherPlayer.addComponent(new Gravity(otherPlayer));
+otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
+otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
+otherPlayer.position.set(15, 10, 14)
+gameObjectArray.add(otherPlayer)
 
 
 function mouse(event){
@@ -113,7 +118,6 @@ function mouse(event){
 }
 
 
-// create ligths
 {
 	scene.add(new THREE.AmbientLight(0xffffff, 0.5))
 }
@@ -144,16 +148,35 @@ function mouse(event){
 }
 
 
-//player.transform.add(camera)
+let websocket = new WebSocket("ws://localhost:6788/");
+let users = document.querySelector('.users')
+
+websocket.onmessage = function (event) {
+	let data = JSON.parse(event.data);
+	switch (data.type) {
+
+	    case 'state':
+	       	//console.log(data) 
+	        break;
+
+	    case 'users':
+	        users.textContent = (data.count.toString() + (data.count == 1 ? " player" : " players"));
+	        break;
+
+	    default:
+	        console.error("unsupported event", data);
+	}
+};
 
 let then = 0, dt = 0
 let first = true
-function animate(now) {
+
+const animate = function(now) {
+	requestAnimationFrame(animate)
 
 	now *= 0.001;
 	dt   = now - then;
 	then = now;
-
 
 	if (first) {
 		renderer.shadowMap.needsUpdate = true
@@ -162,43 +185,48 @@ function animate(now) {
 		renderer.shadowMap.needsUpdate = false
 	}
 
-//	space_hash.clear()
-//    objects.forEach(object => space_hash.insert(object.getComponent("aabb")))
-	
-	for (let i = 0; i < objects.length; i++){
-		objects[i].update(dt);
-		let aabb = objects[i].getComponent("aabb")
+	gameObjectArray.forEach(gameObject => {
+		gameObject.update(dt);
 
-		for (let other of space_hash.find_possible_collisions(aabb)){
-			if (other != objects[i]){ other.collideAABB(aabb) }
+		let aabb = gameObject.getComponent("aabb");
+
+		for (let otherObject of space_hash.find_possible_collisions(aabb)){
+			if (otherObject != gameObject){ otherObject.collideAABB(aabb); }
 		}
+	
+		ground_aabb.collideAABB(aabb);
 
-		ground_aabb.collideAABB(aabb)
-		/*
-		for (let ray of rays){
-			if (ray.intersect(aabb) && objects[i] != player){
-				console.log("hit")
+		for (let bullet of bullets){
+			if (bullet.owner != gameObject){
+				if (bullet.intersect(aabb)){
+					console.log("hit")
+
+				}
 			}
 		}
-		*/
+	})
+
+	//console.log(bullets.length)
+	bullets.length = 0;
+
+	if (websocket.readyState === WebSocket.OPEN){
+		let data = {
+			action: 'update', 
+			id: player.id,
+			player_data: [player.position.x, player.position.y, player.position.z]
+		}
+		websocket.send(JSON.stringify(data));
 	}
-
-	//rays.length = 0
-
 
 	// debug
 	//camera.position.set(player.position.x+5, player.position.y+5, player.z)
 	//camera.lookAt(player.position)
-
 	
 	stats.update()	
-	/*console.log("Scene polycount:", renderer.info.render.triangles)
-	console.log("Active Drawcalls:", renderer.info.render.calls)
-	console.log("Textures in Memory", renderer.info.memory.textures)
-	console.log("Geometries in Memory", renderer.info.memory.geometries)*/
 	renderer.render(scene, camera)
-	requestAnimationFrame(animate)
 }
 
 requestAnimationFrame(animate)
+
+
 

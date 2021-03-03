@@ -12,6 +12,9 @@ export class WASDMovement extends Component {
         this.keyW       = false;  
         this.keySpace   = false; 
 
+        //this.duration = 2
+        //this.elapsed = 0
+
         document.addEventListener("keyup", (event) => {
             switch (event.keyCode) {
                 case 68: //d
@@ -54,6 +57,8 @@ export class WASDMovement extends Component {
 	}
 
 	update(dt){
+        //this.elapsed += dt;
+
         let speed = 7 
         if (this.keyW){ // W
             let tmp = this.gameObject.direction.clone()
@@ -83,7 +88,7 @@ export class WASDMovement extends Component {
         }
 
         if (this.keySpace && Math.abs(this.gameObject.velocity.y) < 0.5){ // SPACE
-            this.gameObject.velocity.y += 7
+            this.gameObject.velocity.y += 7;
         }
 	}
 }
@@ -92,7 +97,7 @@ export class FPSCamera extends Component {
     constructor(gameObject, camera){
         super(gameObject)
         this.name = "camera";
-        camera.position.set(0,0, 0)
+        camera.position.set(0,0,0)
         this.gameObject.transform.add(camera)
         this.yaw        = -0.5 * Math.PI
         this.pitch      = 0

@@ -37,22 +37,35 @@ async def unregister(websocket):
     USERS.remove(websocket)
     await notify_users()
 
+async def unregister2(websocket, id):
+    STATE["players"].pop(id)
+    USERS.remove(websocket)
+    await notify_users()
+
 
 async def counter(websocket, path):
     await register(websocket)
+    player_id = 0
+
     try:
         await websocket.send(state_event())
+
         async for message in websocket:
+
             data = json.loads(message)
+
             if data["action"] == "update":
-                STATE["players"][hash(websocket)] =  data["player_data"]                
+                
+                player_id = data["id"]       
+
+                STATE["players"][player_id] =  data["player_data"]                
                 print(STATE) 
                 await notify_state()
 
             else:
                 logging.info("unsupported event: {}", data)
     finally:
-        await unregister(websocket)
+        await unregister2(websocket, player_id)
 
 
 start_server = websockets.serve(counter, "localhost", 6788)
