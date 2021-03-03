@@ -3,7 +3,6 @@ import * as THREE from './three/build/three.module.js';
 export class GameObject {
 	constructor(parent){
 		this.id = Math.floor(Math.random() * 1000000000) // not really a good idea
-		console.log(this.id)
 		this.components = []
 		this.transform 	= new THREE.Object3D()
 		parent.add(this.transform)

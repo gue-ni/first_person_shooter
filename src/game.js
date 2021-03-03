@@ -52,6 +52,7 @@ const debug = document.querySelector('#debug')
 const map_width = 50, map_depth = 50
 const boxes 	= []
 const bullets 		= []
+let network_data = []
 const space_hash = new SpaceHash(2)
 const gameObjectArray = new GameObjectArray()
 
@@ -75,9 +76,9 @@ for (let i = 0; i < 5; i++){
 // Create the Ground
 
 let ground 		= new GameObject(scene)
-let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,2,map_depth)))
-ground.addComponent(new Box(ground, new THREE.Vector3(map_width,2,map_depth), 0x90b325, false, true))
-ground.position.set(0,-2,0)
+let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,10,map_depth)))
+ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), 0x90b325, false, true))
+ground.position.set(0,-10,0)
 ground.transform.matrixAutoUpdate = false
 ground.transform.updateMatrix();
 
@@ -93,15 +94,20 @@ player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, false, false))
 player.position.set(10,10,0)
+console.log(player.id)
+
+//network_data[players.id: [pl]]
+
 gameObjectArray.add(player)
 
+/*
 let otherPlayer = new GameObject(scene);
 otherPlayer.addComponent(new Gravity(otherPlayer));
 otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
 otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
 otherPlayer.position.set(15, 10, 14)
 gameObjectArray.add(otherPlayer)
-
+*/
 
 function mouse(event){
 	fpv.yaw   += (event.movementX * 0.1)
@@ -156,7 +162,26 @@ websocket.onmessage = function (event) {
 	switch (data.type) {
 
 	    case 'state':
-	       	//console.log(data) 
+	       	//console.log(data.players)
+	       	
+	       	for (let id in data.players){
+	       		if (!(id in network_data) && id != player.id){
+	       			console.log(`new player joined ${id}`)
+
+	       			let newPlayer = data.players[id]
+	       			console.log(newPlayer)
+
+	       			let otherPlayer = new GameObject(scene);
+					otherPlayer.addComponent(new Gravity(otherPlayer));
+					otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
+					otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
+					otherPlayer.position.set(newPlayer[0], newPlayer[1], newPlayer[2])
+					otherPlayer.id = id
+					gameObjectArray.add(otherPlayer)
+	       		}
+	       	}
+
+	       	network_data = data.players
 	        break;
 
 	    case 'users':
@@ -186,7 +211,16 @@ const animate = function(now) {
 	}
 
 	gameObjectArray.forEach(gameObject => {
-		gameObject.update(dt);
+
+		if (gameObject.id != player.id){
+			let pos = network_data[gameObject.id];
+			if (pos){
+				gameObject.position.set(pos[0], pos[1], pos[2])
+			}
+		} 
+
+
+		gameObject.update(dt)
 
 		let aabb = gameObject.getComponent("aabb");
 

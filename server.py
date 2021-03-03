@@ -5,7 +5,9 @@ import websockets
 
 logging.basicConfig()
 
+# { id1: [x,y,z], id2: [x,y,z]}
 STATE = {"players": dict()}
+
 USERS = set()
 
 def state_event():
