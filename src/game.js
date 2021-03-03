@@ -96,7 +96,6 @@ player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, false
 player.position.set(10,10,0)
 console.log(player.id)
 
-//network_data[players.id: [pl]]
 
 gameObjectArray.add(player)
 
@@ -166,10 +165,9 @@ websocket.onmessage = function (event) {
 	       	
 	       	for (let id in data.players){
 	       		if (!(id in network_data) && id != player.id){
-	       			console.log(`new player joined ${id}`)
-
 	       			let newPlayer = data.players[id]
-	       			console.log(newPlayer)
+	       			console.log(`new player ${id} joined ${newPlayer}`)
+
 
 	       			let otherPlayer = new GameObject(scene);
 					otherPlayer.addComponent(new Gravity(otherPlayer));
@@ -211,14 +209,12 @@ const animate = function(now) {
 	}
 
 	gameObjectArray.forEach(gameObject => {
-
 		if (gameObject.id != player.id){
 			let pos = network_data[gameObject.id];
 			if (pos){
 				gameObject.position.set(pos[0], pos[1], pos[2])
 			}
 		} 
-
 
 		gameObject.update(dt)
 
@@ -234,7 +230,6 @@ const animate = function(now) {
 			if (bullet.owner != gameObject){
 				if (bullet.intersect(aabb)){
 					console.log("hit")
-
 				}
 			}
 		}
