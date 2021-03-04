@@ -2,9 +2,9 @@ const express   = require('express');
 const http      = require('http');
 const websocket = require('ws');
 
-const app 		= express();
+const app 	= express();
 const server 	= http.createServer(app);
-const wss 		= new websocket.Server({ server });
+const wss 	= new websocket.Server({ server });
 
 // serve frontend 
 app.use(express.static('../client'));
@@ -18,37 +18,38 @@ const PLAYERS = {};
 
 wss.on('connection', (ws) => {
 
+	
 	let id = -1;
 
-    ws.on('message', message => {
+    	ws.on('message', message => {
 
-    	let data = JSON.parse(message);
-        let response = {};
+    		let data = JSON.parse(message);
+        	let response = {};
 
-    	if (id == -1) {
-            // TODO: this is the first message, notify users of new player
-            id = data.id;
-        }
+    		if (id == -1) {
+            		// TODO: this is the first message, notify users of new player
+            		id = data.id;
+        	}
 
-        if (data.player_data){
-        	PLAYERS[id] = data.player_data;
-            response.players = PLAYERS;
-            ws.send(JSON.stringify(response));
-        }
+        	if (data.player_data){
+        		PLAYERS[id] = data.player_data;
+            		response.players = PLAYERS;
+            		ws.send(JSON.stringify(response));
+        	}
 
-        if (data.bullets){
-            console.log("shot fired");
-        }    
+        	if (data.bullets){
+            		console.log("shot fired");
+        	}    
 
-        console.log(response)
-    });
+        	console.log(response)
+    	});
 
-    ws.on('close',() => {
-        // TODO: notify the others of disconnencted player
-    	delete(PLAYERS[id]);
-    })
+    	ws.on('close',() => {
+        	// TODO: notify the others of disconnencted player
+    		delete(PLAYERS[id]);
+    	})
 });
 
 server.listen(process.env.PORT || 5000, () => {
-    console.log(`Multiplayer server started on port ${server.address().port}`);
+ 	console.log(`Multiplayer server started on port ${server.address().port}`);
 });
