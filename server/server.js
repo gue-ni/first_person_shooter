@@ -2,6 +2,8 @@ const express   = require('express');
 const http      = require('http');
 const websocket = require('ws');
 
+const { Ray, AABB, Vector3 } = require('./collision.js')
+
 const app 	    = express();
 const server 	= http.createServer(app);
 const wss 	    = new websocket.Server({ server });
@@ -30,9 +32,7 @@ wss.on('connection', (ws) => {
         	// notify users of new player
             wss.clients.forEach( client => {
                 if (client !== ws && client.readyState === websocket.OPEN){
-
                     let new_player = { 'id': id, 'player_data': data.player_data};
-
                     client.send(JSON.stringify({connected: [new_player]}))
                 }
             })
@@ -47,7 +47,6 @@ wss.on('connection', (ws) => {
             if (connected_players.length > 0){
                 ws.send(JSON.stringify({connected: connected_players}))
             }
-
     	}
 
     	if (data.player_data){
@@ -57,8 +56,22 @@ wss.on('connection', (ws) => {
     	}
 
     	if (data.bullets){
-        	console.log("shot fired");
+
+            let box = new AABB([0,0,0], new Vector3(1,2,0.5));
+
+            for (let ray of data.bullets){
+                for (let player in PLAYERS){
+
+                    if (player != id){
+                        box.position = PLAYERS[player]
+                        if (Ray.intersect_box(ray, box)){
+                            console.log(`hit ${player} ${id}`)
+                        }
+                    }
+                }
+            }
     	}    
+
     	//console.log(response)
 	});
 
@@ -68,7 +81,8 @@ wss.on('connection', (ws) => {
             if (client !== ws && client.readyState === websocket.OPEN){
                 client.send(JSON.stringify({disconnected: id}))
             }
-        })
+        });
+
 		delete(PLAYERS[id]);
 	})
 });

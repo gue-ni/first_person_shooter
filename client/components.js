@@ -85,21 +85,23 @@ export class AABB extends Component {
 				if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
 					aabb.gameObject.position.setY(aabb.gameObject.position.y-y)
 					aabb.gameObject.velocity.setY(0)
-					return
+					return true
 				}
 
 				if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
 					aabb.gameObject.position.setX(aabb.gameObject.position.x-x)  
 					aabb.gameObject.velocity.setX(0)
-					return
+					return true
 				}
 
 				if (Math.abs(y) > Math.abs(z) && Math.abs(x) > Math.abs(z)){
 					aabb.gameObject.position.setZ(aabb.gameObject.position.z-z)  
 					aabb.gameObject.velocity.setZ(0)
-					return
+					return true
 				}
 			}
+		} else {
+			return false;
 		}
 	}
 

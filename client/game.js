@@ -55,13 +55,13 @@ let network_data = []
 const space_hash = new SpaceHash(2)
 const gameObjectArray = new GameObjectArray()
 
-for (let i = 0; i < 5; i++){
+for (let i = 0; i < 50; i++){
 	let size 		= new THREE.Vector3(2,2,2)
 	let testObject 	= new GameObject(scene)
 	let aabb 		= testObject.addComponent(new AABB(testObject, size))
 
 	testObject.addComponent(new Box(testObject,  size, 0xff0051, true, false))
-	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*10), 
+	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*10)-2, 
 							Math.floor(Math.random()*map_depth)-map_depth/2)
 
 	testObject.transform.matrixAutoUpdate = false
@@ -114,17 +114,6 @@ function mouse(event){
 {
 	scene.add(new THREE.AmbientLight(0xffffff, 0.5))
 }
-/*
-{
-	const light = new THREE.PointLight( 0xff0000, 1, 100 );
-	light.position.set( 50, 50, 50 );
-	scene.add( light );
-}
-*/
-{
-	//const light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
-	//scene.add( light );
-}
 {
 	const light = new THREE.DirectionalLight(0xffffff, 1, 100);
 	light.position.set(0, 50, 50); 
@@ -162,13 +151,8 @@ websocket.onmessage = function (event) {
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
 			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false));
 
-			newGameObject.position.set(player.player_data[0], 
-									   player.player_data[1], 
-									   player.player_data[2]);
-
-			newGameObject.direction.set(player.player_data[3], 
-									    player.player_data[4], 
-									    player.player_data[5]);
+			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
+			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
 
 			newGameObject.id = player.id;
 
@@ -195,10 +179,10 @@ const animate = function(now) {
 	then = now;
 
 	if (first) {
-		renderer.shadowMap.needsUpdate = true
+		renderer.shadowMap.needsUpdate = true;
 		first = false
 	} else {
-		renderer.shadowMap.needsUpdate = false
+		renderer.shadowMap.needsUpdate = false;
 	}
 
 	gameObjectArray.forEach(gameObject => {
@@ -206,18 +190,18 @@ const animate = function(now) {
 		if (gameObject.id != player.id){ 
 			let pos_and_dir = network_data[gameObject.id];
 			if (pos_and_dir){
-				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2])
-				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5])
+				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
+				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
 
-				let look = new THREE.Vector3()
-				look.subVectors(gameObject.position, gameObject.direction)
-				gameObject.transform.lookAt(look)
+				let look = new THREE.Vector3();
+				look.subVectors(gameObject.position, gameObject.direction);
+				gameObject.transform.lookAt(look);
 			}
 		} else { 
 
-			// should also be done for other non networking objects
+			// should also be done for other non networking objects, not just player
 
-			gameObject.update(dt)
+			gameObject.update(dt);
 
 			let aabb = gameObject.getComponent("aabb");
 
@@ -227,6 +211,7 @@ const animate = function(now) {
 		
 			ground_aabb.collideAABB(aabb);
 
+			// TODO remove
 			for (let bullet of bullets){
 				if (bullet.owner != gameObject){
 					if (bullet.intersect(aabb)){
@@ -237,30 +222,31 @@ const animate = function(now) {
 		}
 	})
 
+	//console.log(`${player.velocity.length()}`)
 
 	if (websocket.readyState === WebSocket.OPEN){
-		let data = {
-			'id': player.id,
-			'player_data': [  player.position.x, player.position.y, player.position.z,
-							player.direction.x, player.direction.y, player.direction.z ]
+		let data = {}
+
+		if (Math.abs(player.velocity.length()) > 0.1){
+			data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 		}
 
-		
 		if (bullets.length > 0){
 			let b = [];
 
-			bullets.forEach(bullet => {
-				b.push([ bullet.origin.x, 	 bullet.origin.y, 	 bullet.origin.z, 
-						 bullet.direction.x, bullet.direction.y, bullet.direction.z ]);
-			})
+			bullets.forEach(el => {
+				b.push([ el.origin.x,el.origin.y,el.origin.z, el.direction.x,el.direction.y,el.direction.z ]);
+			});
 
 			data['bullets'] = b
 		}
 		
-
-		websocket.send(JSON.stringify(data));
+		if (data.player_data || data.bullets){
+			data['id'] = player.id
+			if (data.bullets) console.log(data)
+			websocket.send(JSON.stringify(data));
+		}
 	}
-
 
 	bullets.length = 0;
 
