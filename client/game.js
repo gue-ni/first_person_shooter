@@ -161,19 +161,21 @@ let users = document.querySelector('.users')
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
-	if (data.players != undefined){
+	if (data.players){
        	for (let id in data.players){
        		if (!(id in network_data) && id != player.id){
-       			let newPlayer = data.players[id]
-       			console.log(`new player ${id} joined ${newPlayer}`)
 
-       			let otherPlayer = new GameObject(scene);
-				otherPlayer.addComponent(new Gravity(otherPlayer));
-				otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
-				otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
-				otherPlayer.position.set(newPlayer[0], newPlayer[1], newPlayer[2])
-				otherPlayer.id = id
-				gameObjectArray.add(otherPlayer)
+       			let newPlayer = data.players[id];
+       			console.log(`new player ${id} joined ${newPlayer}`);
+
+       			let newGameObject = new GameObject(scene);
+				newGameObject.addComponent(new Gravity(newGameObject));
+				newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
+				newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false));
+				newGameObject.position.set(newPlayer[0], newPlayer[1], newPlayer[2]);
+				newGameObject.id = id;
+
+				gameObjectArray.add(newGameObject);
        		}
        	}
        	network_data = data.players

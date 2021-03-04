@@ -14,6 +14,7 @@ app.use(express.static('../client'));
 const PLAYERS = {};
 
 // TODO: do bullet collision on server
+// TODO: create broadcast function
 
 wss.on('connection', (ws) => {
 
@@ -22,23 +23,29 @@ wss.on('connection', (ws) => {
     ws.on('message', message => {
 
     	let data = JSON.parse(message);
+        let response = {};
 
-    	if (id == -1) id = data.id;
+    	if (id == -1) {
+            // TODO: this is the first message, notify users of new player
+            id = data.id;
+        }
 
         if (data.player_data){
         	PLAYERS[id] = data.player_data;
-	        ws.send(JSON.stringify({"players": PLAYERS}));
-        	console.log(PLAYERS);
+            response.players = PLAYERS;
+            ws.send(JSON.stringify(response));
         }
 
         if (data.bullets){
             console.log("shot fired");
         }    
+
+        console.log(response)
     });
 
     ws.on('close',() => {
+        // TODO: notify the others of disconnencted player
     	delete(PLAYERS[id]);
-        // notify the others of disconnencted player
     })
 });
 
