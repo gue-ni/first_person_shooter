@@ -181,12 +181,13 @@ websocket.onmessage = function (event) {
 	       	}
 
 	       	network_data = data.players
-	       	users.textContent = Object.keys(network_data).length
 	        break;
 
+	    /*
 	    case 'users':
 	        users.textContent = (data.count.toString() + (data.count == 1 ? " player" : " players"));
 	        break;
+		*/
 
 	    default:
 	        console.error("unsupported event", data);
@@ -244,7 +245,7 @@ const animate = function(now) {
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {
-			action: 'update', 
+			type: 'state', 
 			id: player.id,
 			player_data: [player.position.x, player.position.y, player.position.z]
 		}
