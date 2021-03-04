@@ -52,26 +52,29 @@ wss.on('connection', (ws) => {
     	if (data.player_data){
     		PLAYERS[id] = data.player_data;
         	response.players = PLAYERS;
-        	ws.send(JSON.stringify(response));
     	}
 
     	if (data.bullets){
 
             let box = new AABB([0,0,0], new Vector3(1,2,0.5));
 
-            for (let ray of data.bullets){
+            for (let bullet_ray of data.bullets){
                 for (let player in PLAYERS){
 
-                    if (player != id){
+                    if (player != id){ // don't shoot yourself
+
                         box.position = PLAYERS[player]
-                        if (Ray.intersect_box(ray, box)){
-                            console.log(`hit ${player} ${id}`)
+                     
+                        if (Ray.intersect_box(bullet_ray, box)){
+                            console.log(`${id} hit ${player}`)
+                            response.hit = true
                         }
                     }
                 }
             }
     	}    
 
+        ws.send(JSON.stringify(response));
     	//console.log(response)
 	});
 

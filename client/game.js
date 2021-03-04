@@ -135,12 +135,14 @@ let users = document.querySelector('.users')
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
+	console.log(data.hit)
+
 	if (data.players){
        	network_data = data.players
 	}
 
 	if (data.connected){
-		console.log(`${data.connected.length} players connected`)
+		//console.log(`${data.connected.length} players connected`)
 		//console.log(data)
 		
 		for (let player of data.connected){
@@ -172,7 +174,7 @@ let then = 0, dt = 0
 let first = true
 
 const animate = function(now) {
-	requestAnimationFrame(animate)
+	requestAnimationFrame(animate);
 
 	now *= 0.001;
 	dt   = now - then;
@@ -211,6 +213,7 @@ const animate = function(now) {
 		
 			ground_aabb.collideAABB(aabb);
 
+			/*
 			// TODO remove
 			for (let bullet of bullets){
 				if (bullet.owner != gameObject){
@@ -219,6 +222,7 @@ const animate = function(now) {
 					}
 				}
 			}
+			*/
 		}
 	})
 
@@ -243,13 +247,13 @@ const animate = function(now) {
 		
 		if (data.player_data || data.bullets){
 			data['id'] = player.id
-			if (data.bullets) console.log(data)
+			
+			//if (data.bullets) console.log(data)
 			websocket.send(JSON.stringify(data));
 		}
 	}
 
 	bullets.length = 0;
-
 
 	// debug
 	//camera.position.set(player.position.x+5, player.position.y+5, player.z)

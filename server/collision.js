@@ -73,8 +73,8 @@ class AABB {
 	get maxZ(){ return this.position[2] + this.size.z/2 }
 }
 
-exports.Ray = Ray;
-exports.AABB = AABB;
+exports.Ray 	= Ray;
+exports.AABB 	= AABB;
 exports.Vector3 = Vector3;
 
 
