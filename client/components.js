@@ -16,10 +16,10 @@ export class Box extends Component {
 	constructor(gameObject, size, box_color, castShadow, receiveShadow){
 		super(gameObject)
 		this.name = "box"
-		let geometry = new THREE.BoxBufferGeometry(size.x, size.y, size.z)
-		let material = new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
-		this.mesh = new THREE.Mesh(geometry, material)
-		this.mesh.castShadow = castShadow
+		let geometry 	= new THREE.BoxBufferGeometry(size.x, size.y, size.z)
+		let material 	= new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
+		this.mesh 		= new THREE.Mesh(geometry, material)
+		this.mesh.castShadow 	= castShadow
 		this.mesh.receiveShadow = receiveShadow
 		this.gameObject.transform.add(this.mesh)
 	}
@@ -65,22 +65,22 @@ export class AABB extends Component {
 	}
 
 	collideAABB(aabb){
-		let d0, d1, x, y, z
 		if (this.intersect(aabb)){
-			//console.log("collides")
+
+			let d0, d1;
 
 			if (this.gameObject.velocity.length() < aabb.gameObject.velocity.length()){
 				d0 = aabb.maxX - this.minX
 				d1 = this.maxX - aabb.minX
-				x = (d0 < d1 ? d0 : -d1)
+				let x = (d0 < d1 ? d0 : -d1)
 
 				d0 = aabb.maxY - this.minY
 				d1 = this.maxY - aabb.minY
-				y = (d0 < d1 ? d0 : -d1)
+				let y = (d0 < d1 ? d0 : -d1)
 
 				d0 = aabb.maxZ - this.minZ
 				d1 = this.maxZ - aabb.minZ
-				z = (d0 < d1 ? d0 : -d1)
+				let z = (d0 < d1 ? d0 : -d1)
 
 				if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
 					aabb.gameObject.position.setY(aabb.gameObject.position.y-y)
@@ -88,16 +88,15 @@ export class AABB extends Component {
 					return
 				}
 
-
 				if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
 					aabb.gameObject.position.setX(aabb.gameObject.position.x-x)  
-					aabb.gameObject.velocity.x = 0
+					aabb.gameObject.velocity.setX(0)
 					return
 				}
 
 				if (Math.abs(y) > Math.abs(z) && Math.abs(x) > Math.abs(z)){
 					aabb.gameObject.position.setZ(aabb.gameObject.position.z-z)  
-					aabb.gameObject.velocity.z = 0
+					aabb.gameObject.velocity.setZ(0)
 					return
 				}
 			}

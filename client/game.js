@@ -140,8 +140,7 @@ function mouse(event){
 	scene.add(light)
 }
 
-
-let websocket = new WebSocket("ws://localhost:5000/");
+let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 let users = document.querySelector('.users')
 
 websocket.onmessage = function (event) {
