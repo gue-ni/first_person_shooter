@@ -162,12 +162,11 @@ websocket.onmessage = function (event) {
 
 	    case 'state':
 	       	//console.log(data.players)
-	       	
+
 	       	for (let id in data.players){
 	       		if (!(id in network_data) && id != player.id){
 	       			let newPlayer = data.players[id]
 	       			console.log(`new player ${id} joined ${newPlayer}`)
-
 
 	       			let otherPlayer = new GameObject(scene);
 					otherPlayer.addComponent(new Gravity(otherPlayer));
@@ -180,6 +179,7 @@ websocket.onmessage = function (event) {
 	       	}
 
 	       	network_data = data.players
+	       	users.textContent = Object.keys(network_data).length
 	        break;
 
 	    case 'users':
@@ -209,6 +209,8 @@ const animate = function(now) {
 	}
 
 	gameObjectArray.forEach(gameObject => {
+
+		
 		if (gameObject.id != player.id){
 			let pos = network_data[gameObject.id];
 			if (pos){
