@@ -30,6 +30,19 @@ export class GameObject {
 		this.transform.lookAt(look)
 	}
 
+	remove(parent){
+		for (let component of this.components){
+			if (component.mesh){
+				component.mesh.geometry.dispose()
+				component.mesh.material.dispose()
+				component.mesh.parent.remove(component)
+			}
+		}
+
+		parent.remove(this.transform)
+		this.transform = undefined
+	}
+
 	set position(pos){
 		this.transform.position.set(pos.x, pos.y, pos.z)
 	}	

@@ -2,9 +2,9 @@ const express   = require('express');
 const http      = require('http');
 const websocket = require('ws');
 
-const app 	= express();
+const app 	    = express();
 const server 	= http.createServer(app);
-const wss 	= new websocket.Server({ server });
+const wss 	    = new websocket.Server({ server });
 
 // serve frontend 
 app.use(express.static('../client'));
@@ -17,37 +17,61 @@ const PLAYERS = {};
 // TODO: create broadcast function
 
 wss.on('connection', (ws) => {
-
-	
 	let id = -1;
 
-    	ws.on('message', message => {
+	ws.on('message', message => {
 
-    		let data = JSON.parse(message);
-        	let response = {};
+		let data = JSON.parse(message);
+    	let response = {};
 
-    		if (id == -1) {
-            		// TODO: this is the first message, notify users of new player
-            		id = data.id;
-        	}
+		if (id == -1) { // first message
+        	id = data.id;
 
-        	if (data.player_data){
-        		PLAYERS[id] = data.player_data;
-            		response.players = PLAYERS;
-            		ws.send(JSON.stringify(response));
-        	}
+        	// notify users of new player
+            wss.clients.forEach( client => {
+                if (client !== ws && client.readyState === websocket.OPEN){
 
-        	if (data.bullets){
-            		console.log("shot fired");
-        	}    
+                    let player = { 'id': id, 'player_data': data.player_data};
 
-        	console.log(response)
-    	});
+                    client.send(JSON.stringify({connected: [player]}))
+                }
+            })
 
-    	ws.on('close',() => {
-        	// TODO: notify the others of disconnencted player
-    		delete(PLAYERS[id]);
-    	})
+            // notify user of other connected players
+            let connected_players = []
+
+            for (let player_id in PLAYERS){
+                connected_players.push({'id': player_id, 'player_data': PLAYERS[player_id]})
+            }
+
+            if (connected_players.length > 0){
+                ws.send(JSON.stringify({connected: connected_players}))
+            }
+
+    	}
+
+    	if (data.player_data){
+    		PLAYERS[id] = data.player_data;
+        	response.players = PLAYERS;
+        	ws.send(JSON.stringify(response));
+    	}
+
+    	if (data.bullets){
+        	console.log("shot fired");
+    	}    
+    	//console.log(response)
+	});
+
+	ws.on('close',() => {
+    	// TODO: notify the others of disconnencted player
+        wss.clients.forEach( client => {
+            if (client !== ws && client.readyState === websocket.OPEN){
+                //console.log("broadcast")
+                client.send(JSON.stringify({disconnencted: 1}))
+            }
+        })
+		delete(PLAYERS[id]);
+	})
 });
 
 server.listen(process.env.PORT || 5000, () => {

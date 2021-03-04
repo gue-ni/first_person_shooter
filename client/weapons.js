@@ -25,14 +25,14 @@ export class SemiAutomaticWeapon extends Component {
 		const gltf 			= await new Promise((resolve, reject) => {
 			gltfLoader.load(path, data=> resolve(data), null, reject);
 		});
-	    let model 			= gltf.scene;
+	    this.mesh 			= gltf.scene;
 
-	    //console.log(model)
+	    //console.log(this.mesh)
 
-  	    model.position.set(0.24, -0.7, -0.7)
-	    model.rotateY(Math.PI/2)
-	    model.scale.set(0.1, 0.1, 0.1)
-		this.gameObject.transform.add(model);
+  	    this.mesh.position.set(0.24, -0.7, -0.7)
+	    this.mesh.rotateY(Math.PI/2)
+	    this.mesh.scale.set(0.1, 0.1, 0.1)
+		this.gameObject.transform.add(this.mesh);
 
 	}
 }

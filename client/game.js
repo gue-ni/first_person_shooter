@@ -162,6 +162,7 @@ websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
 	if (data.players){
+		/*
        	for (let id in data.players){
        		if (!(id in network_data) && id != player.id){
 
@@ -178,7 +179,39 @@ websocket.onmessage = function (event) {
 				gameObjectArray.add(newGameObject);
        		}
        	}
+       	*/
        	network_data = data.players
+	}
+
+	if (data.connected){
+		console.log("new player(s) connected")
+		console.log(data)
+		
+		for (let player of data.connected){
+
+			let newPlayer = player;
+			console.log(`new player ${newPlayer.id} connected`);
+			console.log(newPlayer)
+
+			let newGameObject = new GameObject(scene);
+			newGameObject.addComponent(new Gravity(newGameObject));
+			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
+			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false));
+
+			newGameObject.position.set(newPlayer.player_data[0], 
+									   newPlayer.player_data[1], 
+									   newPlayer.player_data[2]);
+
+			newGameObject.id = newPlayer.id;
+
+			gameObjectArray.add(newGameObject);
+		}
+
+		
+	}
+
+	if (data.disconnected){
+		console.log("player disconnected")
 	}
 };
 
