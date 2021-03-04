@@ -9,15 +9,15 @@ const wss 		= new websocket.Server({ server });
 // serve frontend 
 app.use(express.static('../client'));
 
-//   id     pos
-// { 123: [x,y,z], 234: [x,y,z]}
-const PLAYERS = {}
+//   id     pos    dir
+// { 123: [x,y,z, x,y,z], 234: [x,y,z, x,y,z]}
+const PLAYERS = {};
 
 // TODO: do bullet collision on server
 
 wss.on('connection', (ws) => {
 
-	let id = -1
+	let id = -1;
 
     ws.on('message', message => {
 
@@ -25,17 +25,15 @@ wss.on('connection', (ws) => {
 
     	if (id == -1) id = data.id;
 
-        if (data.type == "state"){
+        if (data.player_data){
         	PLAYERS[id] = data.player_data;
-	        ws.send(JSON.stringify({"type": "state", "players": PLAYERS}));
-        	//console.log(PLAYERS);
+	        ws.send(JSON.stringify({"players": PLAYERS}));
+        	console.log(PLAYERS);
         }
 
-        if (data.type == "bullet"){
-            console.log(data);
-            // perform collision detection
-            // notify players if necessary
-        }
+        if (data.bullets){
+            console.log("shot fired");
+        }    
     });
 
     ws.on('close',() => {

@@ -160,37 +160,23 @@ let users = document.querySelector('.users')
 
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
-	switch (data.type) {
 
-	    case 'state':
-	       	//console.log(data.players)
+	if (data.players != undefined){
+       	for (let id in data.players){
+       		if (!(id in network_data) && id != player.id){
+       			let newPlayer = data.players[id]
+       			console.log(`new player ${id} joined ${newPlayer}`)
 
-	       	for (let id in data.players){
-	       		if (!(id in network_data) && id != player.id){
-	       			let newPlayer = data.players[id]
-	       			console.log(`new player ${id} joined ${newPlayer}`)
-
-	       			let otherPlayer = new GameObject(scene);
-					otherPlayer.addComponent(new Gravity(otherPlayer));
-					otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
-					otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
-					otherPlayer.position.set(newPlayer[0], newPlayer[1], newPlayer[2])
-					otherPlayer.id = id
-					gameObjectArray.add(otherPlayer)
-	       		}
-	       	}
-
-	       	network_data = data.players
-	        break;
-
-	    /*
-	    case 'users':
-	        users.textContent = (data.count.toString() + (data.count == 1 ? " player" : " players"));
-	        break;
-		*/
-
-	    default:
-	        console.error("unsupported event", data);
+       			let otherPlayer = new GameObject(scene);
+				otherPlayer.addComponent(new Gravity(otherPlayer));
+				otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
+				otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
+				otherPlayer.position.set(newPlayer[0], newPlayer[1], newPlayer[2])
+				otherPlayer.id = id
+				gameObjectArray.add(otherPlayer)
+       		}
+       	}
+       	network_data = data.players
 	}
 };
 
@@ -240,40 +226,34 @@ const animate = function(now) {
 		}
 	})
 
-	//console.log(bullets.length)
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {
-			type: 'state', 
 			id: player.id,
-			player_data: [player.position.x, player.position.y, player.position.z]
+			player_data: [  player.position.x, player.position.y, player.position.z,
+							player.direction.x, player.direction.y, player.direction.z ]
 		}
+
+		
+		if (bullets.length > 0){
+			let b = [];
+
+			bullets.forEach(bullet => {
+				b.push([ bullet.origin.x, 	 bullet.origin.y, 	 bullet.origin.z, 
+						 bullet.direction.x, bullet.direction.y, bullet.direction.z ]);
+			})
+
+			data['bullets'] = b
+		}
+		
+
 		websocket.send(JSON.stringify(data));
 	}
 
-	if (bullets.length > 0){
-		//console.log(`update bullets`)
-		console.log(bullets)
-
-		let b = [];
-
-		bullets.forEach(bullet => {
-			b.push([
-				bullet.origin.x, bullet.origin.y, bullet.origin.z, 
-				bullet.direction.x, bullet.direction.y, bullet.direction.z
-				]);
-		})
-
-		websocket.send(JSON.stringify({
-			type: 'bullet', 
-			id: player.id,
-			bullets: b
-		}))
-	}
 
 	bullets.length = 0;
 
-	
+
 	// debug
 	//camera.position.set(player.position.x+5, player.position.y+5, player.z)
 	//camera.lookAt(player.position)
