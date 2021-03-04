@@ -207,11 +207,9 @@ websocket.onmessage = function (event) {
 
 			gameObjectArray.add(newGameObject);
 		}
-
-		
 	}
 
-	if (data.disconnected){
+	if (data.disconnected){ // TODO implement
 		console.log("player disconnected")
 		console.log(data)
 	}
@@ -235,19 +233,20 @@ const animate = function(now) {
 	}
 
 	gameObjectArray.forEach(gameObject => {
-
 		
 		if (gameObject.id != player.id){ 
-			let pos = network_data[gameObject.id];
-			if (pos){
-				gameObject.position.set( pos[0], pos[1], pos[2])
-				gameObject.direction.set(pos[3], pos[4], pos[5])
+			let pos_and_dir = network_data[gameObject.id];
+			if (pos_and_dir){
+				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2])
+				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5])
 
 				let look = new THREE.Vector3()
 				look.subVectors(gameObject.position, gameObject.direction)
 				gameObject.transform.lookAt(look)
 			}
-		} else { // should also be done for other non networking objects
+		} else { 
+
+			// should also be done for other non networking objects
 
 			gameObject.update(dt)
 
