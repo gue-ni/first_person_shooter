@@ -155,7 +155,7 @@ function mouse(event){
 }
 
 
-let websocket = new WebSocket("ws://localhost:6788/");
+let websocket = new WebSocket("ws://localhost:5000/");
 let users = document.querySelector('.users')
 
 websocket.onmessage = function (event) {
@@ -241,7 +241,6 @@ const animate = function(now) {
 	})
 
 	//console.log(bullets.length)
-	bullets.length = 0;
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {
@@ -252,6 +251,29 @@ const animate = function(now) {
 		websocket.send(JSON.stringify(data));
 	}
 
+	if (bullets.length > 0){
+		//console.log(`update bullets`)
+		console.log(bullets)
+
+		let b = [];
+
+		bullets.forEach(bullet => {
+			b.push([
+				bullet.origin.x, bullet.origin.y, bullet.origin.z, 
+				bullet.direction.x, bullet.direction.y, bullet.direction.z
+				]);
+		})
+
+		websocket.send(JSON.stringify({
+			type: 'bullet', 
+			id: player.id,
+			bullets: b
+		}))
+	}
+
+	bullets.length = 0;
+
+	
 	// debug
 	//camera.position.set(player.position.x+5, player.position.y+5, player.z)
 	//camera.lookAt(player.position)

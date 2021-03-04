@@ -28,7 +28,7 @@ wss.on('connection', (ws) => {
         if (data.type == "state"){
         	PLAYERS[id] = data.player_data;
 	        ws.send(JSON.stringify({"type": "state", "players": PLAYERS}));
-        	console.log(PLAYERS);
+        	//console.log(PLAYERS);
         }
 
         if (data.type == "bullet"){
@@ -44,6 +44,6 @@ wss.on('connection', (ws) => {
     })
 });
 
-server.listen(process.env.PORT || 6788, () => {
+server.listen(process.env.PORT || 5000, () => {
     console.log(`Multiplayer server started on port ${server.address().port}`);
 });
