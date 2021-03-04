@@ -8,20 +8,20 @@ const wss 		= new websocket.Server({ server });
 
 const PLAYERS = {}
 
+// TODO: do bullet collision on server
+
 wss.on('connection', (ws) => {
 
-	let id = 0
+	let id = -1
 
     ws.on('message', message => {
 
-    	let player_data = JSON.parse(message)
+    	let data = JSON.parse(message)
 
-    	if (id == 0){
-	       	id = player_data.id;
-    	}	
+    	if (id == -1) id = data.id;
 
-        if (player_data.action == "update"){
-        	PLAYERS[id] = player_data.player_data
+        if (data.action == "update"){
+        	PLAYERS[id] = data.player_data
 	        ws.send(JSON.stringify({"type": "state", "players": PLAYERS}))
         	console.log(PLAYERS)
         }

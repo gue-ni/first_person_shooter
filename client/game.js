@@ -93,7 +93,9 @@ player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
 player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, false, false))
-player.position.set(10,10,0)
+player.position.set(Math.floor(Math.random()*map_width)-map_width/2, 
+					Math.floor(Math.random()*5), 
+					Math.floor(Math.random()*map_depth)-map_depth/2)
 console.log(player.id)
 
 
