@@ -2,6 +2,7 @@ import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 
 
+
 export class WASDMovement extends Component {
 	constructor(gameObject){
         super(gameObject)

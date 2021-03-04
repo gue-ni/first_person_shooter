@@ -1,3 +1,4 @@
+//import * as THREE from './three.module.js';
 import * as THREE from './three/build/three.module.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { GameObject} from './gameobject.js'

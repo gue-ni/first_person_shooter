@@ -32,11 +32,15 @@ export class GameObject {
 
 	remove(parent){
 		for (let component of this.components){
+			/*
 			if (component.mesh){
 				component.mesh.geometry.dispose()
 				component.mesh.material.dispose()
 				component.mesh.parent.remove(component)
 			}
+			*/
+
+			component.remove()
 		}
 
 		parent.remove(this.transform)
@@ -68,7 +72,14 @@ export class GameObjectArray {
 	}
 
 	remove(element){
-		this.toRemove.push(element)
+		this.toRemove.add(element)
+	}
+
+	get(id){
+		for (let element of this.array){
+			if (element.id === id) return element;
+		}
+		return undefined
 	}
 
 	forEach(f) {

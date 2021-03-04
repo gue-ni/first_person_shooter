@@ -2,11 +2,11 @@ import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { SemiAutomaticWeapon, FullyAutomaticWeapon } from './weapons.js'
-import { AABB, Box, Gravity } from './components.js';
 import { GameObject, GameObjectArray} from './gameobject.js'
+import { AABB, Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera } from './input.js'
-import { Ray } from './ray.js'
 import { SpaceHash } from './spacehash.js'
+import { Ray } from './ray.js'
 
 const canvas  = document.querySelector('#c');
 const slider1 = document.querySelector('#slider')
@@ -50,12 +50,10 @@ function lockChangeAlert() {
 
 const debug = document.querySelector('#debug')
 const map_width = 50, map_depth = 50
-const boxes 	= []
-const bullets 		= []
+const bullets 	 = []
 let network_data = []
 const space_hash = new SpaceHash(2)
 const gameObjectArray = new GameObjectArray()
-
 
 for (let i = 0; i < 5; i++){
 	let size 		= new THREE.Vector3(2,2,2)
@@ -70,7 +68,6 @@ for (let i = 0; i < 5; i++){
 	testObject.transform.updateMatrix();
 
 	space_hash.insert(aabb)
-	boxes.push(aabb)
 }
 
 // Create the Ground
@@ -81,7 +78,6 @@ ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), 0
 ground.position.set(0,-10,0)
 ground.transform.matrixAutoUpdate = false
 ground.transform.updateMatrix();
-
 
 // Create the Player
 
@@ -98,17 +94,7 @@ player.position.set(Math.floor(Math.random()*map_width)-map_width/2,
 					Math.floor(Math.random()*map_depth)-map_depth/2)
 console.log(player.id)
 
-
 gameObjectArray.add(player)
-
-/*
-let otherPlayer = new GameObject(scene);
-otherPlayer.addComponent(new Gravity(otherPlayer));
-otherPlayer.addComponent(new AABB(otherPlayer, new THREE.Vector3(1,2,0.5)))
-otherPlayer.addComponent(new Box(otherPlayer,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false))
-otherPlayer.position.set(15, 10, 14)
-gameObjectArray.add(otherPlayer)
-*/
 
 function mouse(event){
 	fpv.yaw   += (event.movementX * 0.1)
@@ -162,24 +148,6 @@ websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
 	if (data.players){
-		/*
-       	for (let id in data.players){
-       		if (!(id in network_data) && id != player.id){
-
-       			let newPlayer = data.players[id];
-       			console.log(`new player ${id} joined ${newPlayer}`);
-
-       			let newGameObject = new GameObject(scene);
-				newGameObject.addComponent(new Gravity(newGameObject));
-				newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
-				newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false));
-				newGameObject.position.set(newPlayer[0], newPlayer[1], newPlayer[2]);
-				newGameObject.id = id;
-
-				gameObjectArray.add(newGameObject);
-       		}
-       	}
-       	*/
        	network_data = data.players
 	}
 
@@ -210,8 +178,10 @@ websocket.onmessage = function (event) {
 	}
 
 	if (data.disconnected){ // TODO implement
-		console.log("player disconnected")
-		console.log(data)
+		console.log(`player ${data.disconnected} disconnected`)
+		let gameObject = gameObjectArray.get(data.disconnected)
+		gameObject.remove(scene);
+		gameObjectArray.remove(gameObject)
 	}
 };
 

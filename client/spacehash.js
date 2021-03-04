@@ -2,8 +2,8 @@
 /*
 	TODO: only update the ones that have actually moved
 */
-import * as THREE from './three/build/three.module.js';
 
+import * as THREE from './three/build/three.module.js';
 
 export class SpaceHash {
 	constructor(size){

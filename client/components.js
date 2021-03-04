@@ -1,5 +1,6 @@
 import * as THREE from './three/build/three.module.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
+
 import { GameObject} from './gameobject.js'
 
 export class Component {
@@ -8,6 +9,7 @@ export class Component {
 		this.name = "component"
 	}
 	update(dt){}
+	remove(){}
 }
 
 export class Box extends Component {
@@ -20,6 +22,12 @@ export class Box extends Component {
 		this.mesh.castShadow = castShadow
 		this.mesh.receiveShadow = receiveShadow
 		this.gameObject.transform.add(this.mesh)
+	}
+
+	remove(){
+		this.mesh.geometry.dispose()
+		this.mesh.material.dispose()
+		this.mesh.parent.remove(this.mesh)
 	}
 }
 

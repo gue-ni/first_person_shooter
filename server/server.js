@@ -63,7 +63,7 @@ wss.on('connection', (ws) => {
 	});
 
 	ws.on('close',() => {
-    	// notify the others of disconnencted player
+    	// notify the others of disconnected player
         wss.clients.forEach( client => {
             if (client !== ws && client.readyState === websocket.OPEN){
                 client.send(JSON.stringify({disconnected: id}))
@@ -74,5 +74,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(process.env.PORT || 5000, () => {
- 	console.log(`Multiplayer server started on port ${server.address().port}`);
+ 	console.log(`Multiplayer server started at http://localhost:${server.address().port}`);
 });
