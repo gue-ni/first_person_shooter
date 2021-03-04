@@ -31,9 +31,9 @@ wss.on('connection', (ws) => {
             wss.clients.forEach( client => {
                 if (client !== ws && client.readyState === websocket.OPEN){
 
-                    let player = { 'id': id, 'player_data': data.player_data};
+                    let new_player = { 'id': id, 'player_data': data.player_data};
 
-                    client.send(JSON.stringify({connected: [player]}))
+                    client.send(JSON.stringify({connected: [new_player]}))
                 }
             })
 
@@ -63,11 +63,10 @@ wss.on('connection', (ws) => {
 	});
 
 	ws.on('close',() => {
-    	// TODO: notify the others of disconnencted player
+    	// notify the others of disconnencted player
         wss.clients.forEach( client => {
             if (client !== ws && client.readyState === websocket.OPEN){
-                //console.log("broadcast")
-                client.send(JSON.stringify({disconnencted: 1}))
+                client.send(JSON.stringify({disconnected: id}))
             }
         })
 		delete(PLAYERS[id]);

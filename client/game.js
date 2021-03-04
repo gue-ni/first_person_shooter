@@ -184,25 +184,26 @@ websocket.onmessage = function (event) {
 	}
 
 	if (data.connected){
-		console.log("new player(s) connected")
-		console.log(data)
+		console.log(`${data.connected.length} players connected`)
+		//console.log(data)
 		
 		for (let player of data.connected){
-
-			let newPlayer = player;
-			console.log(`new player ${newPlayer.id} connected`);
-			console.log(newPlayer)
+			console.log(`player ${player.id} connected`);
 
 			let newGameObject = new GameObject(scene);
 			newGameObject.addComponent(new Gravity(newGameObject));
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
 			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), 0x0A75AD, false, false));
 
-			newGameObject.position.set(newPlayer.player_data[0], 
-									   newPlayer.player_data[1], 
-									   newPlayer.player_data[2]);
+			newGameObject.position.set(player.player_data[0], 
+									   player.player_data[1], 
+									   player.player_data[2]);
 
-			newGameObject.id = newPlayer.id;
+			newGameObject.direction.set(player.player_data[3], 
+									    player.player_data[4], 
+									    player.player_data[5]);
+
+			newGameObject.id = player.id;
 
 			gameObjectArray.add(newGameObject);
 		}
@@ -212,6 +213,7 @@ websocket.onmessage = function (event) {
 
 	if (data.disconnected){
 		console.log("player disconnected")
+		console.log(data)
 	}
 };
 
@@ -235,27 +237,33 @@ const animate = function(now) {
 	gameObjectArray.forEach(gameObject => {
 
 		
-		if (gameObject.id != player.id){
+		if (gameObject.id != player.id){ 
 			let pos = network_data[gameObject.id];
 			if (pos){
-				gameObject.position.set(pos[0], pos[1], pos[2])
+				gameObject.position.set( pos[0], pos[1], pos[2])
+				gameObject.direction.set(pos[3], pos[4], pos[5])
+
+				let look = new THREE.Vector3()
+				look.subVectors(gameObject.position, gameObject.direction)
+				gameObject.transform.lookAt(look)
 			}
-		} 
+		} else { // should also be done for other non networking objects
 
-		gameObject.update(dt)
+			gameObject.update(dt)
 
-		let aabb = gameObject.getComponent("aabb");
+			let aabb = gameObject.getComponent("aabb");
 
-		for (let otherObject of space_hash.find_possible_collisions(aabb)){
-			if (otherObject != gameObject){ otherObject.collideAABB(aabb); }
-		}
-	
-		ground_aabb.collideAABB(aabb);
+			for (let otherObject of space_hash.find_possible_collisions(aabb)){
+				if (otherObject != gameObject){ otherObject.collideAABB(aabb); }
+			}
+		
+			ground_aabb.collideAABB(aabb);
 
-		for (let bullet of bullets){
-			if (bullet.owner != gameObject){
-				if (bullet.intersect(aabb)){
-					console.log("hit")
+			for (let bullet of bullets){
+				if (bullet.owner != gameObject){
+					if (bullet.intersect(aabb)){
+						console.log("hit")
+					}
 				}
 			}
 		}
@@ -264,8 +272,8 @@ const animate = function(now) {
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {
-			id: player.id,
-			player_data: [  player.position.x, player.position.y, player.position.z,
+			'id': player.id,
+			'player_data': [  player.position.x, player.position.y, player.position.z,
 							player.direction.x, player.direction.y, player.direction.z ]
 		}
 
