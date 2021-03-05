@@ -47,6 +47,14 @@ export class FullyAutomaticWeapon extends Component {
 
 		this._duration =  1 / (firing_rate / 60)
 		this._elapsed  = 0
+
+		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
+		let material 	= new THREE.MeshStandardMaterial({ color: 0xFF0033, flatShading: true, metalness: 0, roughness: 1 })
+		this.mesh 		= new THREE.Mesh(geometry, material)
+		this.mesh.position.set(1,0.2,-1.7)
+		this.gameObject.transform.add(this.mesh)
+
+
 		
 		document.body.addEventListener("mousedown", e => {
 			this._firing = true
@@ -69,5 +77,7 @@ export class FullyAutomaticWeapon extends Component {
 			this._fire()
 			this._elapsed = 0
 		}
+
+		//this.mesh.lookAt(0,0,0)
 	}
 }

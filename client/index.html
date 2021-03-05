@@ -26,13 +26,17 @@
 		<canvas id="c" width="640" height="480"></canvas>
 		<div id="crosshair">+</div>
 		<div id="debug">test</div>
-		<span class="users">?</span>
+		<span id="users">?</span>
 		<span id="hit"></span>
 		<span id="taking_hits" style="display: none">you are being hit</span>
+
 		<p>wenn etwas nicht funktioniert, einfach seite neu laden</p>
 		<p>bewegen mit w,a,s,d und schießen mit der maus</p>
 		<p>zum starten einmal auf das bild klicken</p>
-	  	<input type="range" min="0" max="100" value="50" id="slider">
+
+	  	<input type="range" min="-50" max="50" value="0" id="slider1"><br>
+	  	<input type="range" min="-50" max="50" value="0" id="slider2"><br>
+	  	<input type="range" min="-50" max="50" value="0" id="slider3">
 		<script type="module" src="game.js"></script>
 	</body>
 </html>

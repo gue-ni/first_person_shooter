@@ -3,16 +3,19 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { SemiAutomaticWeapon, FullyAutomaticWeapon } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js'
-import { AABB, Box, Gravity } from './components.js';
+import { AABB, Box, Gravity, Line } from './components.js';
 import { WASDMovement, FPSCamera } from './input.js'
 import { SpaceHash } from './spacehash.js'
 import { Ray } from './ray.js'
 
 const canvas  = document.querySelector('#c');
-const slider1 = document.querySelector('#slider')
+const slider1 = document.querySelector('#slider1')
+const slider2 = document.querySelector('#slider2')
+const slider3 = document.querySelector('#slider3')
 const hit = document.querySelector('#hit')
 const crosshair = document.querySelector('#crosshair')
 const taking_hits = document.querySelector('#taking_hits')
+const users = document.querySelector('#users')
 
 const window_width 	= canvas.width
 const window_height = canvas.height
@@ -59,7 +62,25 @@ let network_data = []
 const space_hash = new SpaceHash(2)
 const gameObjectArray = new GameObjectArray()
 
-for (let i = 0; i < 50; i++){
+
+/*
+
+async function getJSON(path, callback) {
+    return callback(await fetch(path).then(r => r.json()));
+}
+
+
+let boxes = undefined
+
+getJSON('/locations.json', data => {
+	//console.log(data)
+	boxes = data
+	console.log(boxes)
+});
+
+console.log(boxes)
+
+for (let pos of boxes){
 	let size 		= new THREE.Vector3(2,2,2)
 	let testObject 	= new GameObject(scene)
 	let aabb 		= testObject.addComponent(new AABB(testObject, size))
@@ -73,13 +94,35 @@ for (let i = 0; i < 50; i++){
 
 	space_hash.insert(aabb)
 }
+*/
+
+
+
+
+
+
+for (let i = 0; i < 50; i++){
+	let size 		= new THREE.Vector3(2,2,2)
+	let testObject 	= new GameObject(scene)
+	let aabb 		= testObject.addComponent(new AABB(testObject, size))
+
+	testObject.addComponent(new Box(testObject,  size, 0xff0051, true, false))
+	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*10), 
+							Math.floor(Math.random()*map_depth)-map_depth/2)
+
+	testObject.transform.matrixAutoUpdate = false
+	testObject.transform.updateMatrix();
+
+	space_hash.insert(aabb)
+}
+
 
 // Create the Ground
 
 let ground 		= new GameObject(scene)
 let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,10,map_depth)))
 ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), 0x90b325, false, true))
-ground.position.set(0,-10,0)
+ground.position.set(0,-5,0)
 ground.transform.matrixAutoUpdate = false
 ground.transform.updateMatrix();
 
@@ -88,8 +131,7 @@ ground.transform.updateMatrix();
 let player = new GameObject(scene)
 let fpv = player.addComponent(new FPSCamera(player, camera))
 player.addComponent(new WASDMovement(player))
-player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
-//player.addComponent(new SemiAutomaticWeapon(player, bullets))
+let gun = player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
 player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xff0051, false, false))
@@ -99,6 +141,9 @@ player.position.set(Math.floor(Math.random()*map_width)-map_width/2,
 console.log(player.id)
 
 gameObjectArray.add(player)
+
+
+
 
 function mouse(event){
 	fpv.yaw   += (event.movementX * 0.1)
@@ -133,8 +178,7 @@ function mouse(event){
 	scene.add(light)
 }
 
-let websocket = new WebSocket(false ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
-let users = document.querySelector('.users')
+let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
@@ -190,6 +234,20 @@ websocket.onmessage = function (event) {
 let then = 0, dt = 0
 let first = true
 
+
+const init = function(){
+	(async () => {
+		await  new Promise(resolve => setTimeout(resolve, 2000));
+		console.log("test")
+		animate(0)
+
+	})()
+}
+
+const main = function(){
+	init();
+}
+
 const animate = function(now) {
 	requestAnimationFrame(animate);
 
@@ -199,7 +257,7 @@ const animate = function(now) {
 
 	if (first) {
 		renderer.shadowMap.needsUpdate = true;
-		first = false
+		//first = false
 	} else {
 		renderer.shadowMap.needsUpdate = false;
 	}
@@ -229,21 +287,9 @@ const animate = function(now) {
 			}
 		
 			ground_aabb.collideAABB(aabb);
-
-			/*
-			// TODO remove
-			for (let bullet of bullets){
-				if (bullet.owner != gameObject){
-					if (bullet.intersect(aabb)){
-						console.log("hit")
-					}
-				}
-			}
-			*/
 		}
 	})
 
-	//console.log(`${player.velocity.length()}`)
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}
@@ -272,15 +318,24 @@ const animate = function(now) {
 
 	bullets.length = 0;
 
+	/*
+	gun.mesh.position.setX(slider1.value / 10)
+	gun.mesh.position.setY(slider2.value / 10)
+	gun.mesh.position.setZ(slider3.value / 10)
+	console.log(gun.mesh.position)
+	*/
+
+
 	// debug
-	//camera.position.set(player.position.x+5, player.position.y+5, player.z)
+	//let dir = player.direction.normalize().clone()
+	//camera.position.set(player.position.x+dir.x, player.position.y+5, player.position.z+dir.z)
 	//camera.lookAt(player.position)
 	
 	stats.update()	
 	renderer.render(scene, camera)
 }
 
-requestAnimationFrame(animate)
-
-
+//requestAnimationFrame(animate)
+//animate(0)
+init()
 

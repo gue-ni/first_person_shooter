@@ -31,6 +31,34 @@ export class Box extends Component {
 	}
 }
 
+export class Line extends Component {
+	constructor(gameObject){
+		super(gameObject);
+		this.name = "line";
+
+		var pointA 		= new THREE.Vector3(  0, 0, 0 );
+	    var direction 	= new THREE.Vector3(  0,0, 1 );
+	    direction.normalize();
+
+	    var distance = 100; // at what distance to determine pointB
+
+	    var pointB = new THREE.Vector3();
+	    pointB.addVectors ( pointA, direction.multiplyScalar( distance ) );
+
+	    const points = [];
+		points.push( pointA );
+		points.push( pointB );
+
+	    var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+	    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+
+	    this.mesh = new THREE.Line( geometry, material );
+	
+		this.gameObject.transform.add(this.mesh);
+	}
+}
+
 export class AABB extends Component {
 	constructor(gameObject, size){
 		super(gameObject)

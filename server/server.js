@@ -74,7 +74,7 @@ wss.on('connection', (ws) => {
                 }
             }
     	}    
-
+        console.log(response)
         ws.send(JSON.stringify(response));
 	});
 
