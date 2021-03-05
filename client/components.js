@@ -17,7 +17,7 @@ export class Box extends Component {
 		super(gameObject)
 		this.name = "box"
 		let geometry 	= new THREE.BoxBufferGeometry(size.x, size.y, size.z)
-		let material 	= new THREE.MeshStandardMaterial({ color: box_color, flatShading: true, metalness: 0, roughness: 1 })
+		let material 	= new THREE.MeshPhongMaterial({ color: box_color, flatShading: true})
 		this.mesh 		= new THREE.Mesh(geometry, material)
 		this.mesh.castShadow 	= castShadow
 		this.mesh.receiveShadow = receiveShadow

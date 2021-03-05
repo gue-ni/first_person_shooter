@@ -95,7 +95,7 @@ export class FPSCamera extends Component {
     constructor(gameObject, camera){
         super(gameObject)
         this.name = "camera";
-        camera.position.set(0,1,0)
+        camera.position.set(0,0.7,0)
         this.gameObject.transform.add(camera)
         this.yaw        = 0.5 * Math.PI
         this.pitch      = 0

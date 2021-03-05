@@ -39,7 +39,6 @@ document.body.appendChild(stats.dom)
 
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap
-//renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.shadowMap.autoUpdate = false
 
 window.addEventListener('resize', () => {
@@ -74,7 +73,7 @@ const gameObjectArray = new GameObjectArray()
 
 let ground 		= new GameObject(scene)
 let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,10,map_depth)))
-ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), ground_color, false, true))
+ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), 0x999999, false, true))
 ground.position.set(0,-5,0)
 ground.transform.matrixAutoUpdate = false
 ground.transform.updateMatrix();
@@ -94,7 +93,7 @@ console.log(player.id)
 gameObjectArray.add(player)
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
-let material 	= new THREE.MeshPhongMaterial({ color: 0x999999, flatShading: true, metalness: 0, roughness: 1, side: THREE.BackSide })
+let material 	= new THREE.MeshPhongMaterial({ color: 0x999999, flatShading: true,side: THREE.BackSide })
 let mesh 		= new THREE.Mesh(geometry, material)
 mesh.position.set(0,20, 0);
 scene.add(mesh);
@@ -102,7 +101,6 @@ scene.add(mesh);
 function mouse_callback(event){
 	fpv.yaw   += (event.movementX * 0.1)
 	fpv.pitch += (event.movementY * 0.1)
-
 	let pitch = -fpv.pitch;
 	if (pitch >  89) pitch =  89
 	if (pitch < -89) pitch = -89
@@ -118,12 +116,9 @@ const pi = 0xD70270, bl = 0x0038A8, pu = 0x734F96;
 const pointlight = new THREE.PointLight(pi, 3, 100, 2);
 pointlight.position.set(0, 50, -25);
 scene.add(pointlight);
-
 scene.add(new THREE.AmbientLight(pu, 0.4))
-
 const light = new THREE.DirectionalLight(bl, 2, 100);
 light.position.set(0, 50, 25)
-
 light.castShadow 			=  true; 
 light.shadow.mapSize.width 	=  512; 
 light.shadow.mapSize.height =  512; 
@@ -136,12 +131,8 @@ light.shadow.camera.right	=  50;
 scene.add(light)
 //scene.add(new THREE.CameraHelper(light.shadow.camera))
 
-//const light2 = new THREE.DirectionalLight(bl, 1, 100);
-//light2.position.set(50, 50, -50)
-//scene.add(light2);
 
 let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
-
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
@@ -162,14 +153,13 @@ websocket.onmessage = function (event) {
 			console.log(`player ${player.id} connected`);
 
 			let newGameObject = new GameObject(scene);
+			newGameObject.id = player.id;
+			newGameObject.local = false;
 			newGameObject.addComponent(new Gravity(newGameObject));
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
 			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), box_color, false, false));
-
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
-
-			newGameObject.id = player.id;
 
 			gameObjectArray.add(newGameObject);
 		}
@@ -205,12 +195,14 @@ const init = async function(){
 		testObject.transform.updateMatrix();
 		space_hash.insert(aabb)
 	}
+
+	renderer.shadowMap.needsUpdate = true;
+	renderer.render(scene, camera)
+	renderer.shadowMap.needsUpdate = false;
 	requestAnimationFrame(animate)
 }
 
-
 let then = 0, dt = 0
-let first = true
 const animate = function(now) {
 	requestAnimationFrame(animate);
 
@@ -218,18 +210,10 @@ const animate = function(now) {
 	dt   = now - then;
 	then = now;
 	if (dt > 0.1) dt = 0.1;
-
-
-	if (first) {
-		renderer.shadowMap.needsUpdate = true;
-		first = false
-	} else {
-		renderer.shadowMap.needsUpdate = false;
-	}
-
+	
 	gameObjectArray.forEach(gameObject => {
-		
-		if (gameObject.id != player.id){ 
+
+		if (!gameObject.local){ 
 			let pos_and_dir = network_data[gameObject.id];
 			if (pos_and_dir){
 				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
@@ -240,18 +224,27 @@ const animate = function(now) {
 				gameObject.transform.lookAt(look);
 			}
 		} else { 
-
-			// should also be done for other non networking objects, not just player
-
 			gameObject.update(dt);
-
 			let aabb = gameObject.getComponent("aabb");
 
-			for (let otherObject of space_hash.find_possible_collisions(aabb)){
-				if (otherObject != gameObject){ otherObject.collideAABB(aabb); }
+			if (aabb){
+				for (let otherObject of space_hash.find_possible_collisions(aabb)){
+					if (otherObject != gameObject) otherObject.collideAABB(aabb); 
+				}
+				ground_aabb.collideAABB(aabb);
 			}
-		
-			ground_aabb.collideAABB(aabb);
+
+			if (gameObject.position.x > map_width/2-0.5){
+				gameObject.position.x = map_width/2-0.5;
+			} else if (gameObject.position.x < -map_width/2+0.5){
+				gameObject.position.x = -map_width/2+0.5;
+			}
+			if (gameObject.position.z > map_depth/2-0.5){
+				gameObject.position.z = map_depth/2-0.5;
+			} else if (gameObject.position.z < -map_depth+0.5){
+				gameObject.position.z = -map_depth/2+0.5;
+			}
+			//console.log(gameObject.position)
 		}
 	})
 
@@ -275,8 +268,6 @@ const animate = function(now) {
 		
 		if (data.player_data || data.bullets){
 			data['id'] = player.id
-			
-			//if (data.bullets) console.log(data)
 			websocket.send(JSON.stringify(data));
 		}
 	}

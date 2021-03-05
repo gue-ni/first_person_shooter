@@ -21,6 +21,7 @@ const SOCKETS = {};
 
 wss.on('connection', (ws) => {
 	let id = -1;
+    console.log("new connection");
 
 	ws.on('message', message => {
 
@@ -74,7 +75,7 @@ wss.on('connection', (ws) => {
                 }
             }
     	}    
-        console.log(response)
+        //console.log(response)
         ws.send(JSON.stringify(response));
 	});
 

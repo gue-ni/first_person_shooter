@@ -3,6 +3,7 @@ import * as THREE from './three/build/three.module.js';
 export class GameObject {
 	constructor(parent){
 		this.id = Math.floor(Math.random() * 1000000000) // not really a good idea
+		this.local = true; // updating is done locally
 		this.components = []
 		this.transform 	= new THREE.Object3D()
 		parent.add(this.transform)
@@ -29,19 +30,12 @@ export class GameObject {
 		
 		look.subVectors(this.position, this.direction)
 		//look.addVectors(this.position, this.direction)
+		//console.log("update")
 		this.transform.lookAt(look)
 	}
 
 	remove(parent){
 		for (let component of this.components){
-			/*
-			if (component.mesh){
-				component.mesh.geometry.dispose()
-				component.mesh.material.dispose()
-				component.mesh.parent.remove(component)
-			}
-			*/
-
 			component.remove()
 		}
 
