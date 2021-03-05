@@ -49,7 +49,7 @@ export class FullyAutomaticWeapon extends Component {
 		this._elapsed  = 0
 
 		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
-		let material 	= new THREE.MeshStandardMaterial({ color: 0xFF0033, flatShading: true, metalness: 0, roughness: 1 })
+		let material 	= new THREE.MeshStandardMaterial({ color: 0xD3D3D3, flatShading: true, metalness: 0, roughness: 1 })
 		this.mesh 		= new THREE.Mesh(geometry, material)
 		this.mesh.position.set(1,0.2,-1.7)
 		this.gameObject.transform.add(this.mesh)
