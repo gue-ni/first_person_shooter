@@ -62,61 +62,6 @@ let network_data = []
 const space_hash = new SpaceHash(2)
 const gameObjectArray = new GameObjectArray()
 
-
-/*
-
-async function getJSON(path, callback) {
-    return callback(await fetch(path).then(r => r.json()));
-}
-
-
-let boxes = undefined
-
-getJSON('/locations.json', data => {
-	//console.log(data)
-	boxes = data
-	console.log(boxes)
-});
-
-console.log(boxes)
-
-for (let pos of boxes){
-	let size 		= new THREE.Vector3(2,2,2)
-	let testObject 	= new GameObject(scene)
-	let aabb 		= testObject.addComponent(new AABB(testObject, size))
-
-	testObject.addComponent(new Box(testObject,  size, 0xff0051, true, false))
-	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*10)-2, 
-							Math.floor(Math.random()*map_depth)-map_depth/2)
-
-	testObject.transform.matrixAutoUpdate = false
-	testObject.transform.updateMatrix();
-
-	space_hash.insert(aabb)
-}
-*/
-
-
-
-
-
-
-for (let i = 0; i < 50; i++){
-	let size 		= new THREE.Vector3(2,2,2)
-	let testObject 	= new GameObject(scene)
-	let aabb 		= testObject.addComponent(new AABB(testObject, size))
-
-	testObject.addComponent(new Box(testObject,  size, 0xff0051, true, false))
-	testObject.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*10), 
-							Math.floor(Math.random()*map_depth)-map_depth/2)
-
-	testObject.transform.matrixAutoUpdate = false
-	testObject.transform.updateMatrix();
-
-	space_hash.insert(aabb)
-}
-
-
 // Create the Ground
 
 let ground 		= new GameObject(scene)
@@ -231,33 +176,39 @@ websocket.onmessage = function (event) {
 	}
 };
 
+
+const init = async function(){
+	let resp = await fetch('./locations.json');
+	let json = await resp.json();
+
+	for (let pos of json.boxes){
+		let size 		= new THREE.Vector3(2,2,2)
+		let testObject 	= new GameObject(scene)
+		let aabb 		= testObject.addComponent(new AABB(testObject, size))
+		testObject.addComponent(new Box(testObject,  size, 0xff0051, true, false))
+		testObject.position.set(pos.x, pos.y, pos.z);
+		testObject.transform.matrixAutoUpdate = false
+		testObject.transform.updateMatrix();
+		space_hash.insert(aabb)
+	}
+	requestAnimationFrame(animate)
+}
+
+
 let then = 0, dt = 0
 let first = true
-
-
-const init = function(){
-	(async () => {
-		await  new Promise(resolve => setTimeout(resolve, 2000));
-		console.log("test")
-		animate(0)
-
-	})()
-}
-
-const main = function(){
-	init();
-}
-
 const animate = function(now) {
 	requestAnimationFrame(animate);
 
 	now *= 0.001;
 	dt   = now - then;
 	then = now;
+	if (dt > 0.1) dt = 0.1;
+
 
 	if (first) {
 		renderer.shadowMap.needsUpdate = true;
-		//first = false
+		first = false
 	} else {
 		renderer.shadowMap.needsUpdate = false;
 	}
@@ -318,14 +269,6 @@ const animate = function(now) {
 
 	bullets.length = 0;
 
-	/*
-	gun.mesh.position.setX(slider1.value / 10)
-	gun.mesh.position.setY(slider2.value / 10)
-	gun.mesh.position.setZ(slider3.value / 10)
-	console.log(gun.mesh.position)
-	*/
-
-
 	// debug
 	//let dir = player.direction.normalize().clone()
 	//camera.position.set(player.position.x+dir.x, player.position.y+5, player.position.z+dir.z)
@@ -335,7 +278,4 @@ const animate = function(now) {
 	renderer.render(scene, camera)
 }
 
-//requestAnimationFrame(animate)
-//animate(0)
 init()
-
