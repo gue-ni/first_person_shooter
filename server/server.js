@@ -14,6 +14,7 @@ app.use(express.static('../client'));
 //   id     pos    dir
 // { 123: [x,y,z, x,y,z], 234: [x,y,z, x,y,z]}
 const PLAYERS = {};
+const SOCKETS = {};
 
 // TODO: do bullet collision on server
 // TODO: create broadcast function
@@ -28,6 +29,7 @@ wss.on('connection', (ws) => {
 
 		if (id == -1) { // first message
         	id = data.id;
+            SOCKETS[id] = ws;
 
         	// notify users of new player
             wss.clients.forEach( client => {
@@ -55,7 +57,6 @@ wss.on('connection', (ws) => {
     	}
 
     	if (data.bullets){
-
             let box = new AABB([0,0,0], new Vector3(1,2,0.5));
 
             for (let bullet_ray of data.bullets){
@@ -66,8 +67,8 @@ wss.on('connection', (ws) => {
                         box.position = PLAYERS[player]
                      
                         if (Ray.intersect_box(bullet_ray, box)){
-                            console.log(`${id} hit ${player}`)
-                            response.hit = true
+                            response.hit = player
+                            SOCKETS[player].send(JSON.stringify({'hit_by': id}));
                         }
                     }
                 }
@@ -75,7 +76,6 @@ wss.on('connection', (ws) => {
     	}    
 
         ws.send(JSON.stringify(response));
-    	//console.log(response)
 	});
 
 	ws.on('close',() => {
@@ -85,8 +85,8 @@ wss.on('connection', (ws) => {
                 client.send(JSON.stringify({disconnected: id}))
             }
         });
-
 		delete(PLAYERS[id]);
+        delete(SOCKETS[id]);
 	})
 });
 

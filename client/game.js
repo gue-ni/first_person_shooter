@@ -10,6 +10,10 @@ import { Ray } from './ray.js'
 
 const canvas  = document.querySelector('#c');
 const slider1 = document.querySelector('#slider')
+const hit = document.querySelector('#hit')
+const crosshair = document.querySelector('#crosshair')
+const taking_hits = document.querySelector('#taking_hits')
+
 const window_width 	= canvas.width
 const window_height = canvas.height
 
@@ -129,13 +133,19 @@ function mouse(event){
 	scene.add(light)
 }
 
-let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+let websocket = new WebSocket(false ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 let users = document.querySelector('.users')
 
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
-	console.log(data.hit)
+	//console.log(data.hit)
+	
+	if (data.hit){
+		crosshair.innerText = "x"
+	} else {
+		crosshair.innerText = `+`
+	}
 
 	if (data.players){
        	network_data = data.players
@@ -167,6 +177,13 @@ websocket.onmessage = function (event) {
 		let gameObject = gameObjectArray.get(data.disconnected)
 		gameObject.remove(scene);
 		gameObjectArray.remove(gameObject)
+	}
+
+	if (data.hit_by){
+		console.log("you were hit")
+		taking_hits.style.display = 'block'
+	} else {
+		taking_hits.style.display  = 'none'
 	}
 };
 

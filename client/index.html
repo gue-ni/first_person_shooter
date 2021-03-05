@@ -7,12 +7,18 @@
 			body { 
 				margin: 0; 
 			}
-
 			#crosshair {
 			  position: absolute;
 			  left: 320px;
 			  top:  240px;
 			  color: white;
+			}
+			#taking_hits {
+				position: absolute;
+				left: 200px;
+				top: 100px;
+				color: white;
+				size: 30px;
 			}
 		</style>
 	</head>
@@ -21,7 +27,11 @@
 		<div id="crosshair">+</div>
 		<div id="debug">test</div>
 		<span class="users">?</span>
-
+		<span id="hit"></span>
+		<span id="taking_hits" style="display: none">you are being hit</span>
+		<p>wenn etwas nicht funktioniert, einfach seite neu laden</p>
+		<p>bewegen mit w,a,s,d und schießen mit der maus</p>
+		<p>zum starten einmal auf das bild klicken</p>
 	  	<input type="range" min="0" max="100" value="50" id="slider">
 		<script type="module" src="game.js"></script>
 	</body>
