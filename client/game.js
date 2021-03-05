@@ -3,10 +3,11 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { SemiAutomaticWeapon, FullyAutomaticWeapon } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js'
-import { AABB, Box, Gravity, Line } from './components.js';
+import { AABB, Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera } from './input.js'
 import { SpaceHash } from './spacehash.js'
 import { Ray } from './ray.js'
+import { ParticleSystem, ParticleSystem2 } from './particles.js';
 
 
 const canvas  		= document.querySelector('#c');
@@ -23,7 +24,7 @@ const DARK_GRAY 	= 0x999999;
 const LIGHT_GRAY	= 0xD3D3D3;
 const PINK 			= 0xD70270;
 const BLUE 			= 0x0038A8;
-const PURPLE 			= 0x734F96;
+const PURPLE 		= 0x734F96;
 
 
 //canvas.height 	= window.innerHeight / 2;
@@ -92,10 +93,16 @@ player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
 player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false))
+//player.addComponent(new ParticleSystem(player, 100));
 player.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*5), Math.floor(Math.random()*map_depth)-map_depth/2)
 console.log(player.id)
 
 gameObjectArray.add(player)
+
+
+let testObject = new GameObject(scene);
+testObject.addComponent(new ParticleSystem2(testObject, 1000, 10))
+gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
 let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
@@ -184,6 +191,62 @@ websocket.onmessage = function (event) {
 	}
 };
 
+// start test
+/*
+const particle_geometry = new THREE.BufferGeometry();
+const vertices = [];
+
+const sprite = new THREE.TextureLoader().load( './three/examples/textures/sprites/disc.png' );
+
+for ( let i = 0; i < 1000; i ++ ) {
+	const x = 20 * Math.random() - 10;
+	const y = 20 * Math.random() - 10;
+	const z = 20 * Math.random() - 10;
+	vertices.push( x, y, z );
+}
+
+particle_geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+material = new THREE.PointsMaterial( { size: 1, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
+material.color.setHSL(1.0, 0.3, 0.7);
+
+const particles = new THREE.Points( particle_geometry, material );
+scene.add( particles );
+*/
+
+/*
+
+const particle_geometry = new THREE.BufferGeometry();
+const vertices = [];
+
+const sprite = new THREE.TextureLoader().load( './three/examples/textures/sprites/disc.png' );
+
+//let n = 0;
+for ( let i = 0; i < 100; i ++ ) {
+	const x = 20 * Math.random() - 10;
+	const y = 20 * Math.random() - 10;
+	const z = 20 * Math.random() - 10;
+	vertices.push( x, y, z );
+	//vertices[n++] = x;
+	//vertices[n++] = y;
+	//vertices[n++] = z;
+}
+
+particle_geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+material = new THREE.PointsMaterial( { size: 1, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
+material.color.setHSL(1.0, 0.3, 0.7);
+
+const particles = new THREE.Points( particle_geometry, material );
+scene.add( particles );
+*/
+
+// end test
+
+
+
+
+
 
 const init = async function(){
 	let resp = await fetch('./locations2.json');
@@ -251,6 +314,18 @@ const animate = function(now) {
 			//console.log(gameObject.position)
 		}
 	})
+
+	/*
+	const positions = particles.geometry.attributes.position.array;
+
+	console.log(positions)
+
+	for (let i = 0; i < 300; i += 3){
+		positions[i+1] += 0.01;
+	}
+
+	particles.geometry.attributes.position.needsUpdate = true;
+	*/
 
 
 	if (websocket.readyState === WebSocket.OPEN){
