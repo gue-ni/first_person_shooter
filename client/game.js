@@ -19,10 +19,15 @@ const taking_hits 	= document.querySelector('#taking_hits')
 const users 		= document.querySelector('#users')
 
 const clear_color 	= "#8009E8";
-const ground_color 	= 0xD3D3D3
-const box_color 	= 0xD3D3D3
-const player_color 	= 0xD3D3D3
-const gun_color 	= 0xD3D3D3
+const DARK_GRAY 	= 0x999999;
+const LIGHT_GRAY	= 0xD3D3D3;
+const PINK 			= 0xD70270;
+const BLUE 			= 0x0038A8;
+const PURPLE 			= 0x734F96;
+
+
+//canvas.height 	= window.innerHeight / 2;
+//canvas.width 	= window.innerWidth  / 2;
 
 const window_width 	= canvas.width
 const window_height = canvas.height
@@ -73,7 +78,7 @@ const gameObjectArray = new GameObjectArray()
 
 let ground 		= new GameObject(scene)
 let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,10,map_depth)))
-ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), 0x999999, false, true))
+ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), DARK_GRAY, false, true))
 ground.position.set(0,-5,0)
 ground.transform.matrixAutoUpdate = false
 ground.transform.updateMatrix();
@@ -86,14 +91,14 @@ player.addComponent(new WASDMovement(player))
 player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
 player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
-player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), player_color, false, false))
+player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false))
 player.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*5), Math.floor(Math.random()*map_depth)-map_depth/2)
 console.log(player.id)
 
 gameObjectArray.add(player)
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
-let material 	= new THREE.MeshPhongMaterial({ color: 0x999999, flatShading: true,side: THREE.BackSide })
+let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
 let mesh 		= new THREE.Mesh(geometry, material)
 mesh.position.set(0,20, 0);
 scene.add(mesh);
@@ -111,13 +116,12 @@ function mouse_callback(event){
 	player.direction.normalize()
 }
 
-const pi = 0xD70270, bl = 0x0038A8, pu = 0x734F96;
 
-const pointlight = new THREE.PointLight(pi, 3, 100, 2);
+const pointlight = new THREE.PointLight(PINK, 3, 100, 2);
 pointlight.position.set(0, 50, -25);
 scene.add(pointlight);
-scene.add(new THREE.AmbientLight(pu, 0.4))
-const light = new THREE.DirectionalLight(bl, 2, 100);
+scene.add(new THREE.AmbientLight(PURPLE, 0.4))
+const light = new THREE.DirectionalLight(BLUE, 2, 100);
 light.position.set(0, 50, 25)
 light.castShadow 			=  true; 
 light.shadow.mapSize.width 	=  512; 
@@ -157,7 +161,7 @@ websocket.onmessage = function (event) {
 			newGameObject.local = false;
 			newGameObject.addComponent(new Gravity(newGameObject));
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
-			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), box_color, false, false));
+			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false));
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
 
@@ -173,7 +177,7 @@ websocket.onmessage = function (event) {
 	}
 
 	if (data.hit_by){
-		console.log("you were hit")
+		//console.log("you were hit")
 		taking_hits.style.display = 'block'
 	} else {
 		taking_hits.style.display  = 'none'
@@ -182,14 +186,14 @@ websocket.onmessage = function (event) {
 
 
 const init = async function(){
-	let resp = await fetch('./locations.json');
+	let resp = await fetch('./locations2.json');
 	let json = await resp.json();
 
 	for (let pos of json.boxes){
 		let size 		= new THREE.Vector3(2,2,2)
 		let testObject 	= new GameObject(scene)
 		let aabb 		= testObject.addComponent(new AABB(testObject, size))
-		testObject.addComponent(new Box(testObject,  size, box_color, true, false))
+		testObject.addComponent(new Box(testObject,  size, LIGHT_GRAY, true, false))
 		testObject.position.set(pos.x, pos.y, pos.z);
 		testObject.transform.matrixAutoUpdate = false
 		testObject.transform.updateMatrix();
