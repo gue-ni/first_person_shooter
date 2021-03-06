@@ -13,7 +13,6 @@ void main(){
 }`;
 
 const _FS = `
-
 uniform sampler2D diffuseTexture;
 
 void main() {
@@ -23,6 +22,7 @@ void main() {
 export class ParticleSystem extends Component {
 	constructor(gameObject, camera, numParticles, particlesPerSecond, particleLifetime){
 		super(gameObject);
+
 		this.numParticles 		= numParticles;
 		this._particleLifetime  = particleLifetime;
 		this._lifetime 			= [];
@@ -34,11 +34,9 @@ export class ParticleSystem extends Component {
 		const position 	= [], sizes = [];
 
 		for ( let i = 0; i < this.numParticles; i++ ) {
-
 			position.push(this._cache.x, this._cache.y, this._cache.z);
 			this._lifetime.push(-1);
 			sizes.push(2)
-
 		}
 
 		const uniforms = {
@@ -68,10 +66,6 @@ export class ParticleSystem extends Component {
 		this._geometry.computeBoundingSphere()
 		this._geometry.boundingSphere.set(this._cache, 100);
 
-		//console.log(this._geometry)
-		//console.log(this._geometry.boundingSphere);
-
-
 		this._points = new THREE.Points(this._geometry, this._material);
 
 		this.gameObject.transform.add(this._points);
@@ -100,16 +94,17 @@ export class ParticleSystem extends Component {
 		
 		this._elapsed += dt;
 		if (this._elapsed >= this._duration){
-			let newParticle = this._findUnusedParticle();
+			let numNewParticles = Math.floor(this._elapsed / this._duration);
+			//console.log(numNewParticles);
 
-			this._lifetime[newParticle] = this._particleLifetime;
-
-			positions[newParticle*3] 	= 10 * Math.random() - 5;
-			positions[newParticle*3+1] 	=  4;
-			positions[newParticle*3+2]  = 10 * Math.random() - 5;
-
-			sizes[newParticle] = 1
-
+			for (let i = 0; i < numNewParticles; i++){
+				let newParticle = this._findUnusedParticle();
+				this._lifetime[newParticle] = this._particleLifetime;
+				positions[newParticle*3] 	= 10 * Math.random() - 5;
+				positions[newParticle*3+1] 	=  4;
+				positions[newParticle*3+2]  = 10 * Math.random() - 5;
+				sizes[newParticle] = 1
+			}			
 			this._elapsed = 0
 		}
 

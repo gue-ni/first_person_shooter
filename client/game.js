@@ -97,7 +97,7 @@ console.log(player.id)
 gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
-testObject.addComponent(new ParticleSystem(testObject, camera, 1000, 1, 10))
+testObject.addComponent(new ParticleSystem(testObject, camera, 1000, 100, 2))
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -151,14 +151,11 @@ websocket.onmessage = function (event) {
 		crosshair.innerText = `+`
 	}
 
-	if (data.players){
-       	network_data = data.players
-	}
+	if (data.players){ network_data = data.players }
 
 	if (data.connected){
 		for (let player of data.connected){
 			console.log(`player ${player.id} connected`);
-
 			let newGameObject = new GameObject(scene);
 			newGameObject.id = player.id;
 			newGameObject.local = false;
@@ -180,69 +177,11 @@ websocket.onmessage = function (event) {
 	}
 
 	if (data.hit_by){
-		//console.log("you were hit")
 		taking_hits.style.display = 'block'
 	} else {
 		taking_hits.style.display  = 'none'
 	}
 };
-
-// start test
-/*
-const particle_geometry = new THREE.BufferGeometry();
-const vertices = [];
-
-const sprite = new THREE.TextureLoader().load( './three/examples/textures/sprites/disc.png' );
-
-for ( let i = 0; i < 1000; i ++ ) {
-	const x = 20 * Math.random() - 10;
-	const y = 20 * Math.random() - 10;
-	const z = 20 * Math.random() - 10;
-	vertices.push( x, y, z );
-}
-
-particle_geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-
-material = new THREE.PointsMaterial( { size: 1, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
-material.color.setHSL(1.0, 0.3, 0.7);
-
-const particles = new THREE.Points( particle_geometry, material );
-scene.add( particles );
-*/
-
-/*
-
-const particle_geometry = new THREE.BufferGeometry();
-const vertices = [];
-
-const sprite = new THREE.TextureLoader().load( './three/examples/textures/sprites/disc.png' );
-
-//let n = 0;
-for ( let i = 0; i < 100; i ++ ) {
-	const x = 20 * Math.random() - 10;
-	const y = 20 * Math.random() - 10;
-	const z = 20 * Math.random() - 10;
-	vertices.push( x, y, z );
-	//vertices[n++] = x;
-	//vertices[n++] = y;
-	//vertices[n++] = z;
-}
-
-particle_geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-
-material = new THREE.PointsMaterial( { size: 1, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
-material.color.setHSL(1.0, 0.3, 0.7);
-
-const particles = new THREE.Points( particle_geometry, material );
-scene.add( particles );
-*/
-
-// end test
-
-
-
-
-
 
 const init = async function(){
 	let resp = await fetch('./locations2.json');
@@ -311,19 +250,6 @@ const animate = function(now) {
 		}
 	})
 
-	/*
-	const positions = particles.geometry.attributes.position.array;
-
-	console.log(positions)
-
-	for (let i = 0; i < 300; i += 3){
-		positions[i+1] += 0.01;
-	}
-
-	particles.geometry.attributes.position.needsUpdate = true;
-	*/
-
-
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}
 
@@ -348,8 +274,6 @@ const animate = function(now) {
 	}
 
 	bullets.length = 0;
-
-
 
 	// debug
 	//let dir = player.direction.normalize().clone()
