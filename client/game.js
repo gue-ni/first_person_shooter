@@ -3,11 +3,12 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { SemiAutomaticWeapon, FullyAutomaticWeapon } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
-import { AABB, Box, Gravity } from './components.js';
+import { Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera } from './input.js';
+import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Ray } from './ray.js';
-import { ParticleSystem } from './particles.js';
+import { ParticleSystem, MuzzleFlash } from './particles.js';
 
 const canvas  		= document.querySelector('#c');
 const slider1 		= document.querySelector('#slider1');
@@ -97,7 +98,20 @@ console.log(player.id)
 gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
-testObject.addComponent(new ParticleSystem(testObject, camera, 1000, 10, 5))
+let ps = new ParticleSystem(testObject, camera, 1000, 50, 3);
+//let ps = new MuzzleFlash(testObject, camera);
+
+/*
+ps._particleVelocity = function(){
+	return new THREE.Vector3(10 * Math.random() - 5, 50 * Math.random(), 10 * Math.random() - 5);
+}
+ps._particleOrigin = function(){
+	return new THREE.Vector3(0,0,0);
+}
+*/
+
+testObject.addComponent(ps)
+//testObject.transform.rotateX(Math.PI)
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
