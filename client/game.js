@@ -89,7 +89,7 @@ let fpv = player.addComponent(new FPSCamera(player, camera))
 player.addComponent(new WASDMovement(player))
 player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
 player.addComponent(new Gravity(player))
-//player.addComponent(new MuzzleFlash(player, camera));
+player.addComponent(new MuzzleFlash(player));
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false))
 //player.addComponent(new ParticleSystem(player, 100));
@@ -100,8 +100,8 @@ gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
 //let ps = new ParticleSystem(testObject, camera, 100, 1, 5);
-let ps = new MuzzleFlash(testObject);
-testObject.addComponent(ps)
+//let ps = new MuzzleFlash(testObject);
+//testObject.addComponent(ps)
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);

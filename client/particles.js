@@ -224,13 +224,15 @@ export class MuzzleFlash extends Component {
 		super(gameObject);
 		this.name = "MuzzleFlash";
 
-		/*
+		this._duration = 1 / 10;
+		this._elapsed = 0;
+		
 		this.on = true;
-		this.light = new THREE.PointLight( 0xff0000, 0.5, 100 );
+		this.light = new THREE.PointLight( 0xff0000, 1, 100 );
 		//this.light.position.set(0, 2, 0);
 		this.light.position.set(1,0.2,-2)
 		this.gameObject.transform.add(this.light)
-		*/
+		
 
 		/*
 		let texture = new THREE.TextureLoader().load('./explosion.jpg');
@@ -242,22 +244,20 @@ export class MuzzleFlash extends Component {
 		this.gameObject.transform.add(sprite);
 		*/
 
-		var explosionTexture = new THREE.TextureLoader().load( './explosion.jpg' );
+		
+		var explosionTexture = new THREE.TextureLoader().load( './explosion2.png' );
 		this.boomer = new TextureAnimator( explosionTexture, 4, 4, 16, 55 ); // texture, #horiz, #vert, #total, duration.
 		var explosionMaterial = new THREE.SpriteMaterial( { map: explosionTexture } );
 		var cube = new THREE.Sprite( explosionMaterial );
-		cube.position.set(0,2,0);
+		cube.position.set(1,2,-5);
 		cube.scale.set(5,5,5);
 		this.gameObject.transform.add(cube);
+		
 
 	}
 
 	update(dt){
 		this.boomer.update(dt * 1000);
-	}
-
-	/*
-	update(dt){
 
 		this._elapsed += dt;
 		if (this._elapsed >= this._duration){
@@ -275,7 +275,7 @@ export class MuzzleFlash extends Component {
 			this._elapsed = 0;
 		}
 	}
-	*/
+
 
 
 }
