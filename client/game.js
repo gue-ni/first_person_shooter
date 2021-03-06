@@ -89,6 +89,7 @@ let fpv = player.addComponent(new FPSCamera(player, camera))
 player.addComponent(new WASDMovement(player))
 player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
 player.addComponent(new Gravity(player))
+//player.addComponent(new MuzzleFlash(player, camera));
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false))
 //player.addComponent(new ParticleSystem(player, 100));
@@ -98,20 +99,9 @@ console.log(player.id)
 gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
-let ps = new ParticleSystem(testObject, camera, 1000, 50, 3);
-//let ps = new MuzzleFlash(testObject, camera);
-
-/*
-ps._particleVelocity = function(){
-	return new THREE.Vector3(10 * Math.random() - 5, 50 * Math.random(), 10 * Math.random() - 5);
-}
-ps._particleOrigin = function(){
-	return new THREE.Vector3(0,0,0);
-}
-*/
-
+//let ps = new ParticleSystem(testObject, camera, 100, 1, 5);
+let ps = new MuzzleFlash(testObject);
 testObject.addComponent(ps)
-//testObject.transform.rotateX(Math.PI)
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -252,15 +242,20 @@ const animate = function(now) {
 
 			if (gameObject.position.x > map_width/2-0.5){
 				gameObject.position.x = map_width/2-0.5;
+
 			} else if (gameObject.position.x < -map_width/2+0.5){
-				gameObject.position.x = -map_width/2+0.5;
+				gameObject.position.x 		 = -map_width/2+0.5;
 			}
 			if (gameObject.position.z > map_depth/2-0.5){
 				gameObject.position.z = map_depth/2-0.5;
-			} else if (gameObject.position.z < -map_depth+0.5){
-				gameObject.position.z = -map_depth/2+0.5;
+
+			} else if (gameObject.position.z < -map_depth/2+0.5){
+				gameObject.position.z 		 = -map_depth/2+0.5;
 			}
-			//console.log(gameObject.position)
+
+			if (gameObject.position.y > map_height-3){
+				gameObject.position.y = map_height-3;
+			} 
 		}
 	})
 
