@@ -1,5 +1,4 @@
 import * as THREE from './three/build/three.module.js';
-import { SpriteAnimation } from './SpriteAnimation.js';
 import { Component } from './components.js'
 
 const _VS = `
@@ -181,6 +180,44 @@ export class ParticleSystem extends Component {
 	}
 }
 
+function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) 
+{	
+	// note: texture passed by reference, will be updated by the update function.
+		
+	this.tilesHorizontal = tilesHoriz;
+	this.tilesVertical = tilesVert;
+	// how many images does this spritesheet contain?
+	//  usually equals tilesHoriz * tilesVert, but not necessarily,
+	//  if there at blank tiles at the bottom of the spritesheet. 
+	this.numberOfTiles = numTiles;
+	texture.wrapS = texture.wrapT = THREE.RepeatWrapping; 
+	texture.repeat.set( 1 / this.tilesHorizontal, 1 / this.tilesVertical );
+
+	// how long should each image be displayed?
+	this.tileDisplayDuration = tileDispDuration;
+
+	// how long has the current image been displayed?
+	this.currentDisplayTime = 0;
+
+	// which image is currently being displayed?
+	this.currentTile = 0;
+		
+	this.update = function( milliSec )
+	{
+		this.currentDisplayTime += milliSec;
+		while (this.currentDisplayTime > this.tileDisplayDuration)
+		{
+			this.currentDisplayTime -= this.tileDisplayDuration;
+			this.currentTile++;
+			if (this.currentTile == this.numberOfTiles)
+				this.currentTile = 0;
+			var currentColumn = this.currentTile % this.tilesHorizontal;
+			texture.offset.x = currentColumn / this.tilesHorizontal;
+			var currentRow = Math.floor( this.currentTile / this.tilesHorizontal );
+			texture.offset.y = currentRow / this.tilesVertical;
+		}
+	};
+}
 
 export class MuzzleFlash extends Component {
 	constructor(gameObject){
@@ -196,39 +233,27 @@ export class MuzzleFlash extends Component {
 		*/
 
 		/*
-		let texture = new THREE.TextureLoader().load('./assets/fire.png');
-
+		let texture = new THREE.TextureLoader().load('./explosion.jpg');
+		texture.repeat.set(4,4)
 		const material = new THREE.SpriteMaterial( { map: texture } );
 		const sprite = new THREE.Sprite( material )
-
 		sprite.position.set(0,1,0);
 		sprite.scale.set(5,5,5);
-
 		this.gameObject.transform.add(sprite);
-
 		*/
 
-		var texture = THREE.TextureLoader().load( texture );
-
-		SpriteAnimator.add({
-		    texture: texture,
-		    tilesHorizontal: 5,
-		    tilesVertical: 5,
-		    repeat: 1
-		});
-
-		var material = new THREE.MeshBasicMaterial({
-		    map: texture
-		});
-
-		var geometry = new THREE.PlaneGeometry( 200, 200 ),
-		mesh = new THREE.Mesh( geometry2, material );
-		this.gameObject.transform.add( mesh2 );
+		var explosionTexture = new THREE.TextureLoader().load( './explosion.jpg' );
+		this.boomer = new TextureAnimator( explosionTexture, 4, 4, 16, 55 ); // texture, #horiz, #vert, #total, duration.
+		var explosionMaterial = new THREE.SpriteMaterial( { map: explosionTexture } );
+		var cube = new THREE.Sprite( explosionMaterial );
+		cube.position.set(0,2,0);
+		cube.scale.set(5,5,5);
+		this.gameObject.transform.add(cube);
 
 	}
 
 	update(dt){
-		SpriteAnimator.update(dt);
+		this.boomer.update(dt * 1000);
 	}
 
 	/*
