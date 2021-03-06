@@ -96,9 +96,8 @@ console.log(player.id)
 
 gameObjectArray.add(player)
 
-
 let testObject = new GameObject(scene);
-testObject.addComponent(new ParticleSystem(testObject, 1000, 10, 15))
+testObject.addComponent(new ParticleSystem(testObject, camera, 1000, 1, 10))
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -349,6 +348,8 @@ const animate = function(now) {
 	}
 
 	bullets.length = 0;
+
+
 
 	// debug
 	//let dir = player.direction.normalize().clone()

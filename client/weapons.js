@@ -14,7 +14,8 @@ export class SemiAutomaticWeapon extends Component {
 		var model2 = 'assets/downloaded/m4.glb'
 		var model3 = 'assets/downloaded/untitled.glb'
 		var model4 = 'assets/ak47.glb'
-		//this.load(model3)
+		var model5 = 'assets/raygun.glb'
+		this._load(model5)
 		
 		document.body.addEventListener("mousedown", e => {
 			rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
@@ -27,14 +28,10 @@ export class SemiAutomaticWeapon extends Component {
 			gltfLoader.load(path, data=> resolve(data), null, reject);
 		});
 	    this.mesh 			= gltf.scene;
-
-	    //console.log(this.mesh)
-
-  	    this.mesh.position.set(0.24, -0.7, -0.7)
+  	    this.mesh.position.set(0.0, 0.5, -0.2)
 	    this.mesh.rotateY(Math.PI/2)
-	    this.mesh.scale.set(0.1, 0.1, 0.1)
+	    this.mesh.scale.set(0.2, 0.2, 0.2)
 		this.gameObject.transform.add(this.mesh);
-
 	}
 }
 
@@ -48,12 +45,15 @@ export class FullyAutomaticWeapon extends Component {
 		this._duration =  1 / (firing_rate / 60)
 		this._elapsed  = 0
 
+		//this._load('assets/raygun.glb');
+
+		
 		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
 		let material 	= new THREE.MeshStandardMaterial({ color: 0xD3D3D3, flatShading: true, metalness: 0, roughness: 1 })
 		this.mesh 		= new THREE.Mesh(geometry, material)
 		this.mesh.position.set(1,0.2,-1.7)
 		this.gameObject.transform.add(this.mesh)
-
+		
 
 		
 		document.body.addEventListener("mousedown", e => {
@@ -65,9 +65,20 @@ export class FullyAutomaticWeapon extends Component {
 		});
 
 		this._fire = function () {
-			//console.log("fire")
 			rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
 		}
+	}
+	
+	async _load(path){
+		const gltfLoader 	= new GLTFLoader();
+		const gltf 			= await new Promise((resolve, reject) => {
+			gltfLoader.load(path, data=> resolve(data), null, reject);
+		});
+	    this.mesh 			= gltf.scene;
+  	    this.mesh.position.set(0.6, 0.4, -0.7)
+	    this.mesh.rotateY(Math.PI/2)
+	    this.mesh.scale.set(0.1, 0.1, 0.1)
+		this.gameObject.transform.add(this.mesh);
 	}
 
 	update(dt){
