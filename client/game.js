@@ -2,22 +2,21 @@ import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { SemiAutomaticWeapon, FullyAutomaticWeapon } from './weapons.js'
-import { GameObject, GameObjectArray} from './gameobject.js'
+import { GameObject, GameObjectArray} from './gameobject.js';
 import { AABB, Box, Gravity } from './components.js';
-import { WASDMovement, FPSCamera } from './input.js'
-import { SpaceHash } from './spacehash.js'
-import { Ray } from './ray.js'
-import { ParticleSystem, ParticleSystem2 } from './particles.js';
-
+import { WASDMovement, FPSCamera } from './input.js';
+import { SpaceHash } from './spacehash.js';
+import { Ray } from './ray.js';
+import { ParticleSystem } from './particles.js';
 
 const canvas  		= document.querySelector('#c');
-const slider1 		= document.querySelector('#slider1')
-const slider2 		= document.querySelector('#slider2')
-const slider3 		= document.querySelector('#slider3')
-const hit 			= document.querySelector('#hit')
-const crosshair 	= document.querySelector('#crosshair')
-const taking_hits 	= document.querySelector('#taking_hits')
-const users 		= document.querySelector('#users')
+const slider1 		= document.querySelector('#slider1');
+const slider2 		= document.querySelector('#slider2');
+const slider3 		= document.querySelector('#slider3');
+const hit 			= document.querySelector('#hit');
+const crosshair 	= document.querySelector('#crosshair');
+const taking_hits 	= document.querySelector('#taking_hits');
+const users 		= document.querySelector('#users');
 
 const clear_color 	= "#8009E8";
 const DARK_GRAY 	= 0x999999;
@@ -26,10 +25,8 @@ const PINK 			= 0xD70270;
 const BLUE 			= 0x0038A8;
 const PURPLE 		= 0x734F96;
 
-
-//canvas.height 	= window.innerHeight / 2;
-//canvas.width 	= window.innerWidth  / 2;
-
+//canvas.height = window.innerHeight;
+//canvas.width 	= window.innerWidth;
 const window_width 	= canvas.width
 const window_height = canvas.height
 
@@ -101,7 +98,7 @@ gameObjectArray.add(player)
 
 
 let testObject = new GameObject(scene);
-testObject.addComponent(new ParticleSystem2(testObject, 1000, 10))
+testObject.addComponent(new ParticleSystem(testObject, 1000, 10, 15))
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
