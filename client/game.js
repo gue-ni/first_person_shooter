@@ -97,7 +97,7 @@ console.log(player.id)
 gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
-testObject.addComponent(new ParticleSystem(testObject, camera, 1000, 100, 2))
+testObject.addComponent(new ParticleSystem(testObject, camera, 1000, 10, 5))
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);

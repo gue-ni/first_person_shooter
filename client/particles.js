@@ -24,19 +24,36 @@ export class ParticleSystem extends Component {
 		super(gameObject);
 
 		this.numParticles 		= numParticles;
-		this._particleLifetime  = particleLifetime;
 		this._lifetime 			= [];
 		this._lastUsedParticle 	= 0;
 		this._duration 			= 1 / particlesPerSecond;  
 		this._elapsed  			= 0;
 		this._cache 			= new THREE.Vector3(0, -5, 0);
 
-		const position 	= [], sizes = [];
+		this._particleLifetime  = function(){
+			return particleLifetime;
+		};
+		this._particleOrigin = function(){
+			return new THREE.Vector3(10 * Math.random() - 5, 4, 10 * Math.random() - 5);
+		}
+
+		this._particleSize = function(){
+			return 1;
+		}
+
+		this._particleVelocity = function(){
+			return new THREE.Vector3(0,2,0);
+		}
+		
+
+		const position = [], sizes = [];
+		this._velocity = []
 
 		for ( let i = 0; i < this.numParticles; i++ ) {
 			position.push(this._cache.x, this._cache.y, this._cache.z);
 			this._lifetime.push(-1);
 			sizes.push(2)
+			this._velocity.push( new THREE.Vector3(0, 0, 0))
 		}
 
 		const uniforms = {
@@ -99,11 +116,15 @@ export class ParticleSystem extends Component {
 
 			for (let i = 0; i < numNewParticles; i++){
 				let newParticle = this._findUnusedParticle();
-				this._lifetime[newParticle] = this._particleLifetime;
-				positions[newParticle*3] 	= 10 * Math.random() - 5;
-				positions[newParticle*3+1] 	=  4;
-				positions[newParticle*3+2]  = 10 * Math.random() - 5;
-				sizes[newParticle] = 1
+
+				let origin = this._particleOrigin();
+				positions[newParticle*3] 	= origin.x;
+				positions[newParticle*3+1] 	= origin.y;
+				positions[newParticle*3+2]  = origin.z;
+
+				sizes[newParticle] = this._particleSize();
+				this._lifetime[newParticle] = this._particleLifetime();
+				this._velocity[newParticle] = this._particleVelocity();
 			}			
 			this._elapsed = 0
 		}
@@ -111,17 +132,21 @@ export class ParticleSystem extends Component {
 		for (let i = 0; i < this.numParticles; i++){
 
 			if (this._lifetime[i] > 0){
+
 				this._lifetime[i] -= dt;
 
 				if (this._lifetime[i] > 0){
-					positions[i*3+1] += 2 * dt; // y
+					positions[i*3] 	 += this._velocity[i].x * dt; // y
+					positions[i*3+1] += this._velocity[i].y * dt; // y
+					positions[i*3+2] += this._velocity[i].z * dt; // y
+
+					//positions[i*3+1] += 2 * dt;
 
 				} else {
 					positions[i*3]   = this._cache.x;
 					positions[i*3+1] = this._cache.y;
 					positions[i*3+2] = this._cache.z;
 					sizes[i] = 2;
-
 				}
 			}
 		}
