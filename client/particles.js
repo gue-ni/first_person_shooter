@@ -1,5 +1,7 @@
 import * as THREE from './three/build/three.module.js';
 import { Component } from './components.js'
+import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
+
 
 const _VS = `
 uniform float pointMultiplier;
@@ -180,8 +182,7 @@ export class ParticleSystem extends Component {
 	}
 }
 
-function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) 
-{	
+function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration){	
 	// note: texture passed by reference, will be updated by the update function.
 		
 	this.tilesHorizontal = tilesHoriz;
@@ -228,11 +229,47 @@ export class MuzzleFlash extends Component {
 		this._elapsed = 0;
 		
 		this.on = true;
-		this.light = new THREE.PointLight( 0xff0000, 1, 100 );
+		this.light = new THREE.PointLight( 0xffffff, 1, 100 );
 		//this.light.position.set(0, 2, 0);
 		this.light.position.set(1,0.2,-2)
-		this.gameObject.transform.add(this.light)
+		//this.gameObject.transform.add(this.light)
+
+
 		
+		this.texture1 = new THREE.TextureLoader().load('assets/flash.png');
+
+		const geometry = new THREE.PlaneGeometry( 5, 5, 5 );
+		const material = new THREE.MeshBasicMaterial({
+			map: this.texture1, 
+			side: THREE.DoubleSide, 
+			opacity: 0.5,
+			transparent: true,
+			depthTest: 		true,
+			depthWrite: 	false,
+			blending: THREE.AdditiveBlending,
+		});
+
+		console.log(material)
+
+		this.plane1 = new THREE.Mesh( geometry, material );
+		this.plane1.position.set(0,2,0)
+		this.gameObject.transform.add(this.plane1)	
+
+		this.plane2 = new THREE.Mesh(geometry, material);
+		this.plane2.rotateX(Math.PI/2)
+		this.plane2.position.set(0,2,0)
+		this.gameObject.transform.add(this.plane2)
+		
+
+		this.scale = new THREE.Vector3(1,1,1);
+
+
+
+		//this._load('./assets/flash2.glb');
+		
+		//this.plane2 = new THREE.Mesh(geometry, material);
+		//this.plane2.rotateY(Math.PI/2)
+		//this.gameObject.transform.add(this.plane2)
 
 		/*
 		let texture = new THREE.TextureLoader().load('./explosion.jpg');
@@ -244,7 +281,7 @@ export class MuzzleFlash extends Component {
 		this.gameObject.transform.add(sprite);
 		*/
 
-		
+		/*
 		var explosionTexture = new THREE.TextureLoader().load( './explosion2.png' );
 		this.boomer = new TextureAnimator( explosionTexture, 4, 4, 16, 55 ); // texture, #horiz, #vert, #total, duration.
 		var explosionMaterial = new THREE.SpriteMaterial( { map: explosionTexture } );
@@ -252,13 +289,22 @@ export class MuzzleFlash extends Component {
 		cube.position.set(1,2,-5);
 		cube.scale.set(5,5,5);
 		this.gameObject.transform.add(cube);
+
+		*/
 		
 
 	}
 
-	update(dt){
-		this.boomer.update(dt * 1000);
 
+	update(dt){
+		//this.scale.multiplyScalar(1.01);
+
+		this.plane1.scale.copy(this.scale)
+		this.plane2.scale.copy(this.scale)
+
+		//this.boomer.update(dt * 1000);
+
+		/*
 		this._elapsed += dt;
 		if (this._elapsed >= this._duration){
 
@@ -274,6 +320,7 @@ export class MuzzleFlash extends Component {
 			this.on = !this.on;
 			this._elapsed = 0;
 		}
+		*/
 	}
 
 
