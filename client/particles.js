@@ -249,7 +249,7 @@ export class MuzzleFlash extends Component {
 			blending: THREE.AdditiveBlending,
 		});
 
-		console.log(material)
+		//console.log(material)
 
 		this.plane1 = new THREE.Mesh( geometry, material );
 		this.plane1.position.set(0,2,0)

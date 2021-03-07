@@ -43,45 +43,42 @@ export class SemiAutomaticWeapon extends Component {
         this._flashDurationCounter = 0;
         this._flashStartingScale = new THREE.Vector3(1,1,1);
 
-        const lightPos = new THREE.Vector3(0.8,0.2,-1.5)
-		this.flash1 = new THREE.Mesh(planeGeometry, planeMaterial);
-		this.flash1.position.copy(lightPos);
-		this.flash1.rotateY(Math.PI / 2);
-        this.flash1.scale.set(0,0,0);
-		this.gameObject.transform.add(this.flash1);
+		const flash1 = new THREE.Mesh(planeGeometry, planeMaterial);
+		flash1.rotateY(Math.PI / 2);
+        const flash2 = new THREE.Mesh(planeGeometry, planeMaterial);
+		flash2.rotateY(Math.PI / 2);
+        flash2.rotateX(Math.PI / 2);
 
-        this.flash2 = new THREE.Mesh(planeGeometry, planeMaterial);
-		this.flash2.position.copy(lightPos);
-		this.flash2.rotateY(Math.PI / 2);
-        this.flash2.rotateX(Math.PI / 2);
-        this.flash2.scale.set(0,0,0);
-		this.gameObject.transform.add(this.flash2);
+        this.flash = new THREE.Object3D();
+        this.flash.add(flash1);
+        this.flash.add(flash2);
+        this.flash.scale.set(0,0,0);
+		this.flash.position.set(0.8, 0.2, -1.35);
+		this.gameObject.transform.add(this.flash);
 
         let that = this;
-
         const audioLoader = new THREE.AudioLoader();
-        audioLoader.load( 'assets/ping_pong.mp3', function( buffer ) {
-
+        audioLoader.load( 'assets/gunshot4.mp3', function( buffer ) {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
             audio.setRefDistance(20);
-            audio.play();
             that.gunshot = audio;
             that.gameObject.transform.add(audio);
         });
-
-
-
-
         
 		this._fire = function () {
             this._fired  = true;
 			console.log("fire");
-            this.flash1.scale.copy(this._flashStartingScale);
-            this.flash2.scale.copy(this._flashStartingScale);
-            //this.a.play()
-            this.gunshot.play()
-			rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
+            this.flash.scale.copy(this._flashStartingScale);
+            
+            if (this.gunshot.isPlaying){
+                this.gunshot.stop();
+                this.gunshot.play();
+            } else {
+                this.gunshot.play();
+            }
+
+            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
 		}
 
 		document.body.addEventListener("mousedown", e => {
@@ -92,8 +89,7 @@ export class SemiAutomaticWeapon extends Component {
     update(dt){
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
-            this.flash1.scale.multiplyScalar(1.7)
-            this.flash2.scale.multiplyScalar(1.7)
+            this.flash.scale.multiplyScalar(1.7)
 
             this.light.color.setHex(0xffffff);
             this._flashDurationCounter += dt;
@@ -101,11 +97,42 @@ export class SemiAutomaticWeapon extends Component {
             if (this._flashDurationCounter > this._flashDuration){
                 this._fired = false;
                 this._flashDurationCounter = 0;
-                this.flash1.scale.set(0,0,0);
-                this.flash2.scale.set(0,0,0);
+                this.flash.scale.set(0,0,0);
                 this.light.color.setHex(0x000000);
             }
         }
+    }
+}
+
+export class FullAutoWeapon extends SemiAutomaticWeapon {
+    constructor(gameObject, rays, listener, firing_rate){
+        super(gameObject, rays, listener);
+
+        this._duration =  1 / (firing_rate / 60)
+		this._elapsed  = 0
+
+        document.body.addEventListener("mousedown", e => {
+			this._firing = true
+		});
+
+		document.body.addEventListener("mouseup", e => {
+			this._firing = false
+		});
+
+
+        
+
+    }
+
+    update(dt){
+ 		this._elapsed += dt;
+
+		if (this._firing && this._elapsed >= this._duration){
+			this._fire()
+			this._elapsed = 0
+		}      
+        
+        super.update(dt);
     }
 }
 
