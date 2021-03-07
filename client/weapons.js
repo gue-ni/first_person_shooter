@@ -10,7 +10,7 @@ export class SemiAutomaticWeapon extends Component {
 		super(gameObject);
 		this.name = "SemiAutomaticWeapon"
 
-    	this.light = new THREE.PointLight( 0x000000, 1, 100);
+    	this.light = new THREE.PointLight( 0x000000, 1, 5);
 		this.light.position.set(1,0.2,-2)
 		this.gameObject.transform.add(this.light)
 
@@ -23,7 +23,7 @@ export class SemiAutomaticWeapon extends Component {
 		});
 
 		this.gun = new THREE.Mesh(geometry, material)
-		this.gun.position.set(1,0.2,-1.7)
+		this.gun.position.set(1,0.2,-1)
 		this.gameObject.transform.add(this.gun)
 
 		const planeGeometry = new THREE.PlaneGeometry(1, 1, 1);
@@ -39,37 +39,30 @@ export class SemiAutomaticWeapon extends Component {
 		});
 
         this._fired = false;
-        this._flashDuration = 0.07;
+        this._flashDuration = 0.05;
         this._flashDurationCounter = 0;
+        this._flashStartingScale = new THREE.Vector3(1,1,1);
 
-        this._flashStartingScale = 1;
-
+        const lightPos = new THREE.Vector3(0.8,0.2,-1.5)
 		this.flash1 = new THREE.Mesh(planeGeometry, planeMaterial);
-		this.flash1.position.set(1,0.2,-2);
+		this.flash1.position.copy(lightPos);
 		this.flash1.rotateY(Math.PI / 2);
         this.flash1.scale.set(0,0,0);
 		this.gameObject.transform.add(this.flash1);
 
         
         this.flash2 = new THREE.Mesh(planeGeometry, planeMaterial);
-		this.flash2.position.set(1,0.2,-2);
+		this.flash2.position.copy(lightPos);
 		this.flash2.rotateY(Math.PI / 2);
         this.flash2.rotateX(Math.PI / 2);
         this.flash2.scale.set(0,0,0);
 		this.gameObject.transform.add(this.flash2);
         
-        this.slider = document.querySelector('#slider1')
-
-
-
 		this._fire = function () {
-
-            // https://discourse.threejs.org/t/scaling-planegeometry-starts-from-the-center-not-left/1026/9
-            
             this._fired  = true;
 			console.log("fire");
-            this.flash1.scale.set(this._flashStartingScale, this._flashStartingScale, this._flashStartingScale);
-            this.flash2.scale.set(this._flashStartingScale, this._flashStartingScale, this._flashStartingScale);
+            this.flash1.scale.copy(this._flashStartingScale);
+            this.flash2.scale.copy(this._flashStartingScale);
 			rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
 		}
 
@@ -79,17 +72,10 @@ export class SemiAutomaticWeapon extends Component {
 	}
 
     update(dt){
-
-        //this.flash1.scale.set(this.slider.value, this.slider.value, this.slider.value)
-        //this.flash2.scale.set(this.slider.value, this.slider.value, this.slider.value)
-
-        //console.log(this.slider.value)
-
-        
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
-            this.flash1.scale.multiplyScalar(1.5)
-            this.flash2.scale.multiplyScalar(1.5)
+            this.flash1.scale.multiplyScalar(1.7)
+            this.flash2.scale.multiplyScalar(1.7)
 
             this.light.color.setHex(0xffffff);
             this._flashDurationCounter += dt;
@@ -102,7 +88,6 @@ export class SemiAutomaticWeapon extends Component {
                 this.light.color.setHex(0x000000);
             }
         }
-        
     }
 }
 
