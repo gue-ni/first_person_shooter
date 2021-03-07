@@ -6,7 +6,7 @@ import { Component } from './components.js'
 import { BulletRay } from './ray.js'
 
 export class SemiAutomaticWeapon extends Component {
-	constructor(gameObject, rays){
+	constructor(gameObject, rays, listener){
 		super(gameObject);
 		this.name = "SemiAutomaticWeapon"
 
@@ -50,19 +50,37 @@ export class SemiAutomaticWeapon extends Component {
         this.flash1.scale.set(0,0,0);
 		this.gameObject.transform.add(this.flash1);
 
-        
         this.flash2 = new THREE.Mesh(planeGeometry, planeMaterial);
 		this.flash2.position.copy(lightPos);
 		this.flash2.rotateY(Math.PI / 2);
         this.flash2.rotateX(Math.PI / 2);
         this.flash2.scale.set(0,0,0);
 		this.gameObject.transform.add(this.flash2);
+
+        let that = this;
+
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load( 'assets/ping_pong.mp3', function( buffer ) {
+
+            const audio = new THREE.PositionalAudio(listener);
+            audio.setBuffer(buffer);
+            audio.setRefDistance(20);
+            audio.play();
+            that.gunshot = audio;
+            that.gameObject.transform.add(audio);
+        });
+
+
+
+
         
 		this._fire = function () {
             this._fired  = true;
 			console.log("fire");
             this.flash1.scale.copy(this._flashStartingScale);
             this.flash2.scale.copy(this._flashStartingScale);
+            //this.a.play()
+            this.gunshot.play()
 			rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
 		}
 

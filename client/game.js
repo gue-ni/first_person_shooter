@@ -34,6 +34,8 @@ const window_height = canvas.height
 const scene 	= new THREE.Scene()
 const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.1, 100)
 const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true,  powerPreference: "high-performance"})
+const listener = new THREE.AudioListener();
+camera.add(listener);
 
 renderer.setClearColor("#6AB9D9")
 
@@ -88,7 +90,7 @@ let player = new GameObject(scene)
 let fpv = player.addComponent(new FPSCamera(player, camera))
 player.addComponent(new WASDMovement(player))
 //player.addComponent(new FullyAutomaticWeapon(player, bullets, 600))
-player.addComponent(new SemiAutomaticWeapon(player, bullets))
+player.addComponent(new SemiAutomaticWeapon(player, bullets, listener))
 player.addComponent(new Gravity(player))
 //player.addComponent(new MuzzleFlash(player));
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
