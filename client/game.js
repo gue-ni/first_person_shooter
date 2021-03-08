@@ -126,13 +126,13 @@ function mouse_callback(event){
 
 
 const pinkLight = new THREE.PointLight(PINK, 3, 100, 2);
-pinkLight.position.set(0, 50, -25);
+pinkLight.position.set(-25, 50, -25);
 scene.add(pinkLight);
 const blueLight = new THREE.PointLight(BLUE, 3, 100, 2);
 blueLight.position.set(25, 50, 25);
 scene.add(blueLight);
 scene.add(new THREE.AmbientLight(PURPLE, 0.4))
-const light = new THREE.DirectionalLight(0xffffff, 0.1, 100);
+const light = new THREE.DirectionalLight(0xffffff, 0.5, 100);
 light.position.set(0, 50, 25)
 light.castShadow 			=  true; 
 light.shadow.mapSize.width 	=  512; 

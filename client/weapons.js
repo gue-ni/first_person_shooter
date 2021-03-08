@@ -43,7 +43,7 @@ export class SemiAutomaticWeapon extends Component {
         this._fired = false;
         this._flashDuration = 0.05;
         this._flashDurationCounter = 0;
-        this._flashStartingScale = new THREE.Vector3(1,1,1);
+        this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
 
 		const flash1 = new THREE.Mesh(planeGeometry, planeMaterial);
 		flash1.rotateY(Math.PI / 2);
@@ -55,14 +55,14 @@ export class SemiAutomaticWeapon extends Component {
         this.flash.add(flash1);
         this.flash.add(flash2);
         this.flash.scale.set(0,0,0);
-		this.flash.position.set(0.6, 0.45, -1.5);
+		this.flash.position.set(0.6, 0.45, -1.6);
 		this.gameObject.transform.add(this.flash);
 
-        this._load('assets/AUG.glb');
+        this._load('./assets/AUG3.glb');
 
         let that = this;
         const audioLoader = new THREE.AudioLoader();
-        audioLoader.load('assets/audio/gunshot4.mp3', function(buffer) {
+        audioLoader.load('./assets/audio/gunshot4.mp3', function(buffer) {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
             audio.setRefDistance(20);
@@ -96,7 +96,7 @@ export class SemiAutomaticWeapon extends Component {
 			gltfLoader.load(path, data=> resolve(data), null, reject);
 		});
 	    this.gun 			= gltf.scene;
-  	    this.gun.position.set(0.6, 0.4, -0.7)
+  	    this.gun.position.set(0.6, 0.4, -0.8)
 	    this.gun.rotateY(-Math.PI/2)
 	    this.gun.scale.set(0.1, 0.1, 0.1)
 		this.gameObject.transform.add(this.gun);
