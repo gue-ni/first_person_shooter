@@ -14,6 +14,7 @@ export class SemiAutomaticWeapon extends Component {
 		this.light.position.set(1,0.2,-2)
 		this.gameObject.transform.add(this.light)
 
+        /*
 		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
 		let material 	= new THREE.MeshStandardMaterial({ 
 			color: 0xD3D3D3, 
@@ -25,6 +26,7 @@ export class SemiAutomaticWeapon extends Component {
 		this.gun = new THREE.Mesh(geometry, material)
 		this.gun.position.set(1,0.2,-1)
 		this.gameObject.transform.add(this.gun)
+        */
 
 		const planeGeometry = new THREE.PlaneGeometry(1, 1, 1);
         planeGeometry.translate(0.5, 0, 0)
@@ -53,8 +55,10 @@ export class SemiAutomaticWeapon extends Component {
         this.flash.add(flash1);
         this.flash.add(flash2);
         this.flash.scale.set(0,0,0);
-		this.flash.position.set(0.8, 0.2, -1.35);
+		this.flash.position.set(0.6, 0.45, -1.5);
 		this.gameObject.transform.add(this.flash);
+
+        this._load('assets/AUG.glb');
 
         let that = this;
         const audioLoader = new THREE.AudioLoader();
@@ -85,6 +89,19 @@ export class SemiAutomaticWeapon extends Component {
 			this._fire()
 		});
 	}
+
+    async _load(path){
+		const gltfLoader 	= new GLTFLoader();
+		const gltf 			= await new Promise((resolve, reject) => {
+			gltfLoader.load(path, data=> resolve(data), null, reject);
+		});
+	    this.gun 			= gltf.scene;
+  	    this.gun.position.set(0.6, 0.4, -0.7)
+	    this.gun.rotateY(-Math.PI/2)
+	    this.gun.scale.set(0.1, 0.1, 0.1)
+		this.gameObject.transform.add(this.gun);
+	}
+
 
     update(dt){
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
@@ -121,6 +138,7 @@ export class FullAutoWeapon extends SemiAutomaticWeapon {
 		});
     }
 
+
     update(dt){
  		this._elapsed += dt;
 
@@ -144,7 +162,6 @@ export class FullyAutomaticWeapon extends Component {
 
 		//this._load('assets/raygun.glb');
 
-		
 		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
 		let material 	= new THREE.MeshStandardMaterial({ color: 0xD3D3D3, flatShading: true, metalness: 0, roughness: 1 })
 		this.gun 		= new THREE.Mesh(geometry, material)

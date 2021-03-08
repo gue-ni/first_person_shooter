@@ -102,7 +102,7 @@ gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
 //let ps = new ParticleSystem(testObject, camera, 100, 1, 5);
-//testObject.addComponent(new MuzzleFlash(testObject));
+//testObject.addComponent(new SemiAutomaticWeapon(testObject, bullets, listener));
 gameObjectArray.add(testObject);
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
