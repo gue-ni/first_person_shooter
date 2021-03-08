@@ -1,7 +1,7 @@
 import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
-import { SemiAutomaticWeapon, FullAutoWeapon, FullyAutomaticWeapon } from './weapons.js'
+import { SemiAutomaticWeapon, FullAutoWeapon, FullyAutomaticWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera } from './input.js';
@@ -9,6 +9,7 @@ import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Ray } from './ray.js';
 import { ParticleSystem, MuzzleFlash } from './particles.js';
+import { Factory } from './factory.js';
 
 const canvas  		= document.querySelector('#c');
 const slider1 		= document.querySelector('#slider1');
@@ -25,6 +26,7 @@ const LIGHT_GRAY	= 0xD3D3D3;
 const PINK 			= 0xD70270;
 const BLUE 			= 0x0038A8;
 const PURPLE 		= 0x734F96;
+const WHITE         = 0xffffff;
 
 //canvas.height = window.innerHeight;
 //canvas.width 	= window.innerWidth;
@@ -86,19 +88,9 @@ ground.transform.updateMatrix();
 
 // Create the Player
 
-let player = new GameObject(scene)
-let fpv = player.addComponent(new FPSCamera(player, camera))
-player.addComponent(new WASDMovement(player))
-player.addComponent(new FullAutoWeapon(player, bullets, listener, 300))
-//player.addComponent(new SemiAutomaticWeapon(player, bullets, listener))
-player.addComponent(new Gravity(player))
-player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
-player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false))
-player.position.set(Math.floor(Math.random()*map_width)-map_width/2, 
-                    Math.floor(Math.random()*5), 
-                    Math.floor(Math.random()*map_depth)-map_depth/2)
-//console.log(player.id)
-gameObjectArray.add(player)
+const factory = new Factory(scene, camera, listener, gameObjectArray);
+let player = factory.createPlayer(bullets)
+
 
 let testObject = new GameObject(scene);
 //let ps = new ParticleSystem(testObject, camera, 100, 1, 5);
@@ -112,15 +104,15 @@ mesh.position.set(0,20,0);
 scene.add(mesh);
 
 function mouse_callback(event){
-	fpv.yaw   += (event.movementX * 0.1)
-	fpv.pitch += (event.movementY * 0.1)
-	let pitch = -fpv.pitch;
+	player.fpv.yaw   += (event.movementX * 0.1)
+	player.fpv.pitch += (event.movementY * 0.1)
+	let pitch = -player.fpv.pitch;
 	if (pitch >  89) pitch =  89
 	if (pitch < -89) pitch = -89
 
-	player.direction.x = Math.cos(fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
+	player.direction.x = Math.cos(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
 	player.direction.y = Math.sin(pitch*(Math.PI/180))
-	player.direction.z = Math.sin(fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
+	player.direction.z = Math.sin(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
 	player.direction.normalize()
 }
 
@@ -131,8 +123,8 @@ scene.add(pinkLight);
 const blueLight = new THREE.PointLight(BLUE, 3, 100, 2);
 blueLight.position.set(25, 50, 25);
 scene.add(blueLight);
-scene.add(new THREE.AmbientLight(PURPLE, 0.4))
-const light = new THREE.DirectionalLight(0xffffff, 0.5, 100);
+scene.add(new THREE.AmbientLight(WHITE, 0.2))
+const light = new THREE.DirectionalLight(WHITE, 0.5, 100);
 light.position.set(0, 50, 25)
 light.castShadow 			=  true; 
 light.shadow.mapSize.width 	=  512; 
@@ -192,7 +184,7 @@ websocket.onmessage = function (event) {
 };
 
 const init = async function(){
-	let resp = await fetch('./locations2.json');
+	let resp = await fetch('./game_data.json');
 	let json = await resp.json();
 
 	for (let pos of json.boxes){

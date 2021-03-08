@@ -5,6 +5,21 @@ import { GameObject} from './gameobject.js'
 import { Component } from './components.js'
 import { BulletRay } from './ray.js'
 
+export class Inventory extends Component {
+    constructor(gameObject){
+        super(gameObject);
+        this.weapons = []
+    }
+
+    update(dt){
+        for (let w of this.weapons){
+            w.update(dt);
+        }
+    }
+
+    // TODO add cycle through weapons
+}
+
 export class SemiAutomaticWeapon extends Component {
 	constructor(gameObject, rays, listener){
 		super(gameObject);
@@ -58,17 +73,22 @@ export class SemiAutomaticWeapon extends Component {
 		this.flash.position.set(0.6, 0.45, -1.6);
 		this.gameObject.transform.add(this.flash);
 
-        this._load('./assets/AUG3.glb');
+        this._load('./assets/AUG_A++.glb');
 
         let that = this;
         const audioLoader = new THREE.AudioLoader();
-        audioLoader.load('./assets/audio/gunshot4.mp3', function(buffer) {
+        audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', function(buffer) {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
-            audio.setRefDistance(20);
+            audio.setRefDistance(1);
+            audio.position.set(0.6,0.45, -1.6)
             that.gunshot = audio;
             that.gameObject.transform.add(audio);
         });
+
+        this.slider1 = document.querySelector('#slider1');
+        this.slider2 = document.querySelector('#slider2');
+        this.slider3 = document.querySelector('#slider3');
         
 		this._fire = function () {
             this._fired  = true;
@@ -96,7 +116,7 @@ export class SemiAutomaticWeapon extends Component {
 			gltfLoader.load(path, data=> resolve(data), null, reject);
 		});
 	    this.gun 			= gltf.scene;
-  	    this.gun.position.set(0.6, 0.4, -0.8)
+  	    this.gun.position.set(0.4, 0.4, -0.5)
 	    this.gun.rotateY(-Math.PI/2)
 	    this.gun.scale.set(0.1, 0.1, 0.1)
 		this.gameObject.transform.add(this.gun);
@@ -104,6 +124,8 @@ export class SemiAutomaticWeapon extends Component {
 
 
     update(dt){
+        this.gun.position.set(this.slider1.value / 10, this.slider2.value / 10, this.slider3.value / 10);
+
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
             this.flash.scale.multiplyScalar(1.7)
