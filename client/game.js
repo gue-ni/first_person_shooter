@@ -57,18 +57,7 @@ window.addEventListener('resize', () => {
 	camera.updateProjectionMatrix()
 })
 
-canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
-document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
-canvas.onclick = function() { canvas.requestPointerLock(); };
-document.addEventListener('pointerlockchange', 	  lockChangeAlert, false);
-document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
-function lockChangeAlert() {
-	if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
-		document.addEventListener("mousemove", mouse_callback, false);
-	} else {
-		document.removeEventListener("mousemove", mouse_callback, false);
-	}
-}
+
 
 const debug = document.querySelector('#debug')
 const map_width = 50, map_depth = 50, map_height = 50
@@ -83,11 +72,34 @@ const gameObjectArray = new GameObjectArray()
 const factory = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
 let player = factory.createPlayer(bullets)
 
+function mouse_callback(event){
+    player.fpv.yaw   += (event.movementX * 0.1)
+    player.fpv.pitch += (event.movementY * 0.1)
+    let pitch = -player.fpv.pitch;
+    if (pitch >  89) pitch =  89
+    if (pitch < -89) pitch = -89
 
-let testObject = new GameObject(scene);
-//let ps = new ParticleSystem(testObject, camera, 100, 1, 5);
-//testObject.addComponent(new SemiAutomaticWeapon(testObject, bullets, listener));
-gameObjectArray.add(testObject);
+    player.direction.x = Math.cos(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
+    player.direction.y = Math.sin(pitch*(Math.PI/180))
+    player.direction.z = Math.sin(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
+    player.direction.normalize()
+}
+
+canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
+document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
+canvas.onclick = function() { canvas.requestPointerLock(); };
+document.addEventListener('pointerlockchange', 	  lockChangeAlert, false);
+document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+function lockChangeAlert() {
+    if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
+        document.addEventListener("mousemove", mouse_callback, false);
+    } else {
+        document.removeEventListener("mousemove", mouse_callback, false);
+    }
+}
+
+
+
 
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -95,19 +107,6 @@ let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: tru
 let mesh 		= new THREE.Mesh(geometry, material)
 mesh.position.set(0,20,0);
 scene.add(mesh);
-
-function mouse_callback(event){
-	player.fpv.yaw   += (event.movementX * 0.1)
-	player.fpv.pitch += (event.movementY * 0.1)
-	let pitch = -player.fpv.pitch;
-	if (pitch >  89) pitch =  89
-	if (pitch < -89) pitch = -89
-
-	player.direction.x = Math.cos(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-	player.direction.y = Math.sin(pitch*(Math.PI/180))
-	player.direction.z = Math.sin(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-	player.direction.normalize()
-}
 
 
 const pinkLight = new THREE.PointLight(PINK, 3, 100, 2);
@@ -144,7 +143,7 @@ const init = async function(){
 	renderer.shadowMap.needsUpdate = true;
 	renderer.render(scene, camera)
 	renderer.shadowMap.needsUpdate = false;
-    
+
 	requestAnimationFrame(animate)
 }
 
