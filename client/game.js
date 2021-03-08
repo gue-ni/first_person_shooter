@@ -34,7 +34,7 @@ const window_width 	= canvas.width
 const window_height = canvas.height
 
 const scene 	= new THREE.Scene()
-const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.1, 100)
+const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100)
 const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true,  powerPreference: "high-performance"})
 const listener = new THREE.AudioListener();
 camera.add(listener);
@@ -74,21 +74,13 @@ const debug = document.querySelector('#debug')
 const map_width = 50, map_depth = 50, map_height = 50
 const bullets 	 = []
 let network_data = []
-const space_hash = new SpaceHash(2)
+const spaceHash = new SpaceHash(2)
 const gameObjectArray = new GameObjectArray()
 
-// Create the Ground
-
-let ground 		= new GameObject(scene)
-let ground_aabb = ground.addComponent(new AABB(ground, new THREE.Vector3(map_width,10,map_depth)))
-ground.addComponent(new Box(ground, new THREE.Vector3(map_width,10,map_depth), DARK_GRAY, false, true))
-ground.position.set(0,-5,0)
-ground.transform.matrixAutoUpdate = false
-ground.transform.updateMatrix();
 
 // Create the Player
 
-const factory = new Factory(scene, camera, listener, gameObjectArray);
+const factory = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
 let player = factory.createPlayer(bullets)
 
 
@@ -96,6 +88,7 @@ let testObject = new GameObject(scene);
 //let ps = new ParticleSystem(testObject, camera, 100, 1, 5);
 //testObject.addComponent(new SemiAutomaticWeapon(testObject, bullets, listener));
 gameObjectArray.add(testObject);
+
 
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
 let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
@@ -188,16 +181,10 @@ const init = async function(){
 	let json = await resp.json();
 
 	for (let pos of json.boxes){
-		let size 		= new THREE.Vector3(2,2,2)
-		let testObject 	= new GameObject(scene)
-		let aabb 		= testObject.addComponent(new AABB(testObject, size))
-		testObject.addComponent(new Box(testObject,  size, LIGHT_GRAY, true, false))
-		testObject.position.set(pos.x, pos.y, pos.z);
-		testObject.transform.matrixAutoUpdate = false
-		testObject.transform.updateMatrix();
-		space_hash.insert(aabb)
+        factory.createEnvironmentBox(pos);
 	}
 
+    // bake shadows
 	renderer.shadowMap.needsUpdate = true;
 	renderer.render(scene, camera)
 	renderer.shadowMap.needsUpdate = false;
@@ -230,10 +217,10 @@ const animate = function(now) {
 			let aabb = gameObject.getComponent("aabb");
 
 			if (aabb){
-				for (let otherObject of space_hash.find_possible_collisions(aabb)){
+				for (let otherObject of spaceHash.find_possible_collisions(aabb)){
 					if (otherObject != gameObject) otherObject.collideAABB(aabb); 
 				}
-				ground_aabb.collideAABB(aabb);
+				//ground_aabb.collideAABB(aabb);
 			}
 
 			if (gameObject.position.x > map_width/2-0.5){
@@ -251,7 +238,10 @@ const animate = function(now) {
 
 			if (gameObject.position.y > map_height-3){
 				gameObject.position.y = map_height-3;
-			} 
+			} else if (gameObject.position.y < 0){
+                gameObject.position.y = 0;
+                gameObject.velocity.y = 0;
+            }
 		}
 	})
 

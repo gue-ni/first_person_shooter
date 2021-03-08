@@ -7,7 +7,7 @@ for i in range(n):
 	print("{", end='')
 	print(f"\"x\": {random.randint(-12, 12) * 2}", end='')
 	print(", ", end='')
-	print(f"\"y\": {random.randint(1,7)*2}", end='')
+	print(f"\"y\": {random.randint(0,7)*2}", end='')
 	print(", ", end='')
 	print(f"\"z\": {random.randint(-12, 12) * 2}", end='')
 	print("}", end='')
