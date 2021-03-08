@@ -29,7 +29,7 @@ export class SemiAutomaticWeapon extends Component {
 		const planeGeometry = new THREE.PlaneGeometry(1, 1, 1);
         planeGeometry.translate(0.5, 0, 0)
 		const planeMaterial = new THREE.MeshBasicMaterial({
-			map:            new THREE.TextureLoader().load('assets/flash.png'), 
+			map:            new THREE.TextureLoader().load('assets/textures/flash.png'), 
 			side:           THREE.DoubleSide, 
 			opacity: 		0.5,
 			transparent: 	true,
@@ -58,7 +58,7 @@ export class SemiAutomaticWeapon extends Component {
 
         let that = this;
         const audioLoader = new THREE.AudioLoader();
-        audioLoader.load( 'assets/gunshot4.mp3', function( buffer ) {
+        audioLoader.load('assets/audio/gunshot4.mp3', function(buffer) {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
             audio.setRefDistance(20);
@@ -105,10 +105,11 @@ export class SemiAutomaticWeapon extends Component {
 }
 
 export class FullAutoWeapon extends SemiAutomaticWeapon {
-    constructor(gameObject, rays, listener, firing_rate){
+    constructor(gameObject, rays, listener, firingRate){
         super(gameObject, rays, listener);
+        this.name = "FullAutoWeapon";
 
-        this._duration =  1 / (firing_rate / 60)
+        this._duration =  1 / (firingRate / 60)
 		this._elapsed  = 0
 
         document.body.addEventListener("mousedown", e => {
@@ -118,10 +119,6 @@ export class FullAutoWeapon extends SemiAutomaticWeapon {
 		document.body.addEventListener("mouseup", e => {
 			this._firing = false
 		});
-
-
-        
-
     }
 
     update(dt){

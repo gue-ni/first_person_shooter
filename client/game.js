@@ -89,14 +89,15 @@ ground.transform.updateMatrix();
 let player = new GameObject(scene)
 let fpv = player.addComponent(new FPSCamera(player, camera))
 player.addComponent(new WASDMovement(player))
-player.addComponent(new FullAutoWeapon(player, bullets, listener, 500))
+player.addComponent(new FullAutoWeapon(player, bullets, listener, 300))
 //player.addComponent(new SemiAutomaticWeapon(player, bullets, listener))
 player.addComponent(new Gravity(player))
 player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
 player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false))
-player.position.set(Math.floor(Math.random()*map_width)-map_width/2, Math.floor(Math.random()*5), Math.floor(Math.random()*map_depth)-map_depth/2)
-console.log(player.id)
-
+player.position.set(Math.floor(Math.random()*map_width)-map_width/2, 
+                    Math.floor(Math.random()*5), 
+                    Math.floor(Math.random()*map_depth)-map_depth/2)
+//console.log(player.id)
 gameObjectArray.add(player)
 
 let testObject = new GameObject(scene);
@@ -107,7 +108,7 @@ gameObjectArray.add(testObject);
 let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
 let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
 let mesh 		= new THREE.Mesh(geometry, material)
-mesh.position.set(0,20, 0);
+mesh.position.set(0,20,0);
 scene.add(mesh);
 
 function mouse_callback(event){
@@ -124,11 +125,14 @@ function mouse_callback(event){
 }
 
 
-const pointlight = new THREE.PointLight(PINK, 3, 100, 2);
-pointlight.position.set(0, 50, -25);
-scene.add(pointlight);
+const pinkLight = new THREE.PointLight(PINK, 3, 100, 2);
+pinkLight.position.set(0, 50, -25);
+scene.add(pinkLight);
+const blueLight = new THREE.PointLight(BLUE, 3, 100, 2);
+blueLight.position.set(25, 50, 25);
+scene.add(blueLight);
 scene.add(new THREE.AmbientLight(PURPLE, 0.4))
-const light = new THREE.DirectionalLight(BLUE, 2, 100);
+const light = new THREE.DirectionalLight(0xffffff, 0.1, 100);
 light.position.set(0, 50, 25)
 light.castShadow 			=  true; 
 light.shadow.mapSize.width 	=  512; 
