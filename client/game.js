@@ -4,7 +4,7 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 import { SemiAutomaticWeapon, FullAutoWeapon, FullyAutomaticWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
-import { WASDMovement, FPSCamera } from './input.js';
+import { WASDMovement, FPSCamera } from './player.js';
 import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Ray } from './ray.js';
@@ -132,55 +132,11 @@ scene.add(light)
 //scene.add(new THREE.CameraHelper(light.shadow.camera))
 
 
-let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
-websocket.onmessage = function (event) {
-	let data = JSON.parse(event.data);
-
-	//console.log(data.hit)
-	
-	if (data.hit){
-		crosshair.innerText = "x"
-	} else {
-		crosshair.innerText = `+`
-	}
-
-	if (data.players){ network_data = data.players }
-
-	if (data.connected){
-		for (let player of data.connected){
-			console.log(`player ${player.id} connected`);
-			let newGameObject = new GameObject(scene);
-			newGameObject.id = player.id;
-			newGameObject.local = false;
-			newGameObject.addComponent(new Gravity(newGameObject));
-			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
-			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false));
-			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
-			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
-
-			gameObjectArray.add(newGameObject);
-		}
-	}
-
-	if (data.disconnected){ // TODO implement
-		console.log(`player ${data.disconnected} disconnected`)
-		let gameObject = gameObjectArray.get(data.disconnected)
-		gameObject.remove(scene);
-		gameObjectArray.remove(gameObject)
-	}
-
-	if (data.hit_by){
-		taking_hits.style.display = 'block'
-	} else {
-		taking_hits.style.display  = 'none'
-	}
-};
-
 const init = async function(){
-	let resp = await fetch('./game_data.json');
-	let json = await resp.json();
+	let json = await fetch('./game_data.json');
+	let gameData = await json.json();
 
-	for (let pos of json.boxes){
+	for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos);
 	}
 
@@ -188,6 +144,7 @@ const init = async function(){
 	renderer.shadowMap.needsUpdate = true;
 	renderer.render(scene, camera)
 	renderer.shadowMap.needsUpdate = false;
+    
 	requestAnimationFrame(animate)
 }
 
@@ -280,3 +237,48 @@ const animate = function(now) {
 }
 
 init()
+
+let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+websocket.onmessage = function (event) {
+	let data = JSON.parse(event.data);
+
+	//console.log(data.hit)
+	
+	if (data.hit){
+		crosshair.innerText = "x"
+	} else {
+		crosshair.innerText = `+`
+	}
+
+	if (data.players){ network_data = data.players }
+
+	if (data.connected){
+		for (let player of data.connected){
+			console.log(`player ${player.id} connected`);
+			let newGameObject = new GameObject(scene);
+			newGameObject.id = player.id;
+			newGameObject.local = false;
+			newGameObject.addComponent(new Gravity(newGameObject));
+			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
+			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false));
+			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
+			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
+
+			gameObjectArray.add(newGameObject);
+		}
+	}
+
+	if (data.disconnected){ // TODO implement
+		console.log(`player ${data.disconnected} disconnected`)
+		let gameObject = gameObjectArray.get(data.disconnected)
+		gameObject.remove(scene);
+		gameObjectArray.remove(gameObject)
+	}
+
+	if (data.hit_by){
+		taking_hits.style.display = 'block'
+	} else {
+		taking_hits.style.display  = 'none'
+	}
+};
+

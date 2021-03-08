@@ -1,8 +1,6 @@
 import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 
-
-
 export class WASDMovement extends Component {
 	constructor(gameObject){
         super(gameObject)
@@ -104,4 +102,8 @@ export class FPSCamera extends Component {
     } 
 }
 
-
+export class Health extends Component {
+    constructor(gameObject){
+        super(gameObject);
+    }
+}

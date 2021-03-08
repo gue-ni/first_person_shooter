@@ -3,7 +3,7 @@ import * as THREE from './three/build/three.module.js';
 import { SemiAutomaticWeapon, FullAutoWeapon, FullyAutomaticWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
-import { WASDMovement, FPSCamera } from './input.js';
+import { WASDMovement, FPSCamera } from './player.js';
 import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Ray } from './ray.js';
@@ -43,8 +43,11 @@ export class Factory {
 		testObject.transform.updateMatrix();
 		this.spaceHash.insert(aabb)
         return testObject;
-
     }
+
+    createNetworkPlayer(){}
+    createRifle(){}
+    createPistol(){}
 }
 
 

@@ -12,5 +12,5 @@ for i in range(n):
 	print(f"\"z\": {random.randint(-12, 12) * 2}", end='')
 	print("}", end='')
 	if (i < n-1):
-		print(",")
+		print(",", end='')
 print("]}")
