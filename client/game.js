@@ -62,6 +62,7 @@ const init = async function(){
    
     // create player
     player = factory.createPlayer(bullets)
+    player.addComponent(new Smoke(player, camera, new THREE.Vector3(0,0,-2)))
 
     // create map
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -82,7 +83,7 @@ const init = async function(){
 
     // testing
     let testObject = new GameObject(scene);
-    testObject.addComponent(new Smoke(testObject, camera))
+    testObject.addComponent(new Smoke(testObject, camera, new THREE.Vector3(0,1.5,0)))
     gameObjectArray.add(testObject);
 
     // create lights

@@ -7,22 +7,28 @@ uniform float pointMultiplier;
 attribute float size;
 attribute float angle;
 attribute vec4 colour;
+
 varying vec4 vColour;
+varying vec2 vAngle;
 
 void main() {
-  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-  gl_Position = projectionMatrix * mvPosition;
-  gl_PointSize = size * pointMultiplier / gl_Position.w;
-  vColour = colour;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    gl_PointSize = size * pointMultiplier / gl_Position.w;
 
+    vAngle = vec2(cos(angle), sin(angle));
+    vColour = colour;
 }`;
 
 const _FS = `
 uniform sampler2D diffuseTexture;
+
 varying vec4 vColour;
+varying vec2 vAngle;
 
 void main() {
-  gl_FragColor = texture2D(diffuseTexture, gl_PointCoord) * vColour;
+    vec2 coords = (gl_PointCoord - 0.5) * mat2(vAngle.x, vAngle.y, -vAngle.y, vAngle.x) + 0.5;
+    gl_FragColor = texture2D(diffuseTexture, coords) * vColour;
 }`;
 
 export class ParticleSystem extends Component {
@@ -33,22 +39,22 @@ export class ParticleSystem extends Component {
 		this._elapsed  			= 0;
 		this._lifetime 			= [];
 		this._gravity 			= false;
-		this.numParticles 		= numParticles;
+		this._numParticles 		= numParticles;
 		this._duration 			= 1.0 / particlesPerSecond;  
 		this._cache 			= new THREE.Vector3(0, -10, 0);
 		this._particleLifetime  = particleLifetime;
+        this._startSize = 0.1;
+        this.active = true;
 
-		const position = [], sizes = [], colors = []
+		const position = [], sizes = [], colors = [], rotation = []
 		this._velocities = []
 
-		for ( let i = 0; i < this.numParticles; i++ ) {
+		for ( let i = 0; i < this._numParticles; i++ ) {
 			position.push(this._cache.x, this._cache.y, this._cache.z);
 			this._lifetime.push(-1);
-
-
 			this._velocities.push(new THREE.Vector3(0, 0, 0))
-			sizes.push(10)
-
+			sizes.push(this._startSize)
+            rotation.push(Math.random() * 2.0 * Math.PI)
 			let color = new THREE.Color();
 			colors.push(color.r, color.g, color.b, 1);
 		}
@@ -78,6 +84,7 @@ export class ParticleSystem extends Component {
 		this._geometry = new THREE.BufferGeometry();
 		this._geometry.setAttribute('position', new THREE.Float32BufferAttribute(position,3));
 		this._geometry.setAttribute('size',     new THREE.Float32BufferAttribute(sizes,1));
+		this._geometry.setAttribute('angle',     new THREE.Float32BufferAttribute(rotation,1));
 		this._geometry.setAttribute('colour',   new THREE.Float32BufferAttribute(colors,4));
 		this._geometry.computeBoundingSphere()
 		this._geometry.boundingSphere.set(this._cache, 100);
@@ -88,7 +95,7 @@ export class ParticleSystem extends Component {
 	}
 
 	_findUnusedParticle(){
-		for (let i = this._lastUsedParticle; i < this.numParticles; i++){
+		for (let i = this._lastUsedParticle; i < this._numParticles; i++){
 			if (this._lifetime[i] < 0){
 				this._lastUsedParticle = i; 
 				return i;
@@ -111,7 +118,7 @@ export class ParticleSystem extends Component {
         positions[i*3+2] += this._velocities[i].z * dt; 
         if (this._gravity)  this._velocities[i].y -= 9.81*dt;
 
-        sizes[i]        += 0.1 * dt;
+        sizes[i]        += 0.1  * dt;
         colors[i*4+3]   -= 0.02 * dt;
     }
 
@@ -120,7 +127,7 @@ export class ParticleSystem extends Component {
         positions[i*3+1] = 0;
         positions[i*3+2] = 0;
 
-        sizes[i] 				= 0.1;
+        sizes[i] 				= this._startSize;
         this._lifetime[i] 	    = this._particleLifetime;
         this._velocities[i] 	= new THREE.Vector3(0,1,0);
     }
@@ -132,7 +139,7 @@ export class ParticleSystem extends Component {
 		
 		this._elapsed += dt;
 
-		if (this._elapsed >= this._duration){
+		if (this._elapsed >= this._duration && this.active){
 			let numNewParticles = Math.floor(this._elapsed / this._duration);
 
 			for (let i = 0; i < numNewParticles; i++){
@@ -141,7 +148,7 @@ export class ParticleSystem extends Component {
 			this._elapsed = 0
 		}
 
-		for (let i = 0; i < this.numParticles; i++){
+		for (let i = 0; i < this._numParticles; i++){
 			if (this._lifetime[i] > 0){
 
 				this._lifetime[i] -= dt;
@@ -165,8 +172,13 @@ export class ParticleSystem extends Component {
 }
 
 export class Smoke extends ParticleSystem {
-    constructor(gameObject, camera){
+    constructor(gameObject, camera, source){
         super(gameObject, camera, 1000, 5, 5);
+        this._source = source;
+
+        document.querySelector('#button').addEventListener("click", event => {
+            this.active = !this.active;
+        })
     }
 
     _updateParticle(dt, i, sizes, colors, positions){
@@ -181,9 +193,9 @@ export class Smoke extends ParticleSystem {
     }
 
     _createParticle(i, sizes, colors, positions){
-        positions[i*3] 	 = 0;
-        positions[i*3+1] = 0;
-        positions[i*3+2] = 0;
+        positions[i*3] 	 = this._source.x;
+        positions[i*3+1] = this._source.y;
+        positions[i*3+2] = this._source.z;
 
         sizes[i] 				= 0.1;
         this._lifetime[i] 	    = this._particleLifetime;
