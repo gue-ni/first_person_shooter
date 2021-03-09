@@ -86,9 +86,9 @@ export class SemiAutomaticWeapon extends Component {
             that.gameObject.transform.add(audio);
         });
 
-        this.slider1 = document.querySelector('#slider1');
-        this.slider2 = document.querySelector('#slider2');
-        this.slider3 = document.querySelector('#slider3');
+        //this.slider1 = document.querySelector('#slider1');
+        //this.slider2 = document.querySelector('#slider2');
+        //this.slider3 = document.querySelector('#slider3');
         
 		this._fire = function () {
             this._fired  = true;
@@ -124,7 +124,7 @@ export class SemiAutomaticWeapon extends Component {
 
 
     update(dt){
-        this.gun.position.set(this.slider1.value / 10, this.slider2.value / 10, this.slider3.value / 10);
+        //this.gun.position.set(this.slider1.value / 10, this.slider2.value / 10, this.slider3.value / 10);
         //console.log(this.gun.position);
 
         if (this._fired && this._flashDurationCounter <= this._flashDuration){

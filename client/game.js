@@ -11,7 +11,7 @@ import { Ray } from './ray.js';
 import { ParticleSystem, MuzzleFlash } from './particles.js';
 import { Factory } from './factory.js';
 
-const canvas  		= document.querySelector('#c');
+const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
 const slider2 		= document.querySelector('#slider2');
 const slider3 		= document.querySelector('#slider3');
