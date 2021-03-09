@@ -44,8 +44,8 @@ export class ParticleSystem extends Component {
 		this._duration 			= 1.0 / particlesPerSecond;  
 		this._cache 			= new THREE.Vector3(0, -10, 0);
 		this._particleLifetime  = particleLifetime;
-        this._startSize = 0.1;
-        this.active = true;
+        this._startSize         = 0.1;
+        this.active             = true;
 
 		const position = [], sizes = [], colors = [], rotation = []
 		this._velocities = []
