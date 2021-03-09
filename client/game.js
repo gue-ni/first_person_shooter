@@ -19,6 +19,7 @@ const hit 			= document.querySelector('#hit');
 const crosshair 	= document.querySelector('#crosshair');
 const taking_hits 	= document.querySelector('#taking_hits');
 const users 		= document.querySelector('#users');
+const debug         = document.querySelector('#debug')
 
 const clear_color 	= "#8009E8";
 const DARK_GRAY 	= 0x999999;
@@ -39,15 +40,14 @@ const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true,  pow
 const listener = new THREE.AudioListener();
 camera.add(listener);
 
-renderer.setClearColor("#6AB9D9")
+renderer.setClearColor("#6AB9D9");
 
-const stats = new Stats()
-document.body.appendChild(stats.dom)
-
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.BasicShadowMap
-renderer.shadowMap.autoUpdate = false
+renderer.shadowMap.type = THREE.BasicShadowMap;
+renderer.shadowMap.autoUpdate = false;
 
 window.addEventListener('resize', () => {
 	let width = window_width
@@ -57,87 +57,58 @@ window.addEventListener('resize', () => {
 	camera.updateProjectionMatrix()
 })
 
-
-
-const debug = document.querySelector('#debug')
 const map_width = 50, map_depth = 50, map_height = 50
-const bullets 	 = []
-let network_data = []
-const spaceHash = new SpaceHash(2)
-const gameObjectArray = new GameObjectArray()
-
-
-// Create the Player
-
-const factory = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
-let player = factory.createPlayer(bullets)
-
-function mouse_callback(event){
-    player.fpv.yaw   += (event.movementX * 0.1)
-    player.fpv.pitch += (event.movementY * 0.1)
-    let pitch = -player.fpv.pitch;
-    if (pitch >  89) pitch =  89
-    if (pitch < -89) pitch = -89
-
-    player.direction.x = Math.cos(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-    player.direction.y = Math.sin(pitch*(Math.PI/180))
-    player.direction.z = Math.sin(player.fpv.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-    player.direction.normalize()
-}
-
-canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
-document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
-canvas.onclick = function() { canvas.requestPointerLock(); };
-document.addEventListener('pointerlockchange', 	  lockChangeAlert, false);
-document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
-function lockChangeAlert() {
-    if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
-        document.addEventListener("mousemove", mouse_callback, false);
-    } else {
-        document.removeEventListener("mousemove", mouse_callback, false);
-    }
-}
-
-
-
-
-
-let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
-let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
-let mesh 		= new THREE.Mesh(geometry, material)
-mesh.position.set(0,20,0);
-scene.add(mesh);
-
-
-const pinkLight = new THREE.PointLight(PINK, 3, 100, 2);
-pinkLight.position.set(-25, 50, -25);
-scene.add(pinkLight);
-const blueLight = new THREE.PointLight(BLUE, 3, 100, 2);
-blueLight.position.set(25, 50, 25);
-scene.add(blueLight);
-scene.add(new THREE.AmbientLight(WHITE, 0.2))
-const light = new THREE.DirectionalLight(WHITE, 0.5, 100);
-light.position.set(0, 50, 25)
-light.castShadow 			=  true; 
-light.shadow.mapSize.width 	=  512; 
-light.shadow.mapSize.height =  512; 
-light.shadow.camera.near 	=  0.5; 
-light.shadow.camera.far 	=  100;
-light.shadow.camera.left 	= -50;
-light.shadow.camera.bottom 	= -50;
-light.shadow.camera.top  	=  50;
-light.shadow.camera.right	=  50;
-scene.add(light)
-//scene.add(new THREE.CameraHelper(light.shadow.camera))
-
+const bullets 	        = []
+let network_data        = []
+const spaceHash         = new SpaceHash(2)
+const gameObjectArray   = new GameObjectArray()
+const factory           = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
+const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+var player              = undefined;
 
 const init = async function(){
 	let json = await fetch('./game_data.json');
 	let gameData = await json.json();
+   
+    // create player
+    player = factory.createPlayer(bullets)
 
-	for (let pos of gameData.boxes){
+    // create map
+    let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
+    let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
+    let mesh 		= new THREE.Mesh(geometry, material)
+    mesh.position.set(0,20,0);
+    scene.add(mesh);
+
+    // create boxes
+    for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos);
 	}
+
+    // create lights
+    const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);
+    pinkLight.position.set(-25, 50, -25);
+    scene.add(pinkLight);
+    
+    const blueLight = new THREE.PointLight(gameData.colorscheme.blue, 3, 100, 2);
+    blueLight.position.set(25, 50, 25);
+    scene.add(blueLight);
+  
+    scene.add(new THREE.AmbientLight(gameData.colorscheme.white, 0.2))
+   
+    const light = new THREE.DirectionalLight(gameData.colorscheme.white, 0.5, 100);
+    light.position.set(0, 50, 25)
+    light.castShadow 			=  true; 
+    light.shadow.mapSize.width 	=  512; 
+    light.shadow.mapSize.height =  512; 
+    light.shadow.camera.near 	=  0.5; 
+    light.shadow.camera.far 	=  100;
+    light.shadow.camera.left 	= -50;
+    light.shadow.camera.bottom 	= -50;
+    light.shadow.camera.top  	=  50;
+    light.shadow.camera.right	=  50;
+    scene.add(light)
+    //scene.add(new THREE.CameraHelper(light.shadow.camera))
 
     // bake shadows
 	renderer.shadowMap.needsUpdate = true;
@@ -176,7 +147,6 @@ const animate = function(now) {
 				for (let otherObject of spaceHash.find_possible_collisions(aabb)){
 					if (otherObject != gameObject) otherObject.collideAABB(aabb); 
 				}
-				//ground_aabb.collideAABB(aabb);
 			}
 
 			if (gameObject.position.x > map_width/2-0.5){
@@ -194,6 +164,7 @@ const animate = function(now) {
 
 			if (gameObject.position.y > map_height-3){
 				gameObject.position.y = map_height-3;
+
 			} else if (gameObject.position.y < 0){
                 gameObject.position.y = 0;
                 gameObject.velocity.y = 0;
@@ -235,9 +206,6 @@ const animate = function(now) {
 	renderer.render(scene, camera)
 }
 
-init()
-
-let websocket = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
@@ -281,3 +249,4 @@ websocket.onmessage = function (event) {
 	}
 };
 
+init();
