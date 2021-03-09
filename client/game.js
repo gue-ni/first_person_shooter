@@ -85,9 +85,9 @@ const init = async function(){
 	}
 
     // testing
-    let testObject = new GameObject(scene);
-    testObject.addComponent(new Smoke(testObject, new THREE.Vector3(0,1.5,0)))
-    gameObjectArray.add(testObject);
+    //let testObject = new GameObject(scene);
+    //testObject.addComponent(new Smoke(testObject, new THREE.Vector3(0,1.5,0)))
+    //gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);

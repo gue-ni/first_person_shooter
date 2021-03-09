@@ -31,9 +31,9 @@ void main() {
     gl_FragColor = texture2D(diffuseTexture, coords) * vColour;
 }`;
 
-export class ParticleSystem extends Component {
-	constructor(gameObject, numParticles, particlesPerSecond, particleLifetime){
-		super(gameObject);
+export class ParticleSystem {
+	constructor(parent, numParticles, particlesPerSecond, particleLifetime){
+        console.log(parent)
 
 		this._lastUsedParticle 	= 0;
 		this._elapsed  			= 0;
@@ -89,7 +89,8 @@ export class ParticleSystem extends Component {
 
 		this._points = new THREE.Points(this._geometry, this._material);
 
-		this.gameObject.transform.add(this._points);
+        //console.log(gameObject)
+		parent.add(this._points);
 	}
 
 	_findUnusedParticle(){
@@ -99,7 +100,6 @@ export class ParticleSystem extends Component {
 				return i;
 			}
 		}
-
 		for (let i = 0; i < this._lastUsedParticle; i++){
 			if (this._lifetime[i] < 0){
 				this._lastUsedParticle = i;
@@ -107,7 +107,6 @@ export class ParticleSystem extends Component {
 			}
 		}
 		return 0;
-
     }
 
     _updateParticle(dt, i, sizes, colors, positions){
@@ -172,8 +171,8 @@ export class ParticleSystem extends Component {
 }
 
 export class Smoke extends ParticleSystem {
-    constructor(gameObject, source){
-        super(gameObject, 1000, 5, 5);
+    constructor(parent, source){
+        super(parent, 1000, 7, 5);
         this._source = source;
     }
 

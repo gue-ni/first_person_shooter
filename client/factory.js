@@ -7,6 +7,7 @@ import { WASDMovement, FPSCamera, Health } from './player.js';
 import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Ray } from './ray.js';
+import { Smoke } from './particles.js';
 
 export class Factory {
     constructor(scene, camera, listener, gameObjectArray, spaceHash){
@@ -17,6 +18,13 @@ export class Factory {
         this.spaceHash = spaceHash;
     }
 
+    createRifle(owner, bullets){
+        let gun = new FullAutoWeapon(owner, bullets, this.listener, 625);
+        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
+        gun.smoke.active = false;
+        return gun;
+    }
+
     createPlayer(bullets){
         let player = new GameObject(this.scene)
         
@@ -24,7 +32,12 @@ export class Factory {
 
         let inventory = player.addComponent(new Inventory(player));
         //inventory.weapons.push(new SemiAutomaticWeapon(player, bullets, this.listener));
-        inventory.weapons.push(new FullAutoWeapon(player, bullets, this.listener, 625));
+
+        //let gun = new FullAutoWeapon(player, bullets, this.listener, 625);
+        //gun.smoke = new Smoke(this.scene, new THREE.Vector3(0.2,0.3, -1.6));
+        //gun.smoke.active = false;
+        
+        inventory.weapons.push(this.createRifle(player, bullets));
 
         player.addComponent(new WASDMovement(player))
         player.addComponent(new Gravity(player))
@@ -37,6 +50,8 @@ export class Factory {
        
         return player;
     }
+
+    
 
     createEnvironmentBox(pos){
 		let size 		= new THREE.Vector3(2,2,2)

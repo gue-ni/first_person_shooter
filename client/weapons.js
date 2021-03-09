@@ -61,8 +61,8 @@ export class SemiAutomaticWeapon extends Component {
             this.gameObject.transform.add(this.gun);
         })();
 
-        this.smoke = new Smoke(gameObject, this._muzzlePosition.clone());
-        this.smoke.active = false;
+        //this.smoke = new Smoke(gameObject, this._muzzlePosition.clone());
+        //this.smoke.active = false;
 
         // muzzle flash light
         this.light = new THREE.PointLight(0x000000, 1, 5);
@@ -161,7 +161,8 @@ export class SemiAutomaticWeapon extends Component {
             }
         }
 
-
+        //this.flash.getWorldPosition(this.smoke._source);
+        this.smoke._source.copy(this.flash.localToWorld(this._muzzlePosition));
         this.smoke.update(dt);
     }
 }
