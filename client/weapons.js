@@ -9,6 +9,13 @@ export class Inventory extends Component {
     constructor(gameObject){
         super(gameObject);
         this.weapons = []
+
+        document.addEventListener("keydown", (event) => {
+            switch (event.keyCode) {
+                case 82: 
+                    break;
+            }
+        });
     }
 
     update(dt){
@@ -25,12 +32,20 @@ export class SemiAutomaticWeapon extends Component {
 		super(gameObject);
 		this.name = "SemiAutomaticWeapon"
 
+        this._damage = 5;
+
         this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1)
         this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
         this._fired = false;
         this._flashDuration = 0.05;
         this._flashDurationCounter = 0;
         this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
+
+        this._reloading = false;
+        this._ammoCapacity = 45;
+        this._ammo = this._ammoCapacity;
+        this._ammoDisplay = document.querySelector('#ammo');
+        this._ammoDisplay.innerText = this._ammo;
 
         // load gun model
         (async () => {
@@ -89,20 +104,35 @@ export class SemiAutomaticWeapon extends Component {
         });
 
 		this._fire = function () {
+            if (this._ammo <= 0) return;
+
             this._fired  = true;
-			//console.log("fire");
             this.flash.scale.copy(this._flashStartingScale);
+            this._ammoDisplay.innerText = --this._ammo;
             
             if (this.gunshot.isPlaying){
                 this.gunshot.stop();
                 this.gunshot.play();
+
             } else {
                 this.gunshot.play();
                 
             }
 
-            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
+            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject, this._damage);
 		}
+
+        document.addEventListener("keydown", (event) => {
+            switch (event.keyCode) {
+
+                case 82: // r
+                    // reload
+                    this._ammo = this._ammoCapacity; 
+                    this._ammoDisplay.innerText = this._ammo;
+                    break;
+            }
+
+        })
 
 		document.body.addEventListener("mousedown", e => {
 			this._fire()

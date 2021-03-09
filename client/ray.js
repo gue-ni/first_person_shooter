@@ -52,10 +52,10 @@ export class Ray {
 }
 
 export class BulletRay extends Ray {
-	constructor(origin, direction, owner){
+	constructor(origin, direction, owner, damage){
 		super(origin, direction);
 		this.owner = owner;
-        this.damage = 10;
+        this.damage = damage;
 	}
 }
 

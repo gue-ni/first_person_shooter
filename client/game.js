@@ -117,7 +117,7 @@ let then = 0, dt = 0
 const animate = function(now) {
 	requestAnimationFrame(animate);
 
-	now *= 0.001;
+	now *= 0.001; // convert to seconds
 	dt   = now - then;
 	then = now;
 	if (dt > 0.1) dt = 0.1;
@@ -178,6 +178,7 @@ const animate = function(now) {
 			let b = [];
 
 			bullets.forEach(el => {
+                // TODO send damage with every bullet
 				b.push([ el.origin.x,el.origin.y,el.origin.z, el.direction.x,el.direction.y,el.direction.z ]);
 			});
 
