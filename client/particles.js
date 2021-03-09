@@ -32,7 +32,7 @@ void main() {
 }`;
 
 export class ParticleSystem extends Component {
-	constructor(gameObject, camera, numParticles, particlesPerSecond, particleLifetime){
+	constructor(gameObject, numParticles, particlesPerSecond, particleLifetime){
 		super(gameObject);
 
 		this._lastUsedParticle 	= 0;
@@ -78,8 +78,6 @@ export class ParticleSystem extends Component {
 			transparent: 	true,
 			vertexColors: 	true
 		});
-
-		this._camera = camera;
 
 		this._geometry = new THREE.BufferGeometry();
 		this._geometry.setAttribute('position', new THREE.Float32BufferAttribute(position,3));
@@ -172,8 +170,8 @@ export class ParticleSystem extends Component {
 }
 
 export class Smoke extends ParticleSystem {
-    constructor(gameObject, camera, source){
-        super(gameObject, camera, 1000, 5, 5);
+    constructor(gameObject, source){
+        super(gameObject, 1000, 5, 5);
         this._source = source;
 
         document.querySelector('#button').addEventListener("click", event => {
@@ -193,13 +191,13 @@ export class Smoke extends ParticleSystem {
     }
 
     _createParticle(i, sizes, colors, positions){
-        positions[i*3] 	 = this._source.x;
-        positions[i*3+1] = this._source.y;
-        positions[i*3+2] = this._source.z;
+        positions[i*3] 	 = this._source.x + 0.25 * Math.random() - 0.125;
+        positions[i*3+1] = this._source.y + 0.25 * Math.random() - 0.125;
+        positions[i*3+2] = this._source.z + 0.25 * Math.random() - 0.125;
 
         sizes[i] 				= 0.1;
         this._lifetime[i] 	    = this._particleLifetime;
-        this._velocities[i] 	= new THREE.Vector3(0,0.75,0);
+        this._velocities[i] 	= new THREE.Vector3(0.25,0.75,0);
     }
 
 

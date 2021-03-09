@@ -4,6 +4,7 @@ import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { GameObject} from './gameobject.js'
 import { Component } from './components.js'
 import { BulletRay } from './ray.js'
+import { Smoke } from './particles.js';
 
 export class Inventory extends Component {
     constructor(gameObject){
@@ -60,6 +61,9 @@ export class SemiAutomaticWeapon extends Component {
             this.gameObject.transform.add(this.gun);
         })();
 
+        this.smoke = new Smoke(gameObject, this._muzzlePosition.clone());
+        this.smoke.active = false;
+
         // muzzle flash light
         this.light = new THREE.PointLight(0x000000, 1, 5);
 		this.light.position.set(1,0.2,-2)
@@ -106,6 +110,8 @@ export class SemiAutomaticWeapon extends Component {
 		this._fire = function () {
             if (this._ammo <= 0) return;
 
+            this.smoke.active = true;
+
             this._fired  = true;
             this.flash.scale.copy(this._flashStartingScale);
             this._ammoDisplay.innerText = --this._ammo;
@@ -151,8 +157,12 @@ export class SemiAutomaticWeapon extends Component {
                 this._flashDurationCounter = 0;
                 this.flash.scale.set(0,0,0);
                 this.light.color.setHex(0x000000);
+                this.smoke.active = false;
             }
         }
+
+
+        this.smoke.update(dt);
     }
 }
 
