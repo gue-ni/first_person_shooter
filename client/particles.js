@@ -55,7 +55,7 @@ export class ParticleSystem extends Component {
 
 		const uniforms = {
 			diffuseTexture: {
-			    value: new THREE.TextureLoader().load('./assets/textures/fog.png')
+			    value: new THREE.TextureLoader().load('./assets/textures/smoke.png')
 			},
 			pointMultiplier: {
 			    value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
@@ -111,8 +111,8 @@ export class ParticleSystem extends Component {
         positions[i*3+2] += this._velocities[i].z * dt; 
         if (this._gravity)  this._velocities[i].y -= 9.81*dt;
 
-        sizes[i]        += 0.01;
-        colors[i*4+3]   -= 0.02;
+        sizes[i]        += 0.1 * dt;
+        colors[i*4+3]   -= 0.02 * dt;
     }
 
     _createParticle(i, sizes, colors, positions){
@@ -166,8 +166,31 @@ export class ParticleSystem extends Component {
 
 export class Smoke extends ParticleSystem {
     constructor(gameObject, camera){
-        super(gameObject, camera, 2000, 10, 3);
+        super(gameObject, camera, 1000, 5, 5);
     }
+
+    _updateParticle(dt, i, sizes, colors, positions){
+
+        positions[i*3] 	 += this._velocities[i].x * dt; 
+        positions[i*3+1] += this._velocities[i].y * dt; 
+        positions[i*3+2] += this._velocities[i].z * dt; 
+        if (this._gravity)  this._velocities[i].y -= 9.81*dt;
+
+        sizes[i]        += 0.1 * dt;
+        colors[i*4+3]   -= 0.2 * dt;
+    }
+
+    _createParticle(i, sizes, colors, positions){
+        positions[i*3] 	 = 0;
+        positions[i*3+1] = 0;
+        positions[i*3+2] = 0;
+
+        sizes[i] 				= 0.1;
+        this._lifetime[i] 	    = this._particleLifetime;
+        this._velocities[i] 	= new THREE.Vector3(0,0.75,0);
+    }
+
+
 }
 
 function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration){	

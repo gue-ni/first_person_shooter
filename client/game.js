@@ -6,7 +6,7 @@ import { Box, Gravity } from './components.js';
 import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Factory } from './factory.js';
-import { ParticleSystem } from './particles.js';
+import { ParticleSystem, Smoke } from './particles.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -82,7 +82,7 @@ const init = async function(){
 
     // testing
     let testObject = new GameObject(scene);
-    testObject.addComponent(new ParticleSystem(testObject, camera, 2000, 10, 3))
+    testObject.addComponent(new Smoke(testObject, camera))
     gameObjectArray.add(testObject);
 
     // create lights
