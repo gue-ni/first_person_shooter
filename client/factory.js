@@ -23,7 +23,7 @@ export class Factory {
         player.fpv = player.addComponent(new FPSCamera(player, this.camera))
 
         let inventory = player.addComponent(new Inventory(player));
-        inventory.weapons.push(new FullAutoWeapon(player, bullets, this.listener, 630));
+        inventory.weapons.push(new FullAutoWeapon(player, bullets, this.listener, 625));
 
         player.addComponent(new WASDMovement(player))
         player.addComponent(new Gravity(player))
@@ -50,7 +50,9 @@ export class Factory {
     }
 
     createNetworkPlayer(){}
-    createRifle(){}
+    createRifle(){
+
+    }
     createPistol(){}
 }
 

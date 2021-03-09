@@ -6,6 +6,7 @@ import { Box, Gravity } from './components.js';
 import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Factory } from './factory.js';
+import { ParticleSystem } from './particles.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -16,7 +17,6 @@ const crosshair 	= document.querySelector('#crosshair');
 const taking_hits 	= document.querySelector('#taking_hits');
 const users 		= document.querySelector('#users');
 const debug         = document.querySelector('#debug')
-
 
 //canvas.height = window.innerHeight;
 //canvas.width 	= window.innerWidth;
@@ -79,6 +79,11 @@ const init = async function(){
     for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos);
 	}
+
+    // testing
+    let testObject = new GameObject(scene);
+    testObject.addComponent(new ParticleSystem(testObject, camera, 2000, 10, 3))
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);

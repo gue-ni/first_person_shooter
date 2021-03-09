@@ -9,3 +9,6 @@ assets/downloaded/
 *.jpg
 src/assets/downloaded/
 client/assets/downloaded/
+*.zip
+
+

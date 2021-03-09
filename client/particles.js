@@ -1,7 +1,5 @@
 import * as THREE from './three/build/three.module.js';
 import { Component } from './components.js'
-import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
-
 
 const _VS = `
 uniform float pointMultiplier;
@@ -36,45 +34,28 @@ export class ParticleSystem extends Component {
 		this._lifetime 			= [];
 		this._gravity 			= false;
 		this.numParticles 		= numParticles;
-		this._duration 			= 1 / particlesPerSecond;  
+		this._duration 			= 1.0 / particlesPerSecond;  
 		this._cache 			= new THREE.Vector3(0, -10, 0);
-
-
-		this._particleLifetime  = function(){
-			return particleLifetime;
-		};
-
-		this._particleOrigin = function(){
-			return new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5);
-		}
-
-		this._particleSize = function(){
-			return 1;
-		};
-
-		this._particleVelocity = function(){
-			let dir = new THREE.Vector3(0,1,0);
-			dir.normalize();
-			return dir.multiplyScalar(1 + Math.random() * 5);		
-		}
+		this._particleLifetime  = particleLifetime;
 
 		const position = [], sizes = [], colors = []
 		this._velocities = []
-		this._sub_alpha = []
 
 		for ( let i = 0; i < this.numParticles; i++ ) {
 			position.push(this._cache.x, this._cache.y, this._cache.z);
 			this._lifetime.push(-1);
-			this._sub_alpha.push(0)
-			this._velocities.push( new THREE.Vector3(0, 0, 0))
+
+
+			this._velocities.push(new THREE.Vector3(0, 0, 0))
 			sizes.push(10)
+
 			let color = new THREE.Color();
 			colors.push(color.r, color.g, color.b, 1);
 		}
 
 		const uniforms = {
 			diffuseTexture: {
-			    value: new THREE.TextureLoader().load('./assets/fire.png')
+			    value: new THREE.TextureLoader().load('./assets/textures/fog.png')
 			},
 			pointMultiplier: {
 			    value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
@@ -87,7 +68,7 @@ export class ParticleSystem extends Component {
 			fragmentShader: _FS,
 			depthTest: 		true,
 			depthWrite: 	false,
-			blending: THREE.AdditiveBlending,
+			blending: THREE.NormalBlending, // THREE.AdditiveBlending for fire
 			transparent: 	true,
 			vertexColors: 	true
 		});
@@ -96,9 +77,8 @@ export class ParticleSystem extends Component {
 
 		this._geometry = new THREE.BufferGeometry();
 		this._geometry.setAttribute('position', new THREE.Float32BufferAttribute(position,3));
-		this._geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes,1));
-		this._geometry.setAttribute('colour', new THREE.Float32BufferAttribute(colors,4));
-
+		this._geometry.setAttribute('size',     new THREE.Float32BufferAttribute(sizes,1));
+		this._geometry.setAttribute('colour',   new THREE.Float32BufferAttribute(colors,4));
 		this._geometry.computeBoundingSphere()
 		this._geometry.boundingSphere.set(this._cache, 100);
 
@@ -122,7 +102,28 @@ export class ParticleSystem extends Component {
 			}
 		}
 		return 0;
-	}
+
+    }
+
+    _updateParticle(dt, i, sizes, colors, positions){
+        positions[i*3] 	 += this._velocities[i].x * dt; 
+        positions[i*3+1] += this._velocities[i].y * dt; 
+        positions[i*3+2] += this._velocities[i].z * dt; 
+        if (this._gravity)  this._velocities[i].y -= 9.81*dt;
+
+        sizes[i]        += 0.01;
+        colors[i*4+3]   -= 0.02;
+    }
+
+    _createParticle(i, sizes, colors, positions){
+        positions[i*3] 	 = 0;
+        positions[i*3+1] = 0;
+        positions[i*3+2] = 0;
+
+        sizes[i] 				= 0.1;
+        this._lifetime[i] 	    = this._particleLifetime;
+        this._velocities[i] 	= new THREE.Vector3(0,1,0);
+    }
 
 	update(dt){
 		const positions = this._points.geometry.attributes.position.array;
@@ -130,48 +131,29 @@ export class ParticleSystem extends Component {
 		const colors 	= this._points.geometry.attributes.colour.array;
 		
 		this._elapsed += dt;
+
 		if (this._elapsed >= this._duration){
 			let numNewParticles = Math.floor(this._elapsed / this._duration);
 
 			for (let i = 0; i < numNewParticles; i++){
-				let newParticle = this._findUnusedParticle();
-
-				let origin = this._particleOrigin();
-				positions[newParticle*3] 	= origin.x;
-				positions[newParticle*3+1] 	= origin.y;
-				positions[newParticle*3+2]  = origin.z;
-
-				sizes[newParticle] 				= this._particleSize();
-				this._lifetime[newParticle] 	= this._particleLifetime();
-
-				this._sub_alpha[newParticle] = 1.0 / this._lifetime[newParticle];
-
-				this._velocities[newParticle] 	= this._particleVelocity();
+                this._createParticle(this._findUnusedParticle(), sizes, colors, positions);
 			}		
-
 			this._elapsed = 0
 		}
 
 		for (let i = 0; i < this.numParticles; i++){
-
 			if (this._lifetime[i] > 0){
 
 				this._lifetime[i] -= dt;
 
 				if (this._lifetime[i] > 0){
-					positions[i*3] 	 += this._velocities[i].x * dt; 
-					positions[i*3+1] += this._velocities[i].y * dt; 
-					positions[i*3+2] += this._velocities[i].z * dt; 
-					if (this._gravity)  this._velocities[i].y -= 9.81*dt;
-
-					//colors[i*4+3] -= this._sub_alpha[i] * dt;
-
+                    this._updateParticle(dt, i, sizes, colors, positions);
 				} else {
 					positions[i*3]   = this._cache.x;
 					positions[i*3+1] = this._cache.y;
 					positions[i*3+2] = this._cache.z;
-					sizes[i] 		= 0;
-					colors[i*4+3] 	= 0;
+					sizes[i] 		 = 0;
+					colors[i*4+3] 	 = 0;
 				}
 			}
 		}
@@ -180,6 +162,12 @@ export class ParticleSystem extends Component {
 		this._points.geometry.attributes.size.needsUpdate 		= true;
 		this._points.geometry.attributes.colour.needsUpdate 	= true;
 	}
+}
+
+export class Smoke extends ParticleSystem {
+    constructor(gameObject, camera){
+        super(gameObject, camera, 2000, 10, 3);
+    }
 }
 
 function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration){	
@@ -220,110 +208,5 @@ function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDurat
 	};
 }
 
-export class MuzzleFlash extends Component {
-	constructor(gameObject){
-		super(gameObject);
-		this.name = "MuzzleFlash";
 
-		this._duration = 1 / 10;
-		this._elapsed = 0;
-		
-		this.on = true;
-		this.light = new THREE.PointLight( 0xffffff, 1, 100 );
-		//this.light.position.set(0, 2, 0);
-		this.light.position.set(1,0.2,-2)
-		//this.gameObject.transform.add(this.light)
-
-
-		
-		this.texture1 = new THREE.TextureLoader().load('assets/flash.png');
-
-		const geometry = new THREE.PlaneGeometry( 5, 5, 5 );
-		const material = new THREE.MeshBasicMaterial({
-			map: this.texture1, 
-			side: THREE.DoubleSide, 
-			opacity: 0.5,
-			transparent: true,
-			depthTest: 		true,
-			depthWrite: 	false,
-			blending: THREE.AdditiveBlending,
-		});
-
-		//console.log(material)
-
-		this.plane1 = new THREE.Mesh( geometry, material );
-		this.plane1.position.set(0,2,0)
-		this.gameObject.transform.add(this.plane1)	
-
-		this.plane2 = new THREE.Mesh(geometry, material);
-		this.plane2.rotateX(Math.PI/2)
-		this.plane2.position.set(0,2,0)
-		this.gameObject.transform.add(this.plane2)
-		
-
-		this.scale = new THREE.Vector3(1,1,1);
-
-
-
-		//this._load('./assets/flash2.glb');
-		
-		//this.plane2 = new THREE.Mesh(geometry, material);
-		//this.plane2.rotateY(Math.PI/2)
-		//this.gameObject.transform.add(this.plane2)
-
-		/*
-		let texture = new THREE.TextureLoader().load('./explosion.jpg');
-		texture.repeat.set(4,4)
-		const material = new THREE.SpriteMaterial( { map: texture } );
-		const sprite = new THREE.Sprite( material )
-		sprite.position.set(0,1,0);
-		sprite.scale.set(5,5,5);
-		this.gameObject.transform.add(sprite);
-		*/
-
-		/*
-		var explosionTexture = new THREE.TextureLoader().load( './explosion2.png' );
-		this.boomer = new TextureAnimator( explosionTexture, 4, 4, 16, 55 ); // texture, #horiz, #vert, #total, duration.
-		var explosionMaterial = new THREE.SpriteMaterial( { map: explosionTexture } );
-		var cube = new THREE.Sprite( explosionMaterial );
-		cube.position.set(1,2,-5);
-		cube.scale.set(5,5,5);
-		this.gameObject.transform.add(cube);
-
-		*/
-		
-
-	}
-
-
-	update(dt){
-		//this.scale.multiplyScalar(1.01);
-
-		this.plane1.scale.copy(this.scale)
-		this.plane2.scale.copy(this.scale)
-
-		//this.boomer.update(dt * 1000);
-
-		/*
-		this._elapsed += dt;
-		if (this._elapsed >= this._duration){
-
-			if (this.on){
-				//console.log("on");
-				this.light.color.setHex( 0xffffff );
-					
-			} else {
-				//console.log("off");
-				this.light.color.setHex( 0x000000 );
-			}
-
-			this.on = !this.on;
-			this._elapsed = 0;
-		}
-		*/
-	}
-
-
-
-}
 
