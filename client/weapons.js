@@ -127,7 +127,7 @@ export class SemiAutomaticWeapon extends Component {
                 
             }
 
-            rays[rays.length] = new BulletRay(this.gameObject.fpv.camera.position, this.gameObject.direction, this.gameObject, this._damage);
+            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {
@@ -136,8 +136,7 @@ export class SemiAutomaticWeapon extends Component {
                 case 82: // r
                     // reload
                     this._reloading = true;
-                    this._ammoDisplay.innerText = "reloading..."
-                    console.log("reload")
+                    this._ammoDisplay.innerText = "reloading"
                     break;
             }
 
