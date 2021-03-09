@@ -29,7 +29,6 @@ void main() {
 
 export class ParticleSystem {
 	constructor(parent, numParticles, particlesPerSecond, particleLifetime){
-        console.log(parent)
 
 		this._lastUsedParticle 	= 0;
 		this._elapsed  			= 0;

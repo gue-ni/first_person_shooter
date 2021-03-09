@@ -7,7 +7,7 @@ export class AABB extends Component {
 		this.name = "aabb"
 		this.size = size;
 		//this._min = new THREE.Vector3(this.minX, this.minY, this.minZ)
-		//this._max =new THREE.Vector3(this.maxX, this.maxY, this.maxZ) }
+		//this._max = new THREE.Vector3(this.maxX, this.maxY, this.maxZ) }
 		//let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
 		//let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
 		//this.gameObject.transform.add(new THREE.Mesh(geometry, material))
@@ -34,7 +34,7 @@ export class AABB extends Component {
 		       (this.minZ < aabb.maxZ && this.maxZ > aabb.minZ)
 	}
 
-	collideAABB(aabb){
+	collide(aabb){
 		if (this.intersect(aabb)){
 
 			let d0, d1;
@@ -72,47 +72,6 @@ export class AABB extends Component {
 			}
 		} else {
 			return false;
-		}
-	}
-
-	collide(gameObject){
-		let b = gameObject.getComponent("aabb")
-		if (b != undefined){
-			let d0, d1, x, y, z
-			if (this.intersect(b)){
-				if (this.gameObject.velocity.length() < gameObject.velocity.length()){
-				
-					d0 = b.maxX 	- this.minX
-					d1 = this.maxX 	- b.minX
-					x = (d0 < d1 ? d0 : -d1)
-
-					d0 = b.maxY 	- this.minY
-					d1 = this.maxY 	- b.minY
-					y = (d0 < d1 ? d0 : -d1)
-
-					d0 = b.maxZ 	- this.minZ
-					d1 = this.maxZ 	- b.minZ
-					z = (d0 < d1 ? d0 : -d1)
-
-					if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
-						gameObject.position.setX(b.gameObject.position.x-x)  
-						gameObject.velocity.y = 0
-						return
-					}
-
-					if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
-						gameObject.position.setY(gameObject.position.y-y)  
-						gameObject.velocity.x = 0
-						return
-					}
-
-					if (Math.abs(y) > Math.abs(z) && Math.abs(x) > Math.abs(z)){
-						gameObject.position.setZ(gameObject.position.z-z)  
-						gameObject.velocity.z = 0
-						return
-					}
-				}
-			}
 		}
 	}
 }

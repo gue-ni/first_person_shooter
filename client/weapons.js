@@ -9,7 +9,8 @@ import { Smoke } from './particles.js';
 export class Inventory extends Component {
     constructor(gameObject){
         super(gameObject);
-        this.weapons = []
+        this.weapons = [];
+        this._active = 0; 
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
@@ -20,9 +21,7 @@ export class Inventory extends Component {
     }
 
     update(dt){
-        for (let w of this.weapons){
-            w.update(dt);
-        }
+        this.weapons[this._active].update(dt);
     }
 
     // TODO add cycle through weapons
@@ -43,6 +42,8 @@ export class SemiAutomaticWeapon extends Component {
         this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
 
         this._reloading = false;
+        this._reloadTime = 2;
+        this._reloadTimeCounter = 0;
         this._ammoCapacity = 45;
         this._ammo = this._ammoCapacity;
         this._ammoDisplay = document.querySelector('#ammo');
@@ -108,13 +109,14 @@ export class SemiAutomaticWeapon extends Component {
         });
 
 		this._fire = function () {
-            if (this._ammo <= 0) return;
+            if (this._ammo <= 0 || this._reloading) return;
 
             this.smoke.active = true;
 
             this._fired  = true;
             this.flash.scale.copy(this._flashStartingScale);
             this._ammoDisplay.innerText = --this._ammo;
+
             
             if (this.gunshot.isPlaying){
                 this.gunshot.stop();
@@ -125,7 +127,7 @@ export class SemiAutomaticWeapon extends Component {
                 
             }
 
-            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject, this._damage);
+            rays[rays.length] = new BulletRay(this.gameObject.fpv.camera.position, this.gameObject.direction, this.gameObject, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {
@@ -133,8 +135,9 @@ export class SemiAutomaticWeapon extends Component {
 
                 case 82: // r
                     // reload
-                    this._ammo = this._ammoCapacity; 
-                    this._ammoDisplay.innerText = this._ammo;
+                    this._reloading = true;
+                    this._ammoDisplay.innerText = "reloading..."
+                    console.log("reload")
                     break;
             }
 
@@ -161,7 +164,19 @@ export class SemiAutomaticWeapon extends Component {
             }
         }
 
-        //this.flash.getWorldPosition(this.smoke._source);
+        if (this._reloading && this._reloadTimeCounter <= this._reloadTime){
+            
+            this._reloadTimeCounter += dt;
+
+            if (this._reloadTimeCounter > this._reloadTime){
+                this._reloading = false;
+                this._reloadTimeCounter = 0;
+                this._ammo = this._ammoCapacity; 
+                this._ammoDisplay.innerText = this._ammo;
+            }
+
+        }
+
         this.smoke._source.copy(this.flash.localToWorld(this._muzzlePosition));
         this.smoke.update(dt);
     }

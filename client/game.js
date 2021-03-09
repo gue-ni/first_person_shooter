@@ -167,7 +167,7 @@ const animate = function(now) {
 
 			if (aabb){
 				for (let otherObject of spaceHash.find_possible_collisions(aabb)){
-					if (otherObject != gameObject) otherObject.collideAABB(aabb); 
+					if (otherObject != gameObject) otherObject.collide(aabb); 
 				}
 			}
 

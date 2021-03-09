@@ -31,12 +31,6 @@ export class Factory {
         player.fpv = player.addComponent(new FPSCamera(player, this.camera))
 
         let inventory = player.addComponent(new Inventory(player));
-        //inventory.weapons.push(new SemiAutomaticWeapon(player, bullets, this.listener));
-
-        //let gun = new FullAutoWeapon(player, bullets, this.listener, 625);
-        //gun.smoke = new Smoke(this.scene, new THREE.Vector3(0.2,0.3, -1.6));
-        //gun.smoke.active = false;
-        
         inventory.weapons.push(this.createRifle(player, bullets));
 
         player.addComponent(new WASDMovement(player))
