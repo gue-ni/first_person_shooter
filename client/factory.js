@@ -23,13 +23,14 @@ export class Factory {
         player.fpv = player.addComponent(new FPSCamera(player, this.camera))
 
         let inventory = player.addComponent(new Inventory(player));
+        //inventory.weapons.push(new SemiAutomaticWeapon(player, bullets, this.listener));
         inventory.weapons.push(new FullAutoWeapon(player, bullets, this.listener, 625));
 
         player.addComponent(new WASDMovement(player))
         player.addComponent(new Gravity(player))
         player.health = player.addComponent(new Health(player));
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
-        player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0xD3D3D3, false, false))
+        player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
         player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
         
         this.gameObjectArray.add(player)
@@ -50,10 +51,6 @@ export class Factory {
     }
 
     createNetworkPlayer(){}
-    createRifle(){
-
-    }
-    createPistol(){}
 }
 
 

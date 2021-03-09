@@ -61,6 +61,7 @@ wss.on('connection', (ws) => {
             let box = new AABB([0,0,0], new Vector3(1,2,0.5));
 
             for (let bullet_ray of data.bullets){
+                //console.log(bullet_ray)
                 for (let player in PLAYERS){
 
                     if (player != id){ // don't shoot yourself
@@ -69,7 +70,7 @@ wss.on('connection', (ws) => {
                      
                         if (Ray.intersect_box(bullet_ray, box)){
                             response.hit = player
-                            SOCKETS[player].send(JSON.stringify({'hit_by': id}));
+                            SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet_ray[6]}));
                         }
                     }
                 }

@@ -40,6 +40,7 @@ export class ParticleSystem extends Component {
 		this._lifetime 			= [];
 		this._gravity 			= false;
 		this._numParticles 		= numParticles;
+        this._particlePerSec    = particlesPerSecond;
 		this._duration 			= 1.0 / particlesPerSecond;  
 		this._cache 			= new THREE.Vector3(0, -10, 0);
 		this._particleLifetime  = particleLifetime;
@@ -55,8 +56,7 @@ export class ParticleSystem extends Component {
 			this._velocities.push(new THREE.Vector3(0, 0, 0))
 			sizes.push(this._startSize)
             rotation.push(Math.random() * 2.0 * Math.PI)
-			let color = new THREE.Color();
-			colors.push(color.r, color.g, color.b, 1);
+			colors.push(1,1,1,1);
 		}
 
 		const uniforms = {
@@ -82,7 +82,7 @@ export class ParticleSystem extends Component {
 		this._geometry = new THREE.BufferGeometry();
 		this._geometry.setAttribute('position', new THREE.Float32BufferAttribute(position,3));
 		this._geometry.setAttribute('size',     new THREE.Float32BufferAttribute(sizes,1));
-		this._geometry.setAttribute('angle',     new THREE.Float32BufferAttribute(rotation,1));
+		this._geometry.setAttribute('angle',    new THREE.Float32BufferAttribute(rotation,1));
 		this._geometry.setAttribute('colour',   new THREE.Float32BufferAttribute(colors,4));
 		this._geometry.computeBoundingSphere()
 		this._geometry.boundingSphere.set(this._cache, 100);
@@ -138,11 +138,13 @@ export class ParticleSystem extends Component {
 		this._elapsed += dt;
 
 		if (this._elapsed >= this._duration && this.active){
-			let numNewParticles = Math.floor(this._elapsed / this._duration);
+            let numNewParticles = Math.floor(this._elapsed / this._duration);
 
-			for (let i = 0; i < numNewParticles; i++){
+            if (numNewParticles > this._particlePerSec) numNewParticles = this._particlePerSec;
+
+            for (let i = 0; i < numNewParticles; i++){
                 this._createParticle(this._findUnusedParticle(), sizes, colors, positions);
-			}		
+            }		
 			this._elapsed = 0
 		}
 
@@ -173,10 +175,6 @@ export class Smoke extends ParticleSystem {
     constructor(gameObject, source){
         super(gameObject, 1000, 5, 5);
         this._source = source;
-
-        document.querySelector('#button').addEventListener("click", event => {
-            this.active = !this.active;
-        })
     }
 
     _updateParticle(dt, i, sizes, colors, positions){
@@ -199,8 +197,6 @@ export class Smoke extends ParticleSystem {
         this._lifetime[i] 	    = this._particleLifetime;
         this._velocities[i] 	= new THREE.Vector3(0.25,0.75,0);
     }
-
-
 }
 
 function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration){	

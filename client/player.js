@@ -55,26 +55,28 @@ export class WASDMovement extends Component {
 	update(dt){
         //this.elapsed += dt;
 
+        let tmp = this.gameObject.direction.clone();
+        tmp.setY(0);
+        tmp.normalize();
+
         let speed = 7 
         if (this.keyW){ // W
-            let tmp = this.gameObject.direction.clone()
             tmp.multiplyScalar(speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
 
         } else if(this.keyS){   // S
-            let tmp = this.gameObject.direction.clone()
             tmp.multiplyScalar(-speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
            
         } else if (this.keyD){  // D
-            let tmp = this.gameObject.direction.clone().multiplyScalar(speed)
+            tmp.multiplyScalar(speed)
             this.gameObject.velocity.x = -tmp.z
             this.gameObject.velocity.z =  tmp.x 
 
         } else if (this.keyA){  // A
-            let tmp = this.gameObject.direction.clone().multiplyScalar(speed)
+            tmp.multiplyScalar(speed)
             this.gameObject.velocity.x =  tmp.z
             this.gameObject.velocity.z = -tmp.x 
 
@@ -82,8 +84,6 @@ export class WASDMovement extends Component {
             this.gameObject.velocity.x = 0
             this.gameObject.velocity.z = 0
         }
-
-        
 
         if (this.keySpace && Math.abs(this.gameObject.velocity.y) < 0.5){ // SPACE
             this.gameObject.velocity.y += 7;

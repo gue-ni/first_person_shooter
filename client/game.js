@@ -23,9 +23,13 @@ const debug         = document.querySelector('#debug')
 const window_width 	= canvas.width
 const window_height = canvas.height
 
-const scene 	= new THREE.Scene()
-const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100)
-const renderer 	= new THREE.WebGLRenderer({canvas: canvas, antialias: true,  powerPreference: "high-performance"})
+const scene 	= new THREE.Scene();
+const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
+const renderer 	= new THREE.WebGLRenderer({
+    canvas: canvas, 
+    antialias: true,  
+    powerPreference: "high-performance"
+});
 const listener = new THREE.AudioListener();
 camera.add(listener);
 
@@ -62,7 +66,6 @@ const init = async function(){
    
     // create player
     player = factory.createPlayer(bullets)
-    //player.addComponent(new Smoke(player, new THREE.Vector3(0,0,-2)))
 
     // create map
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -111,7 +114,7 @@ const init = async function(){
     scene.add(light)
     //scene.add(new THREE.CameraHelper(light.shadow.camera))
 
-    // bake shadows
+    // prebake shadows
 	renderer.shadowMap.needsUpdate = true;
 	renderer.render(scene, camera)
 	renderer.shadowMap.needsUpdate = false;
@@ -184,8 +187,11 @@ const animate = function(now) {
 			let b = [];
 
 			bullets.forEach(el => {
-                // TODO send damage with every bullet
-				b.push([ el.origin.x,el.origin.y,el.origin.z, el.direction.x,el.direction.y,el.direction.z ]);
+				b.push([ 
+                    el.origin.x,el.origin.y,el.origin.z, 
+                    el.direction.x,el.direction.y,el.direction.z,
+                    el.damage
+                ]);
 			});
 
 			data['bullets'] = b
@@ -227,7 +233,7 @@ websocket.onmessage = function (event) {
 			newGameObject.local = false;
 			newGameObject.addComponent(new Gravity(newGameObject));
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
-			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.light_grey, false, false));
+			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.dark_grey, false, false));
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
 
@@ -238,13 +244,16 @@ websocket.onmessage = function (event) {
 	if (data.disconnected){ // TODO implement
 		console.log(`player ${data.disconnected} disconnected`)
 		let gameObject = gameObjectArray.get(data.disconnected)
-		gameObject.remove(scene);
-		gameObjectArray.remove(gameObject)
+        if (gameObject){
+            gameObject.remove(scene);
+            gameObjectArray.remove(gameObject)
+        }
 	}
 
 	if (data.hit_by){
+        //console.log(data);
 		taking_hits.style.display = 'block'
-        player.health.health -= 5;
+        player.health.health -= data.damage;
 	} else {
 		taking_hits.style.display = 'none'
 	}
