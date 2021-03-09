@@ -100,7 +100,6 @@ export class FPSCamera extends Component {
         this.yaw        = 0.5 * Math.PI
         this.pitch      = 0
 
-
         var that = this;
 
         function mouse_callback(event){

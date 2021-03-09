@@ -21,13 +21,6 @@ const taking_hits 	= document.querySelector('#taking_hits');
 const users 		= document.querySelector('#users');
 const debug         = document.querySelector('#debug')
 
-const clear_color 	= "#8009E8";
-const DARK_GRAY 	= 0x999999;
-const LIGHT_GRAY	= 0xD3D3D3;
-const PINK 			= 0xD70270;
-const BLUE 			= 0x0038A8;
-const PURPLE 		= 0x734F96;
-const WHITE         = 0xffffff;
 
 //canvas.height = window.innerHeight;
 //canvas.width 	= window.innerWidth;
@@ -65,17 +58,18 @@ const gameObjectArray   = new GameObjectArray()
 const factory           = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
 const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 var player              = undefined;
+var gameData            = undefined;
 
 const init = async function(){
 	let json = await fetch('./game_data.json');
-	let gameData = await json.json();
+	gameData = await json.json();
    
     // create player
     player = factory.createPlayer(bullets)
 
     // create map
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
-    let material 	= new THREE.MeshPhongMaterial({ color: DARK_GRAY, flatShading: true,side: THREE.BackSide })
+    let material 	= new THREE.MeshPhongMaterial({ color: gameData.colorscheme.dark_grey, flatShading: true,side: THREE.BackSide })
     let mesh 		= new THREE.Mesh(geometry, material)
     mesh.position.set(0,20,0);
     scene.add(mesh);
@@ -227,7 +221,7 @@ websocket.onmessage = function (event) {
 			newGameObject.local = false;
 			newGameObject.addComponent(new Gravity(newGameObject));
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
-			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), LIGHT_GRAY, false, false));
+			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.light_grey, false, false));
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
 
