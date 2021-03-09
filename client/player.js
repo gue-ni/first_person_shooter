@@ -133,5 +133,18 @@ export class FPSCamera extends Component {
 export class Health extends Component {
     constructor(gameObject){
         super(gameObject);
+        this.name = "Health";
+        this.value = 100;
+        this.display = document.querySelector('#health');
+        this.display.innerText = this.value;
+    }
+
+    set health(val){
+        this.value = val;
+        this.display.innerText = this.value;
+    }
+
+    get health(){
+        return this.value;
     }
 }

@@ -32,13 +32,13 @@ export class SemiAutomaticWeapon extends Component {
         this._flashDurationCounter = 0;
         this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
 
-        // gun model
+        // load gun model
         (async () => {
             const gltfLoader 	= new GLTFLoader();
             const gltf 			= await new Promise((resolve, reject) => {
                 gltfLoader.load('./assets/AUG_A++.glb', data=> resolve(data), null, reject);
             });
-            this.gun 			= gltf.scene;
+            this.gun = gltf.scene;
             this.gun.position.copy(this._weaponPosition);
             this.gun.rotateY(-Math.PI/2);
             this.gun.scale.set(0.1, 0.1, 0.1)
@@ -142,7 +142,6 @@ export class FullAutoWeapon extends SemiAutomaticWeapon {
 			this._firing = false
 		});
     }
-
 
     update(dt){
  		this._elapsed += dt;

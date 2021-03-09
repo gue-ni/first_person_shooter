@@ -65,9 +65,14 @@ const init = async function(){
 
     // create map
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
-    let material 	= new THREE.MeshPhongMaterial({ color: gameData.colorscheme.dark_grey, flatShading: true,side: THREE.BackSide })
-    let mesh 		= new THREE.Mesh(geometry, material)
-    mesh.position.set(0,20,0);
+    let material 	= new THREE.MeshPhongMaterial({ 
+        color: gameData.colorscheme.dark_grey, 
+        flatShading: true,
+        side: THREE.BackSide 
+    })
+    let mesh = new THREE.Mesh(geometry, material)
+    mesh.position.set(0,24,0);
+	mesh.receiveShadow = true;
     scene.add(mesh);
 
     // create boxes
@@ -199,8 +204,6 @@ const animate = function(now) {
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
-	//console.log(data.hit)
-	
 	if (data.hit){
 		crosshair.innerText = "x"
 	} else {
@@ -234,8 +237,9 @@ websocket.onmessage = function (event) {
 
 	if (data.hit_by){
 		taking_hits.style.display = 'block'
+        player.health.health -= 5;
 	} else {
-		taking_hits.style.display  = 'none'
+		taking_hits.style.display = 'none'
 	}
 };
 
