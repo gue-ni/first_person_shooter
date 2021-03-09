@@ -25,24 +25,32 @@ export class SemiAutomaticWeapon extends Component {
 		super(gameObject);
 		this.name = "SemiAutomaticWeapon"
 
-    	this.light = new THREE.PointLight( 0x000000, 1, 5);
-		//this.light.position.set(0.2,0.3,-1)
+        this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1)
+        this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
+        this._fired = false;
+        this._flashDuration = 0.05;
+        this._flashDurationCounter = 0;
+        this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
+
+        // gun model
+        (async () => {
+            const gltfLoader 	= new GLTFLoader();
+            const gltf 			= await new Promise((resolve, reject) => {
+                gltfLoader.load('./assets/AUG_A++.glb', data=> resolve(data), null, reject);
+            });
+            this.gun 			= gltf.scene;
+            this.gun.position.copy(this._weaponPosition);
+            this.gun.rotateY(-Math.PI/2);
+            this.gun.scale.set(0.1, 0.1, 0.1)
+            this.gameObject.transform.add(this.gun);
+        })();
+
+        // muzzle flash light
+        this.light = new THREE.PointLight(0x000000, 1, 5);
 		this.light.position.set(1,0.2,-2)
 		this.gameObject.transform.add(this.light)
 
-        /*
-		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
-		let material 	= new THREE.MeshStandardMaterial({ 
-			color: 0xD3D3D3, 
-			flatShading: true,
-			metalness: 0, 
-			roughness: 1 
-		});
-		this.gun = new THREE.Mesh(geometry, material)
-		this.gun.position.set(1,0.2,-1)
-		this.gameObject.transform.add(this.gun)
-        */
-
+        // muzzle flash texture
 		const planeGeometry = new THREE.PlaneGeometry(1, 1, 1);
         planeGeometry.translate(0.5, 0, 0)
 		const planeMaterial = new THREE.MeshBasicMaterial({
@@ -55,11 +63,6 @@ export class SemiAutomaticWeapon extends Component {
 			blending: THREE.AdditiveBlending,
 		});
 
-        this._fired = false;
-        this._flashDuration = 0.05;
-        this._flashDurationCounter = 0;
-        this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
-
 		const flash1 = new THREE.Mesh(planeGeometry, planeMaterial);
 		flash1.rotateY(Math.PI / 2);
         const flash2 = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -70,29 +73,24 @@ export class SemiAutomaticWeapon extends Component {
         this.flash.add(flash1);
         this.flash.add(flash2);
         this.flash.scale.set(0,0,0);
-		this.flash.position.set(0.2, 0.3, -1.6);
+		this.flash.position.copy(this._muzzlePosition);
 		this.gameObject.transform.add(this.flash);
 
-        this._load('./assets/AUG_A++.glb');
-
+        // gunshot
         let that = this;
         const audioLoader = new THREE.AudioLoader();
         audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', function(buffer) {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
             audio.setRefDistance(1);
-            audio.position.set(0.2,0.3, -1.6)
+            audio.position.copy(that._muzzlePosition);
             that.gunshot = audio;
             that.gameObject.transform.add(audio);
         });
 
-        //this.slider1 = document.querySelector('#slider1');
-        //this.slider2 = document.querySelector('#slider2');
-        //this.slider3 = document.querySelector('#slider3');
-        
 		this._fire = function () {
             this._fired  = true;
-			console.log("fire");
+			//console.log("fire");
             this.flash.scale.copy(this._flashStartingScale);
             
             if (this.gunshot.isPlaying){
@@ -100,6 +98,7 @@ export class SemiAutomaticWeapon extends Component {
                 this.gunshot.play();
             } else {
                 this.gunshot.play();
+                
             }
 
             rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
@@ -110,27 +109,10 @@ export class SemiAutomaticWeapon extends Component {
 		});
 	}
 
-    async _load(path){
-		const gltfLoader 	= new GLTFLoader();
-		const gltf 			= await new Promise((resolve, reject) => {
-			gltfLoader.load(path, data=> resolve(data), null, reject);
-		});
-	    this.gun 			= gltf.scene;
-  	    this.gun.position.set(0.2, 0.3, -0.1)
-	    this.gun.rotateY(-Math.PI/2)
-	    this.gun.scale.set(0.1, 0.1, 0.1)
-		this.gameObject.transform.add(this.gun);
-	}
-
-
     update(dt){
-        //this.gun.position.set(this.slider1.value / 10, this.slider2.value / 10, this.slider3.value / 10);
-        //console.log(this.gun.position);
-
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
             this.flash.scale.multiplyScalar(1.7)
-
             this.light.color.setHex(0xffffff);
             this._flashDurationCounter += dt;
 
@@ -172,60 +154,4 @@ export class FullAutoWeapon extends SemiAutomaticWeapon {
         
         super.update(dt);
     }
-}
-
-export class FullyAutomaticWeapon extends Component {
-	constructor(gameObject, rays, firing_rate){
-		super(gameObject);
-		this.name = "FullyAutomaticWeapon"
-		this._firing = false
-
-		this._duration =  1 / (firing_rate / 60)
-		this._elapsed  = 0
-
-		//this._load('assets/raygun.glb');
-
-		let geometry 	= new THREE.BoxBufferGeometry(0.25, 0.5, 1)
-		let material 	= new THREE.MeshStandardMaterial({ color: 0xD3D3D3, flatShading: true, metalness: 0, roughness: 1 })
-		this.gun 		= new THREE.Mesh(geometry, material)
-		this.gun.position.set(1,0.2,-1.7)
-		this.gameObject.transform.add(this.gun)
-		
-
-		
-		document.body.addEventListener("mousedown", e => {
-			this._firing = true
-		});
-
-		document.body.addEventListener("mouseup", e => {
-			this._firing = false
-		});
-
-		this._fire = function () {
-			rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject)
-		}
-	}
-	
-	async _load(path){
-		const gltfLoader 	= new GLTFLoader();
-		const gltf 			= await new Promise((resolve, reject) => {
-			gltfLoader.load(path, data=> resolve(data), null, reject);
-		});
-	    this.gun 			= gltf.scene;
-  	    this.gun.position.set(0.6, 0.4, -0.7)
-	    this.gun.rotateY(Math.PI/2)
-	    this.gun.scale.set(0.1, 0.1, 0.1)
-		this.gameObject.transform.add(this.gun);
-	}
-
-	update(dt){
-		this._elapsed += dt;
-
-		if (this._firing && this._elapsed >= this._duration){
-			this._fire()
-			this._elapsed = 0
-		}
-
-		//this.gun.lookAt(0,0,0)
-	}
 }

@@ -1,14 +1,10 @@
 import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
-import { SemiAutomaticWeapon, FullAutoWeapon, FullyAutomaticWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
-import { WASDMovement, FPSCamera } from './player.js';
 import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
-import { Ray } from './ray.js';
-import { ParticleSystem, MuzzleFlash } from './particles.js';
 import { Factory } from './factory.js';
 
 const canvas  		= document.querySelector('#canvas');
