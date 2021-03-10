@@ -96,13 +96,13 @@ export class FPSCamera extends Component {
         super(gameObject)
         this.name = "camera";
         this.camera = camera;
-        this.camera.position.set(0,0.7,0)
+        //this.camera.position.set(0,0.7,0)
         this.gameObject.transform.add(this.camera)
         this.yaw        = 0.5 * Math.PI
         this.pitch      = 0
 
+        
         var that = this;
-
         function mouse_callback(event){
             that.yaw   += (event.movementX * 0.1)
             that.pitch += (event.movementY * 0.1)
@@ -115,6 +115,7 @@ export class FPSCamera extends Component {
             that.gameObject.direction.z = Math.sin(that.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
             that.gameObject.direction.normalize()
         }
+        
 
         canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
         document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
@@ -123,12 +124,13 @@ export class FPSCamera extends Component {
         document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
         function lockChangeAlert() {
             if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
-                document.addEventListener("mousemove", mouse_callback, false);
+                document.addEventListener("mousemove",    mouse_callback, false);
             } else {
                 document.removeEventListener("mousemove", mouse_callback, false);
             }
         }
-    } 
+    }
+
 }
 
 export class Health extends Component {

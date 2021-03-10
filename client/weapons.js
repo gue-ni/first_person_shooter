@@ -43,7 +43,7 @@ export class Weapon extends Component {
 		super(gameObject);
 		this.name = "Weapon"
 
-        this._damage = 5;
+        this._damage = 1;
 
         this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1)
         this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
@@ -55,7 +55,7 @@ export class Weapon extends Component {
         this._reloading = false;
         this._reloadTime = 2;
         this._reloadTimeCounter = 0;
-        this._ammoCapacity = 45;
+        this._ammoCapacity = 100;
         this._ammo = this._ammoCapacity;
         this._ammoDisplay = document.querySelector('#ammo');
         this._ammoDisplay.innerText = this._ammo;
@@ -105,17 +105,6 @@ export class Weapon extends Component {
 		this.gameObject.transform.add(this.flash);
 
         // gunshot
-        /*
-        let that = this;
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', function(buffer) {
-            const audio = new THREE.PositionalAudio(listener);
-            audio.setBuffer(buffer);
-            audio.setRefDistance(1);
-            that.gunshot = audio;
-        });
-        */
-
         (async () => {
             const audioLoader = new THREE.AudioLoader();
             const buffer = await new Promise((resolve, reject) => {
@@ -123,7 +112,7 @@ export class Weapon extends Component {
             });
             this.gunshot = new THREE.PositionalAudio(listener);
             this.gunshot.setBuffer(buffer);
-            this.gunshot.setRefDistance(1);
+            this.gunshot.setRefDistance(20);
             this.gunshot.position.copy(this._muzzlePosition);
             this.gameObject.transform.add(this.gunshot);
         })();
@@ -141,13 +130,20 @@ export class Weapon extends Component {
             } else {
                 this.gunshot.play();
             }
-            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject, this._damage);
+
+            let tmp = this.gameObject.fpv.camera.position.clone();
+            tmp = this.gameObject.fpv.camera.localToWorld(tmp);
+            //tmp.y -= 0.7;
+            
+            let dir = new THREE.Vector3();
+            dir.copy(this.gameObject.direction);
+            
+            rays[rays.length] = new BulletRay(this.gameObject.position, dir, this.gameObject, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
                 case 82: // r
-                    // reload
                     this._reloading = true;
                     this._ammoDisplay.innerText = "reloading"
                     break;
@@ -186,9 +182,16 @@ export class Weapon extends Component {
         }
     }
 
+    _reload(){
+        this._ammo = this._ammoCapacity; 
+        this._ammoDisplay.innerText = this._ammo;
+
+    }
+
     update(dt){
         //this.gunshot.position.copy(this._muzzlePosition);
-        //console.log(this.gunshot.position.x)
+        //if (this.gunshot) console.log(this.gunshot.position)
+        //console.log(this.gameObject.position);
 
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
@@ -210,8 +213,7 @@ export class Weapon extends Component {
             if (this._reloadTimeCounter > this._reloadTime){
                 this._reloading = false;
                 this._reloadTimeCounter = 0;
-                this._ammo = this._ammoCapacity; 
-                this._ammoDisplay.innerText = this._ammo;
+                this._reload();
             }
         }
 

@@ -59,7 +59,7 @@ wss.on('connection', (ws) => {
 
     	if (data.bullets){
             // TODO check if the bullet hit a box, if so 
-            let box = new AABB([0,0,0], new Vector3(1,2,0.5));
+            let box = new AABB([0,0,0], new Vector3(1,2,1));
 
             for (let bullet_ray of data.bullets){
                 //console.log(bullet_ray)

@@ -6,11 +6,10 @@ export class AABB extends Component {
 		super(gameObject)
 		this.name = "aabb"
 		this.size = size;
-		//this._min = new THREE.Vector3(this.minX, this.minY, this.minZ)
-		//this._max = new THREE.Vector3(this.maxX, this.maxY, this.maxZ) }
-		//let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-		//let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
-		//this.gameObject.transform.add(new THREE.Mesh(geometry, material))
+		
+        let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
+		let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
+		this.gameObject.transform.add(new THREE.Mesh(geometry, material))
 	}
 
 	get minX(){	return this.gameObject.position.x - this.size.x/2 }

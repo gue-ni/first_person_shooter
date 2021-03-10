@@ -36,9 +36,9 @@ const renderer 	= new THREE.WebGLRenderer({
     antialias: true,  
     powerPreference: "high-performance"
 });
+
 const listener = new THREE.AudioListener();
 camera.add(listener);
-menuCamera.add(listener);
 
 menuCamera.position.set(20,20,20);
 menuCamera.lookAt(0,0,0);
@@ -215,9 +215,9 @@ const play = function(dt) {
 				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
 				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
 
-				let look = new THREE.Vector3();
-				look.subVectors(gameObject.position, gameObject.direction);
-				gameObject.transform.lookAt(look);
+				//let look = new THREE.Vector3();
+				//look.subVectors(gameObject.position, gameObject.direction);
+				//gameObject.transform.lookAt(look);
 			}
 		} else { 
 			gameObject.update(dt);
@@ -311,6 +311,7 @@ websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
 	if (data.hit){
+        console.log("hit")
 		crosshair.innerText = "x"
 	} else {
 		crosshair.innerText = `+`
@@ -325,7 +326,7 @@ websocket.onmessage = function (event) {
 			newGameObject.id = player.id;
 			newGameObject.local = false;
 			newGameObject.addComponent(new Gravity(newGameObject));
-			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,0.5)));
+			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,1)));
 			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.dark_grey, false, false));
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
