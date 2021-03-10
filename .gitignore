@@ -1,14 +1,16 @@
 p5.js
 three.js
-three.js-master/
 three.module.js
-three/
-example/
-assets/ak47.jpg
-assets/downloaded/
-*.jpg
+
 src/assets/downloaded/
 client/assets/downloaded/
+three/
+three.js-master/
+example/
+assets/downloaded/
+
+*.jpg
 *.zip
+*.sh
 
 

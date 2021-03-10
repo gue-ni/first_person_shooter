@@ -104,12 +104,13 @@ export class ParticleSystem {
 		return 0;
     }
 
-    _updateParticle(dt, i, sizes, colors, positions){
+    _updateParticle(dt, i, sizes, colors, positions, rotation){
         positions[i*3] 	 += this._velocities[i].x * dt; 
         positions[i*3+1] += this._velocities[i].y * dt; 
         positions[i*3+2] += this._velocities[i].z * dt; 
         if (this._gravity)  this._velocities[i].y -= 9.81*dt;
 
+        rotation[i]     += 0.1  * dt;
         sizes[i]        += 0.1  * dt;
         colors[i*4+3]   -= 0.02 * dt;
     }
@@ -128,6 +129,7 @@ export class ParticleSystem {
 		const positions = this._points.geometry.attributes.position.array;
 		const sizes 	= this._points.geometry.attributes.size.array;
 		const colors 	= this._points.geometry.attributes.colour.array;
+		const rotation 	= this._points.geometry.attributes.angle.array;
 		
 		this._elapsed += dt;
 
@@ -148,7 +150,7 @@ export class ParticleSystem {
 				this._lifetime[i] -= dt;
 
 				if (this._lifetime[i] > 0){
-                    this._updateParticle(dt, i, sizes, colors, positions);
+                    this._updateParticle(dt, i, sizes, colors, positions, rotation);
 				} else {
 					positions[i*3]   = this._cache.x;
 					positions[i*3+1] = this._cache.y;
@@ -162,6 +164,7 @@ export class ParticleSystem {
 		this._points.geometry.attributes.position.needsUpdate 	= true;
 		this._points.geometry.attributes.size.needsUpdate 		= true;
 		this._points.geometry.attributes.colour.needsUpdate 	= true;
+		this._points.geometry.attributes.angle.needsUpdate 	    = true;
 	}
 }
 
@@ -182,7 +185,7 @@ export class Smoke extends ParticleSystem {
         colors[i*4+3]   -= 0.2 * dt;
     }
 
-    _createParticle(i, sizes, colors, positions){
+    _createParticle(i, sizes, colors, positions, rotation){
         positions[i*3] 	 = this._source.x + 0.25 * Math.random() - 0.125;
         positions[i*3+1] = this._source.y + 0.25 * Math.random() - 0.125;
         positions[i*3+2] = this._source.z + 0.25 * Math.random() - 0.125;

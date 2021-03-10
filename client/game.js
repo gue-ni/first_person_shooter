@@ -61,13 +61,13 @@ var player              = undefined;
 var gameData            = undefined;
 
 const init = async function(){
-	let json = await fetch('./game_data.json');
+	let json = await fetch('./assets/game_data.json');
 	gameData = await json.json();
    
     // create player
     player = factory.createPlayer(bullets)
 
-    // create map
+    // create map skybox
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
     let material 	= new THREE.MeshPhongMaterial({ 
         color: gameData.colorscheme.dark_grey, 
@@ -90,11 +90,11 @@ const init = async function(){
     //gameObjectArray.add(testObject);
 
     // create lights
-    const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 5, 100, 2);
+    const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
     pinkLight.position.set(-25, 50, -25);
     scene.add(pinkLight);
     
-    const blueLight = new THREE.PointLight(gameData.colorscheme.blue, 5, 100, 2);
+    const blueLight = new THREE.PointLight(gameData.colorscheme.blue, 6, 100, 2);
     blueLight.position.set(25, 50, 25);
     scene.add(blueLight);
   

@@ -96,6 +96,8 @@ export class SemiAutomaticWeapon extends Component {
 		this.flash.position.copy(this._muzzlePosition);
 		this.gameObject.transform.add(this.flash);
 
+        let tmp = this._muzzlePosition.clone();
+
         // gunshot
         let that = this;
         const audioLoader = new THREE.AudioLoader();
@@ -103,7 +105,7 @@ export class SemiAutomaticWeapon extends Component {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
             audio.setRefDistance(1);
-            audio.position.copy(that._muzzlePosition);
+            audio.position.copy(tmp);
             that.gunshot = audio;
             that.gameObject.transform.add(audio);
         });
