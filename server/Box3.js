@@ -1,4 +1,5 @@
-import { Vector3 } from './Vector3.js';
+//import { Vector3 } from './Vector3.js';
+const { Vector3 } = require('./Vector3.js');
 
 class Box3 {
 
@@ -550,4 +551,5 @@ function satForAxes( axes, v0, v1, v2, extents ) {
 
 }
 
-export { Box3 };
+//export { Box3 };
+exports.Box3 = Box3;

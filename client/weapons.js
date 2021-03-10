@@ -43,7 +43,7 @@ export class Weapon extends Component {
 		super(gameObject);
 		this.name = "Weapon"
 
-        this._damage = 1;
+        this._damage = 10;
 
         this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1)
         this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
@@ -141,7 +141,7 @@ export class Weapon extends Component {
             //let dir = new THREE.Vector3();
             //dir.copy(this.gameObject.direction);
             
-            rays[rays.length] = new BulletRay(origin, this.gameObject.direction, this.gameObject, this._damage);
+            rays[rays.length] = new BulletRay(origin, this.gameObject.direction, this.gameObject.id, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {

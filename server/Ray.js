@@ -1,4 +1,5 @@
-import { Vector3 } from './Vector3.js';
+//import { Vector3 } from './Vector3.js';
+const { Vector3 } = require('./Vector3.js');
 
 const _vector = /*@__PURE__*/ new Vector3();
 const _segCenter = /*@__PURE__*/ new Vector3();
@@ -507,4 +508,5 @@ class Ray {
 
 }
 
-export { Ray };
+//export { Ray };
+exports.Ray = Ray;
