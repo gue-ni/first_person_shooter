@@ -18,6 +18,14 @@ export class Factory {
         this.spaceHash = spaceHash;
     }
 
+    createPistol(owner, bullets){
+        let gun = new SemiAutomaticWeapon(owner, bullets, this.listener);
+        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
+        gun.smoke.active = false;
+        return gun;
+
+    }
+
     createRifle(owner, bullets){
         let gun = new FullAutoWeapon(owner, bullets, this.listener, 625);
         gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));

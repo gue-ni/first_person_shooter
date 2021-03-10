@@ -18,6 +18,10 @@ const taking_hits 	= document.querySelector('#taking_hits');
 const users 		= document.querySelector('#users');
 const debug         = document.querySelector('#debug')
 const checkbox      = document.querySelector('#state');
+const respawnBtn    = document.querySelector('#respawn');
+const hud           = document.querySelector('#hud');
+const menuEl           = document.querySelector('#menu');
+const button        = document.querySelector('#button');
 
 //canvas.height = window.innerHeight;
 //canvas.width 	= window.innerWidth;
@@ -26,7 +30,7 @@ const window_height = canvas.height
 
 const scene 	= new THREE.Scene();
 const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
-const camera2 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
+const menuCamera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
 const renderer 	= new THREE.WebGLRenderer({
     canvas: canvas, 
     antialias: true,  
@@ -34,10 +38,10 @@ const renderer 	= new THREE.WebGLRenderer({
 });
 const listener = new THREE.AudioListener();
 camera.add(listener);
-camera2.add(listener);
+menuCamera.add(listener);
 
-camera2.position.set(15,20,15);
-camera2.lookAt(0,0,0);
+menuCamera.position.set(20,20,20);
+menuCamera.lookAt(0,0,0);
 
 renderer.setClearColor("#6AB9D9");
 
@@ -64,6 +68,7 @@ const gameObjectArray   = new GameObjectArray()
 const factory           = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
 const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 var player              = undefined;
+let player_id           = undefined;
 var gameData            = undefined;
 
 const init = async function(){
@@ -73,6 +78,16 @@ const init = async function(){
     // create player
     player = factory.createPlayer(bullets)
     console.log(player.id);
+    player_id = player.id;
+
+    respawnBtn.addEventListener("click", () => {
+        console.log("respawn")
+    });
+
+    button.addEventListener("click", () => {
+        console.log("button");
+        player.remove();
+    });
 
     // create map skybox
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -171,7 +186,7 @@ const menu = function(dt){
     }
 
     stats.update()	
-	renderer.render(scene, camera2)
+	renderer.render(scene, menuCamera)
 }
 
 const play = function(dt) {
@@ -257,6 +272,7 @@ const play = function(dt) {
 	renderer.render(scene, camera)
 }
 
+let dead = false;
 let then = 0, dt = 0
 const game = function(now){
     requestAnimationFrame(game)
@@ -266,7 +282,7 @@ const game = function(now){
 	then = now;
 	if (dt > 0.1) dt = 0.1;
 
-    if (checkbox.checked){
+    if (!dead){
         play(dt);
     } else {
         menu(dt);
@@ -316,8 +332,13 @@ websocket.onmessage = function (event) {
         player.health.health -= data.damage;
 
         if (player.health.health <= 0){
-            player.position.set(0,-5,0);
-            checkbox.checked = false;
+            //player.position.set(0,-5,0);
+            dead = true;
+            hud.style.display = 'none';
+            menuEl.style.display = 'block';
+            gameObjectArray.remove(player);
+            player.remove()
+
         }
 	} else {
 		taking_hits.style.display = 'none'

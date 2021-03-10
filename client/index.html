@@ -32,18 +32,29 @@
                 top: 400px;
                 color: white;
             }
+
+            #respawn {
+                position: absolute;
+                left: 320px;
+                top: 240px;
+            }
 		</style>
 	</head>
 	<body>
 		<canvas id="canvas" width="640" height="480"></canvas>
-		<span id="crosshair">+</span>
-		<span id="debug"></span>
-		<span id="users"></span>
-		<span id="hit"></span>
-		<span id="taking_hits" style="display: none">you are being hit</span>
-
-        <span id="health">Health</span>
-        <span id="ammo">Ammo</span>
+        <div id="hud">
+            <span id="crosshair">+</span>
+            <span id="debug"></span>
+            <span id="users"></span>
+            <span id="hit"></span>
+            <span id="taking_hits" style="display: none">you are being hit</span>
+            <span id="health">Health</span>
+            <span id="ammo">Ammo</span>
+        </div>
+        <div id="menu" style="display: none;">
+            <button id="respawn">respawn</button>
+        </div>
+        
         <input type="checkbox" id="state">
         <input type="range" min="0" max="10" value="0" id="slider1">
 	  	<input type="range" min="-50" max="50" value="0" id="slider2">

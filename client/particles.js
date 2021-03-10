@@ -88,6 +88,12 @@ export class ParticleSystem {
 		parent.add(this._points);
 	}
 
+    remove(){
+        this._points.material.dispose();
+        this._points.geometry.dispose();
+        this._points.parent.remove(this._points);
+    }
+
 	_findUnusedParticle(){
 		for (let i = this._lastUsedParticle; i < this._numParticles; i++){
 			if (this._lifetime[i] < 0){

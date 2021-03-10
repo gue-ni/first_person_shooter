@@ -49,8 +49,8 @@ export class GameObject {
 			component.remove()
 		}
 
-		parent.remove(this.transform)
-		this.transform = undefined
+		//parent.remove(this.transform)
+		//this.transform = undefined
 	}
 
 	set position(pos){

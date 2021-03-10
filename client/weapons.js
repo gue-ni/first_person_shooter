@@ -20,17 +20,26 @@ export class Inventory extends Component {
         });
     }
 
+    remove(){
+        for (let weapon of this.weapons){
+            weapon.remove();
+            weapon = undefined;
+        }
+
+        this.weapons = undefined;
+    }
+
     update(dt){
-        this.weapons[this._active].update(dt);
+        if (this.weapons) this.weapons[this._active].update(dt);
     }
 
     // TODO add cycle through weapons
 }
 
-export class SemiAutomaticWeapon extends Component {
+export class Weapon extends Component {
 	constructor(gameObject, rays, listener){
 		super(gameObject);
-		this.name = "SemiAutomaticWeapon"
+		this.name = "Weapon"
 
         this._damage = 5;
 
@@ -61,9 +70,6 @@ export class SemiAutomaticWeapon extends Component {
             this.gun.scale.set(0.1, 0.1, 0.1)
             this.gameObject.transform.add(this.gun);
         })();
-
-        //this.smoke = new Smoke(gameObject, this._muzzlePosition.clone());
-        //this.smoke.active = false;
 
         // muzzle flash light
         this.light = new THREE.PointLight(0x000000, 1, 5);
@@ -96,7 +102,7 @@ export class SemiAutomaticWeapon extends Component {
 		this.flash.position.copy(this._muzzlePosition);
 		this.gameObject.transform.add(this.flash);
 
-        let tmp = this._muzzlePosition.clone();
+        //let tmp = this._muzzlePosition.clone();
 
         // gunshot
         let that = this;
@@ -105,12 +111,13 @@ export class SemiAutomaticWeapon extends Component {
             const audio = new THREE.PositionalAudio(listener);
             audio.setBuffer(buffer);
             audio.setRefDistance(1);
-            audio.position.copy(tmp);
             that.gunshot = audio;
             that.gameObject.transform.add(audio);
         });
 
-		this._fire = function () {
+		this._fire = function(){
+            console.log("fire")
+
             if (this._ammo <= 0 || this._reloading) return;
 
             this.smoke.active = true;
@@ -118,7 +125,6 @@ export class SemiAutomaticWeapon extends Component {
             this._fired  = true;
             this.flash.scale.copy(this._flashStartingScale);
             this._ammoDisplay.innerText = --this._ammo;
-
             
             if (this.gunshot.isPlaying){
                 this.gunshot.stop();
@@ -134,20 +140,46 @@ export class SemiAutomaticWeapon extends Component {
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
-
                 case 82: // r
                     // reload
                     this._reloading = true;
                     this._ammoDisplay.innerText = "reloading"
                     break;
             }
-
         })
 
-		document.body.addEventListener("mousedown", e => {
-			this._fire()
-		});
 	}
+
+    remove(){
+        this.gun.children.forEach( child => { 
+            if (child.geometry){
+                child.geometry.dispose();
+            }
+            if (child.material){
+                child.material.dispose();
+            }
+        });
+        this.gun.parent.remove(this.gun)
+
+        this.flash.children.forEach( child => {
+             if (child.geometry){
+                child.geometry.dispose();
+            }
+            if (child.material){
+                child.material.dispose();
+            }
+        })      
+        this.flash.parent.remove(this.flash)
+
+        this.gunshot.parent.remove(this.gunshot)
+        this.gunshot = undefined;
+
+        this.light.parent.remove(this.light);
+
+        if (this.smoke){
+            this.smoke.remove();
+        }
+    }
 
     update(dt){
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
@@ -183,7 +215,21 @@ export class SemiAutomaticWeapon extends Component {
     }
 }
 
-export class FullAutoWeapon extends SemiAutomaticWeapon {
+export class SemiAutomaticWeapon extends Weapon {
+    constructor(gameObject, rays, listener){
+        super(gameObject, rays, listener);
+        this.handler = this._fire.bind(this);
+        document.body.addEventListener("mousedown", this.handler, false);
+    }
+
+    remove(){
+        console.log("remove")
+        document.body.removeEventListener("mousedown", this.handler, false);
+        super.remove();
+    }
+}
+
+export class FullAutoWeapon extends Weapon {
     constructor(gameObject, rays, listener, firingRate){
         super(gameObject, rays, listener);
         this.name = "FullAutoWeapon";
@@ -191,6 +237,18 @@ export class FullAutoWeapon extends SemiAutomaticWeapon {
         this._duration =  1 / (firingRate / 60)
 		this._elapsed  = 0
 
+        function toggleFiring(){
+            this._firing = !this._firing;
+        }
+
+        this._toggleFiringHandler = toggleFiring.bind(this);
+
+        document.body.addEventListener("mousedown", this._toggleFiringHandler, false);
+        document.body.addEventListener("mouseup", this._toggleFiringHandler, false);
+
+
+
+        /*
         document.body.addEventListener("mousedown", e => {
 			this._firing = true
 		});
@@ -198,6 +256,13 @@ export class FullAutoWeapon extends SemiAutomaticWeapon {
 		document.body.addEventListener("mouseup", e => {
 			this._firing = false
 		});
+        */
+    }
+
+    remove(){
+        document.body.removeEventListener("mousedown", this._toggleFiringHandler, false);
+        document.body.removeEventListener("mouseup", this._toggleFiringHandler, false);
+        super.remove()
     }
 
     update(dt){

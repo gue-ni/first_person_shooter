@@ -140,6 +140,10 @@ export class Health extends Component {
         this.display.innerText = this.value;
     }
 
+    reset(){
+        this.health = 100;
+    }
+
     set health(val){
         this.value = val;
         this.display.innerText = this.value;

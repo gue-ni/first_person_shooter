@@ -33,6 +33,10 @@ export class Box extends Component {
 	remove(){
 		this.mesh.geometry.dispose()
 		this.mesh.material.dispose()
+
+        //console.log(this.mesh);
+        //console.log(this.mesh.parent);
+
 		this.mesh.parent.remove(this.mesh)
 	}
 }
