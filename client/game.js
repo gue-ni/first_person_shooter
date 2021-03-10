@@ -272,9 +272,7 @@ const play = function(dt) {
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}
 
-		if (Math.abs(player.velocity.length()) > 0.1){
-			data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
-		}
+		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 
 		if (bullets.length > 0){
 			let b = [];

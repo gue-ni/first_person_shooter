@@ -45,8 +45,9 @@ export class Weapon extends Component {
 
         this._damage = 10;
 
-        this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1)
+        this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1);
         this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
+        
         this._fired = false;
         this._flashDuration = 0.05;
         this._flashDurationCounter = 0;

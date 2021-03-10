@@ -66,9 +66,8 @@ wss.on('connection', (ws) => {
 
             for (let bullet of data.bullets){
                 
-                ray.origin = bullet.origin;
-                ray.direction = bullet.direction;
-                ray.damage = bullet.damage;
+                ray.origin      = bullet.origin;
+                ray.direction   = bullet.direction;
 
                 for (let player in PLAYERS){
                     if (player != id){
@@ -83,7 +82,8 @@ wss.on('connection', (ws) => {
                             console.log(`hit ${Date.now()}`)
 
                             response.hit = player
-                            SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': ray.damage}));
+                            
+                            SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet.damage}));
                         }
                     }
                 }
