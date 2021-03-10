@@ -104,9 +104,8 @@ export class Weapon extends Component {
 		this.flash.position.copy(this._muzzlePosition);
 		this.gameObject.transform.add(this.flash);
 
-
         // gunshot
-        
+        /*
         let that = this;
         const audioLoader = new THREE.AudioLoader();
         audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', function(buffer) {
@@ -114,32 +113,34 @@ export class Weapon extends Component {
             audio.setBuffer(buffer);
             audio.setRefDistance(1);
             that.gunshot = audio;
-            that.gameObject.transform.add(audio);
         });
-        
+        */
+
+        (async () => {
+            const audioLoader = new THREE.AudioLoader();
+            const buffer = await new Promise((resolve, reject) => {
+                audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', data => resolve(data), null, reject);
+            });
+            this.gunshot = new THREE.PositionalAudio(listener);
+            this.gunshot.setBuffer(buffer);
+            this.gunshot.setRefDistance(1);
+            this.gunshot.position.copy(this._muzzlePosition);
+            this.gameObject.transform.add(this.gunshot);
+        })();
 
 		this._fire = function(){
-            console.log("fire")
-
             if (this._ammo <= 0 || this._reloading) return;
-
-            this.smoke.active = true;
-
-            this._fired  = true;
+            this.smoke.active   = true;
+            this._fired         = true;
             this.flash.scale.copy(this._flashStartingScale);
             this._ammoDisplay.innerText = --this._ammo;
-            
             
             if (this.gunshot.isPlaying){
                 this.gunshot.stop();
                 this.gunshot.play();
-
             } else {
                 this.gunshot.play();
-                
             }
-            
-
             rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject, this._damage);
 		}
 
@@ -152,7 +153,6 @@ export class Weapon extends Component {
                     break;
             }
         })
-
 	}
 
     remove(){
@@ -187,6 +187,9 @@ export class Weapon extends Component {
     }
 
     update(dt){
+        //this.gunshot.position.copy(this._muzzlePosition);
+        //console.log(this.gunshot.position.x)
+
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
             this.flash.scale.multiplyScalar(1.7)
@@ -203,16 +206,13 @@ export class Weapon extends Component {
         }
 
         if (this._reloading && this._reloadTimeCounter <= this._reloadTime){
-            
             this._reloadTimeCounter += dt;
-
             if (this._reloadTimeCounter > this._reloadTime){
                 this._reloading = false;
                 this._reloadTimeCounter = 0;
                 this._ammo = this._ammoCapacity; 
                 this._ammoDisplay.innerText = this._ammo;
             }
-
         }
 
         this.smoke._source.copy(this.flash.localToWorld(this._muzzlePosition));
@@ -243,30 +243,17 @@ export class FullAutoWeapon extends Weapon {
 		this._elapsed  = 0
 
         function toggleFiring(){
-            console.log("test")
             this._firing = !this._firing;
         }
-
         this._toggleFiringHandler = toggleFiring.bind(this);
-
-        /*
+        
         document.body.addEventListener("mousedown", this._toggleFiringHandler, false);
-        document.body.addEventListener("mouseup", this._toggleFiringHandler, false);
-        */
-
-
-        document.body.addEventListener("mousedown", e => {
-			this._firing = true
-		});
-
-		document.body.addEventListener("mouseup", e => {
-			this._firing = false
-		});
+        document.body.addEventListener("mouseup",   this._toggleFiringHandler, false);
     }
 
     remove(){
-        document.body.removeEventListener("mousedown", this._toggleFiringHandler, false);
-        document.body.removeEventListener("mouseup", this._toggleFiringHandler, false);
+        document.body.removeEventListener("mousedown",  this._toggleFiringHandler, false);
+        document.body.removeEventListener("mouseup",    this._toggleFiringHandler, false);
         super.remove()
     }
 

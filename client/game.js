@@ -72,15 +72,20 @@ let player_id           = undefined;
 var gameData            = undefined;
 
 const killPlayer = function(){
-
     dead = true;
-    hud.style.display = 'none';
-    menuEl.style.display = 'block';
+    hud.style.display       = 'none';
+    menuEl.style.display    = 'block';
     gameObjectArray.remove(player);
+    player.position.set(0,-10, 0);
 }
 
 const respawnPlayer = function(){
-
+    player.position.set(Math.random()*20-10, 5, Math.random()*20-10);
+    player.health.reset()
+    gameObjectArray.add(player);
+    hud.style.display       = 'block';
+    menuEl.style.display    = 'none';
+    dead = false;
 }
 
 const init = async function(){
@@ -93,12 +98,11 @@ const init = async function(){
     player_id = player.id;
 
     respawnBtn.addEventListener("click", () => {
-        console.log("respawn")
+        respawnPlayer();
     });
 
     button.addEventListener("click", () => {
         console.log("button");
-        player.remove();
     });
 
     // create map skybox
@@ -201,6 +205,9 @@ const menu = function(dt){
 }
 
 const play = function(dt) {
+
+    //console.log(`${player.position.x}, ${player.position.z}`)
+
 	gameObjectArray.forEach(gameObject => {
 		if (!gameObject.local){ 
 			let pos_and_dir = network_data[gameObject.id];
