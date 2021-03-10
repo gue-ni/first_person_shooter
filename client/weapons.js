@@ -271,12 +271,12 @@ export class FullAutoWeapon extends Weapon {
     }
 
     update(dt){
-        console.log("update")
-        console.log(this._firing)
- 		this._elapsed += dt;
+        //console.log("update")
+
+        this._elapsed += dt;
 
 		if (this._firing && this._elapsed >= this._duration){
-            console.log("firing")
+            //console.log("firing")
 			this._fire()
 			this._elapsed = 0
 		}      

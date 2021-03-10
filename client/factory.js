@@ -48,7 +48,7 @@ export class Factory {
         //let inventory = player.addComponent(this.createFullInventory(player, bullets));
         //inventory.weapons.push(this.createRifle(player, bullets));
 
-        let gun = player.addComponent(new FullAutoWeapon(player, bullets, this.listener))
+        let gun = player.addComponent(new FullAutoWeapon(player, bullets, this.listener, 630))
         gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
         gun.smoke.active = false;
 
