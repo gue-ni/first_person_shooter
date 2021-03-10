@@ -1,17 +1,19 @@
-p5.js
-three.js
-three.module.js
-
 src/assets/downloaded/
 client/assets/downloaded/
 three/
 three.js-master/
 example/
 assets/downloaded/
+doc/
 
 *.jpg
 *.zip
 *.sh
+
+p5.js
+three.js
+three.module.js
+
 
 
 doc/

@@ -2,7 +2,10 @@ const express   = require('express');
 const http      = require('http');
 const websocket = require('ws');
 
-const { Ray, AABB, Vector3 } = require('./collision.js')
+//const { Ray, AABB, Vector3 } = require('./collision.js')
+const { Ray } = require('./Ray.js')
+const { Box3 } = require('./Box3.js')
+const { Vector3 } = require('./Vector3.js');
 
 const app 	    = express();
 const server 	= http.createServer(app);
@@ -57,6 +60,36 @@ wss.on('connection', (ws) => {
 
     	if (data.bullets){
             // TODO check if the bullet hit a box, if so 
+
+            let ray = new Ray();
+
+            for (let bullet of data.bullets){
+                
+                ray.origin      = bullet.origin;
+                ray.direction   = bullet.direction;
+
+                for (let player in PLAYERS){
+                    if (player != id){
+                        console.log("check")
+                        let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
+
+                        let position = PLAYERS[player];
+                        box.translate(new Vector3(position[0], position[1], position[2]));
+
+                        if (ray.intersectsBox(box)){
+
+                            console.log(`hit ${Date.now()}`)
+
+                            response.hit = player
+                            
+                            SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet.damage}));
+                        }
+                    }
+                }
+            }
+
+
+            /*
             let box = new AABB([0,0,0], new Vector3(1,2,1));
 
             for (let bullet_ray of data.bullets){
@@ -73,6 +106,7 @@ wss.on('connection', (ws) => {
                     }
                 }
             }
+            */
     	}    
 
         ws.send(JSON.stringify(response));

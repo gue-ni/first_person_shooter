@@ -1,5 +1,4 @@
-import { MathUtils } from './MathUtils.js';
-import { Quaternion } from './Quaternion.js';
+//import { Quaternion } from './Quaternion.js';
 
 class Vector3 {
 
@@ -222,6 +221,7 @@ class Vector3 {
 
 	}
 
+    /*
 	applyEuler( euler ) {
 
 		if ( ! ( euler && euler.isEuler ) ) {
@@ -239,6 +239,7 @@ class Vector3 {
 		return this.applyQuaternion( _quaternion.setFromAxisAngle( axis, angle ) );
 
 	}
+    */
 
 	applyMatrix3( m ) {
 
@@ -553,6 +554,7 @@ class Vector3 {
 
 	}
 
+    /*
 	angleTo( v ) {
 
 		const denominator = Math.sqrt( this.lengthSq() * v.lengthSq() );
@@ -566,6 +568,7 @@ class Vector3 {
 		return Math.acos( MathUtils.clamp( theta, - 1, 1 ) );
 
 	}
+    */
 
 	distanceTo( v ) {
 
@@ -716,6 +719,8 @@ class Vector3 {
 Vector3.prototype.isVector3 = true;
 
 const _vector = /*@__PURE__*/ new Vector3();
-const _quaternion = /*@__PURE__*/ new Quaternion();
+//const _quaternion = /*@__PURE__*/ new Quaternion();
 
-export { Vector3 };
+//export { Vector3 };
+
+exports.Vector3 = Vector3;

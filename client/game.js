@@ -128,9 +128,9 @@ const init = async function(){
 	}
 
     // testing
-    //let testObject = new GameObject(scene);
-    //testAABB = testObject.addComponent(new AABB2(testObject, new THREE.Vector3(2,2,2)));
-    //gameObjectArray.add(testObject);
+    let testObject = new GameObject(scene);
+    testAABB = testObject.addComponent(new AABB2(testObject, new THREE.Vector3(2,2,2)));
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
@@ -262,29 +262,21 @@ const play = function(dt) {
 
     //testAABB.collide(playerAABB);
 
-    /*
-    let origin = player.fpv.position.clone();
-    origin = player.fpv.camera.localToWorld(origin);
-    //console.log(origin);
-
-    //console.log(player.direction)
-
-    let ray = new THREE.Ray(origin, player.direction);
-    if (ray.intersectsBox(testAABB.box)){
-        console.log("hit")
-    }
-    */
+    
+    //let ray = new THREE.Ray(player.position, player.direction);
+    //if (ray.intersectsBox(testAABB.box)){
+    //    console.log("hit")
+    //}
+    
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}
 
-		if (Math.abs(player.velocity.length()) > 0.1){
-			data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
-		}
+		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 
 		if (bullets.length > 0){
 			let b = [];
-
+            /*
 			bullets.forEach(el => {
 				b.push([ 
                     el.origin.x,el.origin.y,el.origin.z, 
@@ -292,8 +284,9 @@ const play = function(dt) {
                     el.damage
                 ]);
 			});
+            */
 
-			data['bullets'] = b
+			data['bullets'] = bullets;
 		}
 		
 		if (data.player_data || data.bullets){
@@ -348,11 +341,11 @@ websocket.onmessage = function (event) {
 			let newGameObject = new GameObject(scene);
 			newGameObject.id = player.id;
 			newGameObject.local = false;
-			newGameObject.addComponent(new Gravity(newGameObject));
-			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,1)));
-			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.dark_grey, false, false));
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
+			newGameObject.addComponent(new Gravity(newGameObject));
+			newGameObject.addComponent(new AABB2(newGameObject, new THREE.Vector3(1,2,1)));
+			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.dark_grey, false, false));
 
 			gameObjectArray.add(newGameObject);
 		}
