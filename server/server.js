@@ -34,7 +34,6 @@ wss.on('connection', (ws) => {
         	// notify users of new player
             wss.clients.forEach( client => {
                 if (client !== ws && client.readyState === websocket.OPEN){
-                    //let new_player = { 'id': id, 'player_data': data.player_data};
                     client.send(JSON.stringify({connected: [{ 'id': id, 'player_data': data.player_data}]}))
                 }
             })
@@ -56,7 +55,6 @@ wss.on('connection', (ws) => {
             response.players = PLAYERS;
     	}
 
-
     	if (data.bullets){
             // TODO check if the bullet hit a box, if so 
             let box = new AABB([0,0,0], new Vector3(1,2,1));
@@ -66,7 +64,6 @@ wss.on('connection', (ws) => {
                 for (let player in PLAYERS){
 
                     if (player != id){ // don't shoot yourself
-
                         box.position = PLAYERS[player]
                      
                         if (Ray.intersect_box(bullet_ray, box)){
