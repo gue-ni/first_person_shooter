@@ -62,6 +62,7 @@ window.addEventListener('resize', () => {
 
 const map_width = 50, map_depth = 50, map_height = 50
 const bullets 	        = []
+const boxes             = []
 let network_data        = []
 const spaceHash         = new SpaceHash(2)
 const gameObjectArray   = new GameObjectArray()
@@ -119,7 +120,8 @@ const init = async function(){
 
     // create boxes
     for (let pos of gameData.boxes){
-        factory.createEnvironmentBox(pos);
+        let box = factory.createEnvironmentBox(pos);
+        boxes.push(box.getComponent("aabb"));
 	}
 
     // testing
@@ -251,6 +253,12 @@ const play = function(dt) {
             }
 		}
 	});
+
+    let ray = new Ray()
+
+    for (const aabb of boxes){
+        
+    }
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}

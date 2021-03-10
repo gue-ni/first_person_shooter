@@ -7,6 +7,8 @@ class Vector3 {
 	}
 }
 
+// https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
+
 class Ray {
 	constructor(data){
 		this.data = data;
@@ -57,6 +59,8 @@ class Ray {
 	    if (tzmax < tmax)  tmax = tzmax; 
     	return true; 
 	}
+
+    
 }
 
 class AABB {
