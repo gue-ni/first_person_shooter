@@ -33,13 +33,24 @@ export class Factory {
         return gun;
     }
 
+    createFullInventory(owner, bullets){
+        let inventory = owner.addComponent(new Inventory(owner));
+        inventory.weapons.push(this.createRifle( owner, bullets));
+        //inventory.weapons.push(this.createPistol(owner, bullets));
+        return inventory;
+    }
+
     createPlayer(bullets){
         let player = new GameObject(this.scene)
         
         player.fpv = player.addComponent(new FPSCamera(player, this.camera))
 
-        let inventory = player.addComponent(new Inventory(player));
-        inventory.weapons.push(this.createRifle(player, bullets));
+        //let inventory = player.addComponent(this.createFullInventory(player, bullets));
+        //inventory.weapons.push(this.createRifle(player, bullets));
+
+        let gun = player.addComponent(new FullAutoWeapon(player, bullets, this.listener))
+        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
+        gun.smoke.active = false;
 
         player.addComponent(new WASDMovement(player))
         player.addComponent(new Gravity(player))

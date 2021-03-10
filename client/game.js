@@ -71,6 +71,18 @@ var player              = undefined;
 let player_id           = undefined;
 var gameData            = undefined;
 
+const killPlayer = function(){
+
+    dead = true;
+    hud.style.display = 'none';
+    menuEl.style.display = 'block';
+    gameObjectArray.remove(player);
+}
+
+const respawnPlayer = function(){
+
+}
+
 const init = async function(){
 	let json = await fetch('./assets/game_data.json');
 	gameData = await json.json();
@@ -182,7 +194,6 @@ const menu = function(dt){
         let data = {'id': player.id};
 		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 	    websocket.send(JSON.stringify(data));
-
     }
 
     stats.update()	
@@ -289,7 +300,6 @@ const game = function(now){
     }
 }
 
-
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
@@ -333,12 +343,8 @@ websocket.onmessage = function (event) {
 
         if (player.health.health <= 0){
             //player.position.set(0,-5,0);
-            dead = true;
-            hud.style.display = 'none';
-            menuEl.style.display = 'block';
-            gameObjectArray.remove(player);
-            player.remove()
 
+            killPlayer(player);
         }
 	} else {
 		taking_hits.style.display = 'none'

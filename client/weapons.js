@@ -14,7 +14,9 @@ export class Inventory extends Component {
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
-                case 82: 
+                case 69: // e
+                    console.log("switch gun")
+                    //this._active = (this._active + 1) % this.weapons.length;  
                     break;
             }
         });
@@ -102,9 +104,9 @@ export class Weapon extends Component {
 		this.flash.position.copy(this._muzzlePosition);
 		this.gameObject.transform.add(this.flash);
 
-        //let tmp = this._muzzlePosition.clone();
 
         // gunshot
+        
         let that = this;
         const audioLoader = new THREE.AudioLoader();
         audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', function(buffer) {
@@ -114,6 +116,7 @@ export class Weapon extends Component {
             that.gunshot = audio;
             that.gameObject.transform.add(audio);
         });
+        
 
 		this._fire = function(){
             console.log("fire")
@@ -126,6 +129,7 @@ export class Weapon extends Component {
             this.flash.scale.copy(this._flashStartingScale);
             this._ammoDisplay.innerText = --this._ammo;
             
+            
             if (this.gunshot.isPlaying){
                 this.gunshot.stop();
                 this.gunshot.play();
@@ -134,6 +138,7 @@ export class Weapon extends Component {
                 this.gunshot.play();
                 
             }
+            
 
             rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject, this._damage);
 		}
@@ -238,17 +243,18 @@ export class FullAutoWeapon extends Weapon {
 		this._elapsed  = 0
 
         function toggleFiring(){
+            console.log("test")
             this._firing = !this._firing;
         }
 
         this._toggleFiringHandler = toggleFiring.bind(this);
 
+        /*
         document.body.addEventListener("mousedown", this._toggleFiringHandler, false);
         document.body.addEventListener("mouseup", this._toggleFiringHandler, false);
+        */
 
 
-
-        /*
         document.body.addEventListener("mousedown", e => {
 			this._firing = true
 		});
@@ -256,7 +262,6 @@ export class FullAutoWeapon extends Weapon {
 		document.body.addEventListener("mouseup", e => {
 			this._firing = false
 		});
-        */
     }
 
     remove(){
@@ -266,9 +271,12 @@ export class FullAutoWeapon extends Weapon {
     }
 
     update(dt){
+        console.log("update")
+        console.log(this._firing)
  		this._elapsed += dt;
 
 		if (this._firing && this._elapsed >= this._duration){
+            console.log("firing")
 			this._fire()
 			this._elapsed = 0
 		}      
