@@ -76,6 +76,7 @@ export class AABB2 extends Component {
 	}
 }
 
+/*
 export class AABB extends Component {
 	constructor(gameObject, size){
 		super(gameObject)
@@ -150,3 +151,4 @@ export class AABB extends Component {
 		}
 	}
 }
+*/

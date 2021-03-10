@@ -3,7 +3,6 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
-import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Factory } from './factory.js';
 import { ParticleSystem, Smoke } from './particles.js';

@@ -4,7 +4,7 @@ import { SemiAutomaticWeapon, FullAutoWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera, Health } from './player.js';
-import { AABB, AABB2 } from './collide.js';
+import { AABB2 } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Smoke } from './particles.js';
 
