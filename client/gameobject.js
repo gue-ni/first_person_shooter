@@ -2,20 +2,30 @@ import * as THREE from './three/build/three.module.js';
 
 export class GameObject {
 	constructor(parent){
-		this.id = Math.floor(Math.random() * 1000000000) // not really a good idea
-		this.local = true; // updating is done locally
+		this.id         = Math.floor(Math.random() * 1000000000) // not really a good idea
+		this.local      = true; // updating is done locally
 		this.components = []
 		this.transform 	= new THREE.Object3D()
 		parent.add(this.transform)
 
-		this.velocity = new THREE.Vector3()
-		this.direction = new THREE.Vector3(1,0,0)
+		this.velocity   = new THREE.Vector3()
+		this.direction  = new THREE.Vector3(1,0,0)
 	}
 
 	addComponent(component) {
 		this.components.push(component);
 		return component;
 	}
+
+    removeComponent(name){
+        let component = this.getComponent(name);
+        console.log(this.components)
+        this.components = this.components.filter( c => { c.name != name});
+        console.log(this.components)
+        if (component){
+            component.remove();
+        }
+    }
 
 	getComponent(name) {
 		return this.components.find(c => c.name == name);

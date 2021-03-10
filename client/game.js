@@ -17,6 +17,7 @@ const crosshair 	= document.querySelector('#crosshair');
 const taking_hits 	= document.querySelector('#taking_hits');
 const users 		= document.querySelector('#users');
 const debug         = document.querySelector('#debug')
+const checkbox      = document.querySelector('#state');
 
 //canvas.height = window.innerHeight;
 //canvas.width 	= window.innerWidth;
@@ -25,6 +26,7 @@ const window_height = canvas.height
 
 const scene 	= new THREE.Scene();
 const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
+const camera2 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
 const renderer 	= new THREE.WebGLRenderer({
     canvas: canvas, 
     antialias: true,  
@@ -32,6 +34,10 @@ const renderer 	= new THREE.WebGLRenderer({
 });
 const listener = new THREE.AudioListener();
 camera.add(listener);
+camera2.add(listener);
+
+camera2.position.set(15,20,15);
+camera2.lookAt(0,0,0);
 
 renderer.setClearColor("#6AB9D9");
 
@@ -66,6 +72,7 @@ const init = async function(){
    
     // create player
     player = factory.createPlayer(bullets)
+    console.log(player.id);
 
     // create map skybox
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -137,20 +144,38 @@ const init = async function(){
 	renderer.render(scene, camera)
 	renderer.shadowMap.needsUpdate = false;
 
-	requestAnimationFrame(animate)
+	requestAnimationFrame(game)
 }
 
-let then = 0, dt = 0
-const animate = function(now) {
-	requestAnimationFrame(animate);
-
-	now *= 0.001; // convert to seconds
-	dt   = now - then;
-	then = now;
-	if (dt > 0.1) dt = 0.1;
-	
+const menu = function(dt){
 	gameObjectArray.forEach(gameObject => {
+		if (!gameObject.local){ 
 
+			let pos_and_dir = network_data[gameObject.id];
+			if (pos_and_dir){
+				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
+				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
+
+				let look = new THREE.Vector3();
+				look.subVectors(gameObject.position, gameObject.direction);
+				gameObject.transform.lookAt(look);
+			}
+        }
+    });
+
+	if (websocket.readyState === WebSocket.OPEN){
+        let data = {'id': player.id};
+		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
+	    websocket.send(JSON.stringify(data));
+
+    }
+
+    stats.update()	
+	renderer.render(scene, camera2)
+}
+
+const play = function(dt) {
+	gameObjectArray.forEach(gameObject => {
 		if (!gameObject.local){ 
 			let pos_and_dir = network_data[gameObject.id];
 			if (pos_and_dir){
@@ -192,7 +217,7 @@ const animate = function(now) {
                 gameObject.velocity.y = 0;
             }
 		}
-	})
+	});
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}
@@ -231,6 +256,23 @@ const animate = function(now) {
 	stats.update()	
 	renderer.render(scene, camera)
 }
+
+let then = 0, dt = 0
+const game = function(now){
+    requestAnimationFrame(game)
+
+	now *= 0.001; // convert to seconds
+	dt   = now - then;
+	then = now;
+	if (dt > 0.1) dt = 0.1;
+
+    if (checkbox.checked){
+        play(dt);
+    } else {
+        menu(dt);
+    }
+}
+
 
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
@@ -272,6 +314,11 @@ websocket.onmessage = function (event) {
         //console.log(data);
 		taking_hits.style.display = 'block'
         player.health.health -= data.damage;
+
+        if (player.health.health <= 0){
+            player.position.set(0,-5,0);
+            checkbox.checked = false;
+        }
 	} else {
 		taking_hits.style.display = 'none'
 	}

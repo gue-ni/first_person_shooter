@@ -24,7 +24,6 @@ wss.on('connection', (ws) => {
     console.log("new connection");
 
 	ws.on('message', message => {
-
 		let data = JSON.parse(message);
     	let response = {};
 
@@ -35,8 +34,8 @@ wss.on('connection', (ws) => {
         	// notify users of new player
             wss.clients.forEach( client => {
                 if (client !== ws && client.readyState === websocket.OPEN){
-                    let new_player = { 'id': id, 'player_data': data.player_data};
-                    client.send(JSON.stringify({connected: [new_player]}))
+                    //let new_player = { 'id': id, 'player_data': data.player_data};
+                    client.send(JSON.stringify({connected: [{ 'id': id, 'player_data': data.player_data}]}))
                 }
             })
 
@@ -54,13 +53,12 @@ wss.on('connection', (ws) => {
 
     	if (data.player_data){
     		PLAYERS[id] = data.player_data;
-        	response.players = PLAYERS;
+            response.players = PLAYERS;
     	}
 
+
     	if (data.bullets){
-
             // TODO check if the bullet hit a box, if so 
-
             let box = new AABB([0,0,0], new Vector3(1,2,0.5));
 
             for (let bullet_ray of data.bullets){
@@ -79,7 +77,7 @@ wss.on('connection', (ws) => {
                 }
             }
     	}    
-        //console.log(response)
+
         ws.send(JSON.stringify(response));
 	});
 
