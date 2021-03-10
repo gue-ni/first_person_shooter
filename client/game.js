@@ -254,7 +254,7 @@ const play = function(dt) {
 		}
 	});
 
-    let ray = new Ray()
+    //let ray = new Ray()
 
     for (const aabb of boxes){
         
