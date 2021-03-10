@@ -53,7 +53,7 @@ export class Factory {
         player.addComponent(new WASDMovement(player))
         player.addComponent(new Gravity(player))
         player.health = player.addComponent(new Health(player));
-        player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
+        player.addComponent(new AABB2(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
         player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
         
@@ -67,11 +67,12 @@ export class Factory {
     createEnvironmentBox(pos){
 		let size 		= new THREE.Vector3(2,2,2)
 		let testObject 	= new GameObject(this.scene)
-		let aabb 		= testObject.addComponent(new AABB(testObject, size))
-		testObject.addComponent(new Box(testObject,  size, 0xD3D3D3, true, false))
 		testObject.position.set(pos.x, pos.y, pos.z);
 		testObject.transform.matrixAutoUpdate = false
 		testObject.transform.updateMatrix();
+
+		testObject.addComponent(new Box(testObject,  size, 0xD3D3D3, true, false))
+		let aabb = testObject.addComponent(new AABB2(testObject, size))
 		this.spaceHash.insert(aabb)
         return testObject;
     }

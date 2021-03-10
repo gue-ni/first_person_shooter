@@ -129,8 +129,8 @@ const init = async function(){
 	}
 
     // testing
-    let testObject = new GameObject(scene);
-    testAABB = testObject.addComponent(new AABB2(testObject, new THREE.Vector3(2,2,2)));
+    //let testObject = new GameObject(scene);
+    //testAABB = testObject.addComponent(new AABB2(testObject, new THREE.Vector3(2,2,2)));
     //gameObjectArray.add(testObject);
 
     // create lights
@@ -228,11 +228,10 @@ const play = function(dt) {
 		} else { 
 			gameObject.update(dt);
 
-			let aabb = gameObject.getComponent("aabb");
+			let aabb = gameObject.getComponent("aabb2");
 
 			if (aabb){
 				for (let otherObject of spaceHash.possible_collisions(aabb)){
-                    console.log("possible")
 					if (otherObject != gameObject) otherObject.collide(aabb); 
 				}
 			}

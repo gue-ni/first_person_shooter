@@ -14,9 +14,11 @@ export class AABB2 extends Component {
         this._center = new THREE.Vector3(0,0,0);
         this.update(0);
 
-        let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-		let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
-		this.gameObject.transform.add(new THREE.Mesh(geometry, material))
+        //console.log(this._center)
+
+        //let geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
+		//let material = new THREE.MeshBasicMaterial( {color: "#dadada", wireframe: true, transparent: true})
+		//this.gameObject.transform.add(new THREE.Mesh(geometry, material))
     }
 
     get min(){
@@ -108,7 +110,7 @@ export class AABB extends Component {
 
 	collide(aabb){
 		if (this.intersect(aabb)){
-            
+
 
 			let d0, d1;
 
