@@ -7,6 +7,7 @@ import { AABB } from './collide.js';
 import { SpaceHash } from './spacehash.js';
 import { Factory } from './factory.js';
 import { ParticleSystem, Smoke } from './particles.js';
+import { AABB2 } from './collide.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -71,6 +72,8 @@ const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://be
 var player              = undefined;
 let player_id           = undefined;
 var gameData            = undefined;
+let playerAABB          = undefined;
+let testAABB            = undefined;
 
 const killPlayer = function(){
     dead = true;
@@ -95,6 +98,7 @@ const init = async function(){
    
     // create player
     player = factory.createPlayer(bullets)
+    //playerAABB = player.addComponent(new AABB2(player, new THREE.Vector3(1,2,1)));
     console.log(player.id);
     player_id = player.id;
 
@@ -121,12 +125,12 @@ const init = async function(){
     // create boxes
     for (let pos of gameData.boxes){
         let box = factory.createEnvironmentBox(pos);
-        boxes.push(box.getComponent("aabb"));
+        //boxes.push(box.getComponent("aabb"));
 	}
 
     // testing
-    //let testObject = new GameObject(scene);
-    //testObject.addComponent(new Smoke(testObject, new THREE.Vector3(0,1.5,0)))
+    let testObject = new GameObject(scene);
+    testAABB = testObject.addComponent(new AABB2(testObject, new THREE.Vector3(2,2,2)));
     //gameObjectArray.add(testObject);
 
     // create lights
@@ -208,7 +212,7 @@ const menu = function(dt){
 
 const play = function(dt) {
 
-    //console.log(`${player.position.x}, ${player.position.z}`)
+    //console.log(playerAABB.box.min.x);
 
 	gameObjectArray.forEach(gameObject => {
 		if (!gameObject.local){ 
@@ -223,10 +227,12 @@ const play = function(dt) {
 			}
 		} else { 
 			gameObject.update(dt);
+
 			let aabb = gameObject.getComponent("aabb");
 
 			if (aabb){
-				for (let otherObject of spaceHash.find_possible_collisions(aabb)){
+				for (let otherObject of spaceHash.possible_collisions(aabb)){
+                    console.log("possible")
 					if (otherObject != gameObject) otherObject.collide(aabb); 
 				}
 			}
@@ -254,11 +260,22 @@ const play = function(dt) {
 		}
 	});
 
-    //let ray = new Ray()
+    
 
-    for (const aabb of boxes){
-        
+    //testAABB.collide(playerAABB);
+
+    /*
+    let origin = player.fpv.position.clone();
+    origin = player.fpv.camera.localToWorld(origin);
+    //console.log(origin);
+
+    //console.log(player.direction)
+
+    let ray = new THREE.Ray(origin, player.direction);
+    if (ray.intersectsBox(testAABB.box)){
+        console.log("hit")
     }
+    */
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}

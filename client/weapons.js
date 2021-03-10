@@ -131,14 +131,17 @@ export class Weapon extends Component {
                 this.gunshot.play();
             }
 
-            let tmp = this.gameObject.fpv.camera.position.clone();
-            tmp = this.gameObject.fpv.camera.localToWorld(tmp);
+            //let tmp = this.gameObject.fpv.camera.position.clone();
+            //tmp = this.gameObject.fpv.camera.localToWorld(tmp);
             //tmp.y -= 0.7;
+
+            let origin = this.gameObject.position.clone();
+            //origin.y += 0.7;
             
-            let dir = new THREE.Vector3();
-            dir.copy(this.gameObject.direction);
+            //let dir = new THREE.Vector3();
+            //dir.copy(this.gameObject.direction);
             
-            rays[rays.length] = new BulletRay(this.gameObject.position, dir, this.gameObject, this._damage);
+            rays[rays.length] = new BulletRay(origin, this.gameObject.direction, this.gameObject, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {

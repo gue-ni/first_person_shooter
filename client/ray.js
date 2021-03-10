@@ -1,5 +1,5 @@
 import * as THREE from './three/build/three.module.js';
-
+/*
 export class Ray {
 	constructor(origin, direction){
 		this.origin 	= origin.clone()
@@ -50,8 +50,9 @@ export class Ray {
     	return true; 
 	}
 }
+*/
 
-export class BulletRay extends Ray {
+export class BulletRay extends THREE.Ray {
 	constructor(origin, direction, owner, damage){
 		super(origin, direction);
 		this.owner = owner;

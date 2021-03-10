@@ -131,6 +131,10 @@ export class FPSCamera extends Component {
         }
     }
 
+    get position(){
+        return this.camera.position;
+    }
+
 }
 
 export class Health extends Component {
