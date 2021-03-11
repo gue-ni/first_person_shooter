@@ -211,7 +211,6 @@ const menu = function(dt){
 
 const play = function(dt) {
 
-    //console.log(playerAABB.box.min.x);
 
 	gameObjectArray.forEach(gameObject => {
 		if (!gameObject.local){ 
@@ -258,15 +257,12 @@ const play = function(dt) {
 		}
 	});
 
-    
-
-    //testAABB.collide(playerAABB);
-
-    
+       
     //let ray = new THREE.Ray(player.position, player.direction);
-    //if (ray.intersectsBox(testAABB.box)){
-    //    console.log("hit")
-    //}
+    //let p = spaceHash.possible_ray_collisions(ray);
+    //console.log(p.size)
+
+    
     
 
 	if (websocket.readyState === WebSocket.OPEN){

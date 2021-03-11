@@ -20,13 +20,6 @@ export class SpaceHash {
 		return this._hash.clone()
 	}
 
-	hash2(vec){
-		this._hash.x = Math.floor(vec.x/this.size)
-		this._hash.y = Math.floor(vec.y/this.size)
-		this._hash.z = Math.floor(vec.z/this.size)
-		return this._hash
-	}
-
 	clear(){
 		this.space = new Map()
 	}
@@ -55,8 +48,46 @@ export class SpaceHash {
 		//console.log(this.space)		
 	}
 
-    possible_ray_collision(ray){
+    possible_ray_collisions(ray){
+
+        let possible = new Set()
         
+        const ray_length = 10;
+
+        let p0 = ray.origin.clone();
+        let p1 = ray.direction.clone().multiplyScalar(ray_length);
+        
+        let dx = (p1.x - p0.x);
+        let dy = (p1.y - p0.y);
+        let dz = (p1.z - p0.z);
+
+        const step = Math.max(Math.abs(dx), Math.abs(dy), Math.abs(dz));
+        //console.log(step)
+
+        dx = dx / step;
+        dy = dy / step;
+        dz = dz / step;
+
+        let x = p0.x;
+        let y = p0.y;
+        let z = p0.z;
+
+        for (let i = 0; i <= Math.ceil(step); i++){
+            //set_voxel(Math.floor(x), Math.floor(y), Math.floor(z))
+
+			let key = `${Math.floor(x/this.size)}${Math.floor(y/this.size)}${Math.floor(z/this.size)}`
+            if (this.space.has(key)){
+                for (let item of this.space.get(key)){
+                    possible.add(item)
+                }
+            }
+
+            x += dx;
+            y += dy;
+            z += dz;
+        }
+
+        return possible;
     }
 
 	possible_aabb_collisions(aabb){
