@@ -120,7 +120,10 @@ export class Weapon extends Component {
 
 		this._fire = function(){
             if (this._ammo <= 0 || this._reloading) return;
-            this.smoke.active   = true;
+
+
+            if (this.smoke) this.smoke.active   = true;
+
             this._fired         = true;
             this.flash.scale.copy(this._flashStartingScale);
             this._ammoDisplay.innerText = --this._ammo;
@@ -208,7 +211,8 @@ export class Weapon extends Component {
                 this._flashDurationCounter = 0;
                 this.flash.scale.set(0,0,0);
                 this.light.color.setHex(0x000000);
-                this.smoke.active = false;
+                
+                if (this.smoke) this.smoke.active = false;
             }
         }
 
@@ -221,8 +225,10 @@ export class Weapon extends Component {
             }
         }
 
-        this.smoke._source.copy(this.flash.localToWorld(this._muzzlePosition));
-        this.smoke.update(dt);
+        if (this.smoke){
+            this.smoke._source.copy(this.flash.localToWorld(this._muzzlePosition));
+            this.smoke.update(dt);
+        }
     }
 }
 

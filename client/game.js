@@ -73,7 +73,9 @@ let player_id           = undefined;
 var gameData            = undefined;
 let playerAABB          = undefined;
 let testAABB            = undefined;
-let particleSystem      = new BulletImpact(scene);
+//let particleSystem      = new ParticleSystem(scene, 1000, 10, 5, './assets/textures/fire.png');
+//let particleSystem      = new Smoke(scene, new THREE.Vector3());
+let particleSystem          = new BulletImpact(scene)
 let bulletImpact        = new THREE.Vector3();
 
 const killPlayer = function(){
@@ -291,6 +293,7 @@ const play = function(dt) {
 			websocket.send(JSON.stringify(data));
 		}
 	}
+
 	bullets.length = 0;
 
 	// debug
