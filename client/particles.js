@@ -29,7 +29,6 @@ void main() {
 
 export class ParticleSystem {
 	constructor(parent, numParticles, particlesPerSecond, particleLifetime, texturePath){
-
 		this._lastUsedParticle 	= 0;
 		this._elapsed  			= 0;
 		this._lifetime 			= [];
@@ -37,18 +36,18 @@ export class ParticleSystem {
 		this._numParticles 		= numParticles;
         this._particlePerSec    = particlesPerSecond;
 		this._duration 			= 1.0 / particlesPerSecond;  
-		this._cache 			= new THREE.Vector3(0, -10, 0);
+		this._cache 			= new THREE.Vector3(0, 0, 0);
 		this._particleLifetime  = particleLifetime;
-        this._startSize         = 0.1;
+        this._startSize         = 1;
         this.active             = true;
 
-		const position = [], sizes = [], colors = [], rotation = []
-		this._velocities = []
+		const position = [], sizes = [], colors = [], rotation = [];
+		this._velocities = [];
 
 		for ( let i = 0; i < this._numParticles; i++ ) {
 			position.push(this._cache.x, this._cache.y, this._cache.z);
 			this._lifetime.push(-1);
-			this._velocities.push(new THREE.Vector3(0, 0, 0))
+			this._velocities.push(new THREE.Vector3(0,0,0))
 			sizes.push(this._startSize)
             rotation.push(Math.random() * 2.0 * Math.PI)
 			colors.push(1,1,1,1);
@@ -56,7 +55,6 @@ export class ParticleSystem {
 
 		const uniforms = {
 			diffuseTexture: {
-			    //value: new THREE.TextureLoader().load('./assets/textures/smoke.png')
 			    value: new THREE.TextureLoader().load(texturePath)
 			},
 			pointMultiplier: {
@@ -82,10 +80,7 @@ export class ParticleSystem {
 		this._geometry.setAttribute('colour',   new THREE.Float32BufferAttribute(colors,4));
 		this._geometry.computeBoundingSphere()
 		this._geometry.boundingSphere.set(this._cache, 100);
-
 		this._points = new THREE.Points(this._geometry, this._material);
-
-        //console.log(gameObject)
 		parent.add(this._points);
 	}
 
@@ -97,17 +92,19 @@ export class ParticleSystem {
 
 	_findUnusedParticle(){
 		for (let i = this._lastUsedParticle; i < this._numParticles; i++){
-			if (this._lifetime[i] < 0){
+			if (this._lifetime[i] <= 0){
 				this._lastUsedParticle = i; 
 				return i;
-			}
+			} 
 		}
 		for (let i = 0; i < this._lastUsedParticle; i++){
-			if (this._lifetime[i] < 0){
+			if (this._lifetime[i] <= 0){
 				this._lastUsedParticle = i;
 				return i;
 			}
 		}
+        //console.log("override")
+        this._lastUsedParticle = 0;
 		return 0;
     }
 
@@ -123,6 +120,7 @@ export class ParticleSystem {
     }
 
     _createParticle(i, sizes, colors, positions){
+        console.log("called")
         positions[i*3] 	 = 0;
         positions[i*3+1] = 0;
         positions[i*3+2] = 0;
@@ -177,31 +175,36 @@ export class ParticleSystem {
 
 export class BulletImpact extends ParticleSystem {
     constructor(parent){
-        super(parent, 1000, 10, 1,'./assets/textures/fire.png');
-        document.querySelector('#button').addEventListener('click',() => {
-            this.impact(new THREE.Vector3())
-        } ,false)
+        super(parent, 10, 1, 1,'./assets/textures/fire.png');
     }
 
     impact(pos){
 		const positions = this._points.geometry.attributes.position.array;
 		const sizes 	= this._points.geometry.attributes.size.array;
-		//const colors 	= this._points.geometry.attributes.colour.array;
-		//const rotation 	= this._points.geometry.attributes.angle.array;
 
-        for (let i = 0; i < 10; i++){
+        console.log(pos);
+
+        for (let i = 0; i < 1; i++){
             let unused = this._findUnusedParticle();
+            console.log(`new unused ${unused}`)
+
             positions[unused*3] 	    = pos.x;
             positions[unused*3+1]       = pos.y;
             positions[unused*3+2]       = pos.z;
-            sizes[unused] 				= this._startSize;
-            this._lifetime[unused] 	    = this._particleLifetime;
+
+           
+            sizes[unused] 				= 4;
+            this._lifetime[unused] 	    = 3;
             this._velocities[unused] 	= new THREE.Vector3(0,1,0);
         }		
+        
+        console.log(sizes)
+        console.log(positions)
+
+        //console.log(sizes)
+
 		this._points.geometry.attributes.position.needsUpdate 	= true;
 		this._points.geometry.attributes.size.needsUpdate 		= true;
-		//this._points.geometry.attributes.colour.needsUpdate 	= true;
-		//this._points.geometry.attributes.angle.needsUpdate 	= true;
     }
 
 	update(dt){
@@ -221,7 +224,7 @@ export class BulletImpact extends ParticleSystem {
 					positions[i*3]   = this._cache.x;
 					positions[i*3+1] = this._cache.y;
 					positions[i*3+2] = this._cache.z;
-					sizes[i] 		 = 0;
+					sizes[i] 		 = 0.1;
 					colors[i*4+3] 	 = 0;
 				}
 			}
