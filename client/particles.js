@@ -28,7 +28,7 @@ void main() {
 }`;
 
 export class ParticleSystem {
-	constructor(parent, numParticles, particlesPerSecond, particleLifetime){
+	constructor(parent, numParticles, particlesPerSecond, particleLifetime, texturePath){
 
 		this._lastUsedParticle 	= 0;
 		this._elapsed  			= 0;
@@ -56,7 +56,8 @@ export class ParticleSystem {
 
 		const uniforms = {
 			diffuseTexture: {
-			    value: new THREE.TextureLoader().load('./assets/textures/smoke.png')
+			    //value: new THREE.TextureLoader().load('./assets/textures/smoke.png')
+			    value: new THREE.TextureLoader().load(texturePath)
 			},
 			pointMultiplier: {
 			    value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
@@ -174,9 +175,68 @@ export class ParticleSystem {
 	}
 }
 
+export class BulletImpact extends ParticleSystem {
+    constructor(parent){
+        super(parent, 1000, 10, 1,'./assets/textures/fire.png');
+        document.querySelector('#button').addEventListener('click',() => {
+            this.impact(new THREE.Vector3())
+        } ,false)
+    }
+
+    impact(pos){
+		const positions = this._points.geometry.attributes.position.array;
+		const sizes 	= this._points.geometry.attributes.size.array;
+		//const colors 	= this._points.geometry.attributes.colour.array;
+		//const rotation 	= this._points.geometry.attributes.angle.array;
+
+        for (let i = 0; i < 10; i++){
+            let unused = this._findUnusedParticle();
+            positions[unused*3] 	    = pos.x;
+            positions[unused*3+1]       = pos.y;
+            positions[unused*3+2]       = pos.z;
+            sizes[unused] 				= this._startSize;
+            this._lifetime[unused] 	    = this._particleLifetime;
+            this._velocities[unused] 	= new THREE.Vector3(0,1,0);
+        }		
+		this._points.geometry.attributes.position.needsUpdate 	= true;
+		this._points.geometry.attributes.size.needsUpdate 		= true;
+		//this._points.geometry.attributes.colour.needsUpdate 	= true;
+		//this._points.geometry.attributes.angle.needsUpdate 	= true;
+    }
+
+	update(dt){
+		const positions = this._points.geometry.attributes.position.array;
+		const sizes 	= this._points.geometry.attributes.size.array;
+		const colors 	= this._points.geometry.attributes.colour.array;
+		const rotation 	= this._points.geometry.attributes.angle.array;
+		
+		for (let i = 0; i < this._numParticles; i++){
+			if (this._lifetime[i] > 0){
+
+				this._lifetime[i] -= dt;
+
+				if (this._lifetime[i] > 0){
+                    this._updateParticle(dt, i, sizes, colors, positions, rotation);
+				} else {
+					positions[i*3]   = this._cache.x;
+					positions[i*3+1] = this._cache.y;
+					positions[i*3+2] = this._cache.z;
+					sizes[i] 		 = 0;
+					colors[i*4+3] 	 = 0;
+				}
+			}
+		}
+
+		this._points.geometry.attributes.position.needsUpdate 	= true;
+		this._points.geometry.attributes.size.needsUpdate 		= true;
+		this._points.geometry.attributes.colour.needsUpdate 	= true;
+		this._points.geometry.attributes.angle.needsUpdate 	    = true;
+	}
+}
+
 export class Smoke extends ParticleSystem {
     constructor(parent, source){
-        super(parent, 1000, 10, 5);
+        super(parent, 1000, 10, 5,'./assets/textures/smoke.png');
         this._source = source;
     }
 

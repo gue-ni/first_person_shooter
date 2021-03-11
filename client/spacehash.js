@@ -55,12 +55,12 @@ export class SpaceHash {
 
         let possible = new Set()
         
-        const ray_length = 10;
+        const ray_length = 100;
 
         let p0 = ray.origin.clone();
 
         let len = ray.direction.clone()
-        len.setY(0);
+        //len.setY(0);
         len.normalize()
         len.multiplyScalar(ray_length);
 

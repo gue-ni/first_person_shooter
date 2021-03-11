@@ -5,7 +5,7 @@ import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
 import { SpaceHash } from './spacehash.js';
 import { Factory } from './factory.js';
-import { ParticleSystem, Smoke } from './particles.js';
+import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB2 } from './collide.js';
 
 const canvas  		= document.querySelector('#canvas');
@@ -20,7 +20,7 @@ const debug         = document.querySelector('#debug')
 const checkbox      = document.querySelector('#state');
 const respawnBtn    = document.querySelector('#respawn');
 const hud           = document.querySelector('#hud');
-const menuEl           = document.querySelector('#menu');
+const menuEl        = document.querySelector('#menu');
 const button        = document.querySelector('#button');
 
 //canvas.height = window.innerHeight;
@@ -73,6 +73,8 @@ let player_id           = undefined;
 var gameData            = undefined;
 let playerAABB          = undefined;
 let testAABB            = undefined;
+let particleSystem      = new BulletImpact(scene);
+let bulletImpact        = new THREE.Vector3();
 
 const killPlayer = function(){
     dead = true;
@@ -210,15 +212,12 @@ const menu = function(dt){
 }
 
 const play = function(dt) {
-
-
 	gameObjectArray.forEach(gameObject => {
 		if (!gameObject.local){ 
 			let pos_and_dir = network_data[gameObject.id];
 			if (pos_and_dir){
 				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
 				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
-
 				//let look = new THREE.Vector3();
 				//look.subVectors(gameObject.position, gameObject.direction);
 				//gameObject.transform.lookAt(look);
@@ -227,7 +226,6 @@ const play = function(dt) {
 			gameObject.update(dt);
 
 			let aabb = gameObject.getComponent("aabb2");
-
 			if (aabb){
 				for (let otherObject of spaceHash.possible_aabb_collisions(aabb)){
 					if (otherObject != gameObject) otherObject.collide(aabb); 
@@ -236,20 +234,16 @@ const play = function(dt) {
 
 			if (gameObject.position.x > map_width/2-0.5){
 				gameObject.position.x = map_width/2-0.5;
-
 			} else if (gameObject.position.x < -map_width/2+0.5){
 				gameObject.position.x 		 = -map_width/2+0.5;
 			}
 			if (gameObject.position.z > map_depth/2-0.5){
 				gameObject.position.z = map_depth/2-0.5;
-
 			} else if (gameObject.position.z < -map_depth/2+0.5){
 				gameObject.position.z 		 = -map_depth/2+0.5;
 			}
-
 			if (gameObject.position.y > map_height-3){
 				gameObject.position.y = map_height-3;
-
 			} else if (gameObject.position.y < 0){
                 gameObject.position.y = 0;
                 gameObject.velocity.y = 0;
@@ -257,18 +251,20 @@ const play = function(dt) {
 		}
 	});
 
-       
-    let ray = new THREE.Ray(player.position, player.direction);
-    
-    let possible = spaceHash.possible_ray_collisions(ray);
+    //let ray = new THREE.Ray(player.position, player.direction);
 
-    for (let aabb of possible){
-        if (ray.intersectsBox(aabb.box)){
-            console.log("hit")
+    for (let bullet of bullets){
+        for (let aabb of spaceHash.possible_ray_collisions(bullet)){
+            let intersection = bullet.intersectBox(aabb.box, bulletImpact)
+            if (intersection){
+                console.log("hit box")
+                //console.log(intersection)
+                particleSystem.impact(bulletImpact)
+            }
         }
     }
 
-    //console.log(p.size)
+    particleSystem.update(dt);
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}
@@ -295,7 +291,6 @@ const play = function(dt) {
 			websocket.send(JSON.stringify(data));
 		}
 	}
-
 	bullets.length = 0;
 
 	// debug
