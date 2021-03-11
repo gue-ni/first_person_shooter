@@ -55,7 +55,8 @@ export class Factory {
         player.health = player.addComponent(new Health(player));
         player.addComponent(new AABB2(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
-        player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
+        //player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
+        player.position.set(0,0,0)
         
         this.gameObjectArray.add(player)
        

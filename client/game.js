@@ -258,12 +258,17 @@ const play = function(dt) {
 	});
 
        
-    //let ray = new THREE.Ray(player.position, player.direction);
-    //let p = spaceHash.possible_ray_collisions(ray);
-    //console.log(p.size)
+    let ray = new THREE.Ray(player.position, player.direction);
+    
+    let possible = spaceHash.possible_ray_collisions(ray);
 
-    
-    
+    for (let aabb of possible){
+        if (ray.intersectsBox(aabb.box)){
+            console.log("hit")
+        }
+    }
+
+    //console.log(p.size)
 
 	if (websocket.readyState === WebSocket.OPEN){
 		let data = {}

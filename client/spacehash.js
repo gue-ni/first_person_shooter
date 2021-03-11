@@ -10,6 +10,7 @@ export class SpaceHash {
 		this.size = size
 		this.space = new Map()
 		this._hash = new THREE.Vector3(0,0,0)
+        this._counter = 0;
 		//console.log(this._hash)
 	}
 
@@ -32,7 +33,7 @@ export class SpaceHash {
 			for (let j = min.y; j <= max.y; j++){
 				for (let k = min.z; k <= max.z; k++){
 
-					let key = `${i}${j}${k}`
+					let key = `${i},${j},${k}`
 
 					if (this.space.has(key)){
 						let l = this.space.get(key)
@@ -50,19 +51,30 @@ export class SpaceHash {
 
     possible_ray_collisions(ray){
 
+        //console.log(ray.direction)
+
         let possible = new Set()
         
         const ray_length = 10;
 
         let p0 = ray.origin.clone();
-        let p1 = ray.direction.clone().multiplyScalar(ray_length);
+
+        let len = ray.direction.clone()
+        len.setY(0);
+        len.normalize()
+        len.multiplyScalar(ray_length);
+
+        let p1 = new THREE.Vector3();
+        p1.addVectors(p0, len)
+
         
+        //if (this._counter % 100 == 0) console.log(p0, p1)
+
         let dx = (p1.x - p0.x);
         let dy = (p1.y - p0.y);
         let dz = (p1.z - p0.z);
 
         const step = Math.max(Math.abs(dx), Math.abs(dy), Math.abs(dz));
-        //console.log(step)
 
         dx = dx / step;
         dy = dy / step;
@@ -72,20 +84,33 @@ export class SpaceHash {
         let y = p0.y;
         let z = p0.z;
 
-        for (let i = 0; i <= Math.ceil(step); i++){
-            //set_voxel(Math.floor(x), Math.floor(y), Math.floor(z))
+        let tmp = "";
 
-			let key = `${Math.floor(x/this.size)}${Math.floor(y/this.size)}${Math.floor(z/this.size)}`
+        for (let i = 0; i <= Math.ceil(step); i++){
+
+			let key = `${Math.floor(x/this.size)},${Math.floor(y/this.size)},${Math.floor(z/this.size)}`
+            //tmp += key + " ";
+
+            //console.log(key)
+            
             if (this.space.has(key)){
                 for (let item of this.space.get(key)){
                     possible.add(item)
                 }
             }
-
             x += dx;
             y += dy;
             z += dz;
         }
+
+        /*
+        if (++this._counter % 100 == 0) {
+            //console.log(tmp)
+            //console.log(`${tmp1.x},${tmp1.z}`)
+            //console.log(possible.size)
+            //console.log(this.space)
+        }
+        */
 
         return possible;
     }
@@ -100,7 +125,7 @@ export class SpaceHash {
 			for (let j = min.y; j <= max.y; j++){
 				for (let k = min.z; k <= max.z; k++){
 
-					let key = `${i}${j}${k}`
+					let key = `${i},${j},${k}`
 
 					if (this.space.has(key)){
 						for (let item of this.space.get(key)){
