@@ -230,7 +230,7 @@ const play = function(dt) {
 			let aabb = gameObject.getComponent("aabb2");
 
 			if (aabb){
-				for (let otherObject of spaceHash.possible_collisions(aabb)){
+				for (let otherObject of spaceHash.possible_aabb_collisions(aabb)){
 					if (otherObject != gameObject) otherObject.collide(aabb); 
 				}
 			}

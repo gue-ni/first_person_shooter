@@ -55,7 +55,11 @@ export class SpaceHash {
 		//console.log(this.space)		
 	}
 
-	possible_collisions(aabb){
+    possible_ray_collision(ray){
+        
+    }
+
+	possible_aabb_collisions(aabb){
 		let min = this.hash(aabb.min)
 		let max = this.hash(aabb.max)
 		
