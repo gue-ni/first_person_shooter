@@ -60,7 +60,7 @@ window.addEventListener('resize', () => {
 	camera.updateProjectionMatrix()
 })
 
-const map_width = 50, map_depth = 50, map_height = 50
+const map_width = 50, map_depth = 50, map_height = 80
 const bullets 	        = []
 let network_data        = []
 const hashGrid         = new HashGrid(2)
@@ -119,11 +119,12 @@ const init = async function(){
 	mesh.receiveShadow = true;
     scene.add(mesh);
 
+
     // create boxes
     for (let pos of gameData.boxes){
-        let box = factory.createEnvironmentBox(pos);
-        //boxes.push(box.getComponent("aabb"));
+        factory.createEnvironmentBox(pos, new THREE.Vector3(2,2,2));
 	}
+    factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
     //let testObject = new GameObject(scene);

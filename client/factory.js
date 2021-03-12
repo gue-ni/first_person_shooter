@@ -62,10 +62,20 @@ export class Factory {
         return player;
     }
 
-    
+    createGroundBox(pos, size){
+		let testObject 	= new GameObject(this.scene)
+		testObject.position.set(pos.x, pos.y, pos.z);
+		testObject.transform.matrixAutoUpdate = false
+		testObject.transform.updateMatrix();
 
-    createEnvironmentBox(pos){
-		let size 		= new THREE.Vector3(2,2,2)
+		testObject.addComponent(new Box(testObject,  size, 10066329, true, true))
+		let aabb = testObject.addComponent(new AABB2(testObject, size))
+		this.hashGrid.insert(aabb)
+        return testObject;
+    }    
+
+    createEnvironmentBox(pos, size){
+		//let size 		= new THREE.Vector3(2,2,2)
 		let testObject 	= new GameObject(this.scene)
 		testObject.position.set(pos.x, pos.y, pos.z);
 		testObject.transform.matrixAutoUpdate = false
