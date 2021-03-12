@@ -5,16 +5,16 @@ import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera, Health } from './player.js';
 import { AABB2 } from './collide.js';
-import { SpaceHash } from './spacehash.js';
+import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
 
 export class Factory {
-    constructor(scene, camera, listener, gameObjectArray, spaceHash){
+    constructor(scene, camera, listener, gameObjectArray, hashGrid){
         this.scene = scene;
         this.camera = camera;
         this.listener = listener;
         this.gameObjectArray = gameObjectArray;
-        this.spaceHash = spaceHash;
+        this.hashGrid = hashGrid;
     }
 
     createPistol(owner, bullets){
@@ -22,7 +22,6 @@ export class Factory {
         gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
         gun.smoke.active = false;
         return gun;
-
     }
 
     createRifle(owner, bullets){
@@ -74,7 +73,7 @@ export class Factory {
 
 		testObject.addComponent(new Box(testObject,  size, 0xD3D3D3, true, false))
 		let aabb = testObject.addComponent(new AABB2(testObject, size))
-		this.spaceHash.insert(aabb)
+		this.hashGrid.insert(aabb)
         return testObject;
     }
 

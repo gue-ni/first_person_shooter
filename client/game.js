@@ -3,7 +3,7 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
-import { SpaceHash } from './spacehash.js';
+import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB2 } from './collide.js';
@@ -62,21 +62,17 @@ window.addEventListener('resize', () => {
 
 const map_width = 50, map_depth = 50, map_height = 50
 const bullets 	        = []
-const boxes             = []
 let network_data        = []
-const spaceHash         = new SpaceHash(2)
+const hashGrid         = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
-const factory           = new Factory(scene, camera, listener, gameObjectArray, spaceHash);
+const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid);
 const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 var player              = undefined;
-let player_id           = undefined;
 var gameData            = undefined;
-let playerAABB          = undefined;
-let testAABB            = undefined;
-//let particleSystem      = new ParticleSystem(scene, 1000, 10, 5, './assets/textures/fire.png');
-//let particleSystem      = new Smoke(scene, new THREE.Vector3());
-let particleSystem          = new BulletImpact(scene,'./assets/textures/spark.png')
-let bulletImpact        = new THREE.Vector3();
+//let particleSystem    = new ParticleSystem(scene, 1000, 10, 5, './assets/textures/fire.png');
+//let particleSystem    = new Smoke(scene, new THREE.Vector3());
+let particleSystem      = new BulletImpact(scene,'./assets/textures/spark.png')
+let impactPoint         = new THREE.Vector3();
 
 const killPlayer = function(){
     dead = true;
@@ -101,9 +97,7 @@ const init = async function(){
    
     // create player
     player = factory.createPlayer(bullets)
-    //playerAABB = player.addComponent(new AABB2(player, new THREE.Vector3(1,2,1)));
     console.log(player.id);
-    player_id = player.id;
 
     respawnBtn.addEventListener("click", () => {
         respawnPlayer();
@@ -132,9 +126,8 @@ const init = async function(){
 	}
 
     // testing
-    let testObject = new GameObject(scene);
-    testAABB = testObject.addComponent(new AABB2(testObject, new THREE.Vector3(2,2,2)));
-    gameObjectArray.add(testObject);
+    //let testObject = new GameObject(scene);
+    //gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
@@ -229,7 +222,7 @@ const play = function(dt) {
 
 			let aabb = gameObject.getComponent("aabb2");
 			if (aabb){
-				for (let otherObject of spaceHash.possible_aabb_collisions(aabb)){
+				for (let otherObject of hashGrid.possible_aabb_collisions(aabb)){
 					if (otherObject != gameObject) otherObject.collide(aabb); 
 				}
 			}
@@ -253,14 +246,11 @@ const play = function(dt) {
 		}
 	});
 
-    //let ray = new THREE.Ray(player.position, player.direction);
-
     for (let bullet of bullets){
-        for (let aabb of spaceHash.possible_ray_collisions(bullet)){
-            let intersection = bullet.intersectBox(aabb.box, bulletImpact)
+        for (let aabb of hashGrid.possible_ray_collisions(bullet)){
+            let intersection = bullet.intersectBox(aabb.box, impactPoint)
             if (intersection){
-                console.log("hit box")
-                particleSystem.impact(bulletImpact)
+                particleSystem.impact(impactPoint)
             }
         }
     }

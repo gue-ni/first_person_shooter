@@ -1,11 +1,17 @@
-const { Vector3 } = require('./Vector3.js');
 
-class SpaceHash {
+/*
+	TODO: only update the ones that have actually moved
+*/
+
+import * as THREE from './three/build/three.module.js';
+
+export class HashGrid {
 	constructor(size){
 		this.size = size
 		this.space = new Map()
-		this._hash = new Vector3(0,0,0)
+		this._hash = new THREE.Vector3(0,0,0)
         this._counter = 0;
+		//console.log(this._hash)
 	}
 
 	hash(vec){
@@ -44,18 +50,25 @@ class SpaceHash {
 	}
 
     possible_ray_collisions(ray){
+
+        //console.log(ray.direction)
+
         let possible = new Set()
         
         const ray_length = 100;
 
-        let p0 = ray.origin;
+        let p0 = ray.origin.clone();
 
-        let len = ray.direction;
+        let len = ray.direction.clone()
+        //len.setY(0);
         len.normalize()
         len.multiplyScalar(ray_length);
 
-        let p1 = new Vector3();
+        let p1 = new THREE.Vector3();
         p1.addVectors(p0, len)
+
+        
+        //if (this._counter % 100 == 0) console.log(p0, p1)
 
         let dx = (p1.x - p0.x);
         let dy = (p1.y - p0.y);
@@ -71,19 +84,34 @@ class SpaceHash {
         let y = p0.y;
         let z = p0.z;
 
+        let tmp = "";
 
         for (let i = 0; i <= Math.ceil(step); i++){
+
 			let key = `${Math.floor(x/this.size)},${Math.floor(y/this.size)},${Math.floor(z/this.size)}`
+            //tmp += key + " ";
+
+            //console.log(key)
+            
             if (this.space.has(key)){
                 for (let item of this.space.get(key)){
                     possible.add(item)
                 }
             }
-            
             x += dx;
             y += dy;
             z += dz;
         }
+
+        /*
+        if (++this._counter % 100 == 0) {
+            //console.log(tmp)
+            //console.log(`${tmp1.x},${tmp1.z}`)
+            //console.log(possible.size)
+            //console.log(this.space)
+        }
+        */
+
         return possible;
     }
 
@@ -110,5 +138,3 @@ class SpaceHash {
 		return possible
 	}
 }
-
-exports.SpaceHash = SpaceHash;

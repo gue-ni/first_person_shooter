@@ -3,27 +3,26 @@ const http      = require('http');
 const websocket = require('ws');
 const fs        = require('fs');
 
-const { Ray } = require('./Ray.js')
-const { Box3 } = require('./Box3.js')
-const { Vector3 } = require('./Vector3.js');
-const { SpaceHash } = require('./spacehash.js');
+const { Ray }       = require('./Ray.js')
+const { Box3 }      = require('./Box3.js')
+const { Vector3 }   = require('./Vector3.js');
+const { HashGrid } = require('./HashGrid.js');
 
 const app 	    = express();
 const server 	= http.createServer(app);
 const wss 	    = new websocket.Server({ server });
 
-const spaceHash = new SpaceHash(2);
+const hashGrid = new HashGrid(2);
 
 // serve frontend 
 app.use(express.static('../client'));
 
-//let rawdata = fs.readFileSync('../client/assets/game_data.json');
 let gameData = JSON.parse(fs.readFileSync('../client/assets/game_data.json'));
 
 for (let pos of gameData.boxes){
     let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
     box.translate(pos);
-    spaceHash.insert(box);
+    hashGrid.insert(box);
 }
 
 //   id     pos    dir
@@ -81,7 +80,7 @@ wss.on('connection', (ws) => {
                 ray.origin.set(bullet.origin.x, bullet.origin.y, bullet.origin.z);
                 ray.direction.set(bullet.direction.x, bullet.direction.y, bullet.direction.z);
 
-                for (let box of spaceHash.possible_ray_collisions(ray)){
+                for (let box of hashGrid.possible_ray_collisions(ray)){
                     intersection = ray.intersectBox(box, impactPoint);
 
                     if (intersection){
@@ -95,6 +94,7 @@ wss.on('connection', (ws) => {
 
                 for (let player in PLAYERS){
                     if (player != id){
+
                         let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
                         let position = PLAYERS[player];
                         box.translate(new Vector3(position[0], position[1], position[2]));
