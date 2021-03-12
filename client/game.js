@@ -75,7 +75,7 @@ let playerAABB          = undefined;
 let testAABB            = undefined;
 //let particleSystem      = new ParticleSystem(scene, 1000, 10, 5, './assets/textures/fire.png');
 //let particleSystem      = new Smoke(scene, new THREE.Vector3());
-let particleSystem          = new BulletImpact(scene)
+let particleSystem          = new BulletImpact(scene,'./assets/textures/spark.png')
 let bulletImpact        = new THREE.Vector3();
 
 const killPlayer = function(){

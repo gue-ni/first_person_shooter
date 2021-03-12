@@ -164,7 +164,7 @@ export class ParticleSystem {
 		}
     }
 
-	update(dt){
+    _createParticles(dt){
 		this._elapsed += dt;
 
 		if (this._elapsed >= this._duration && this.active){
@@ -176,33 +176,36 @@ export class ParticleSystem {
             }		
             this._elapsed = 0
 		}
+    }
+
+	update(dt){
+        this._createParticles(dt);
         this._updateParticles(dt);
         this._updateGeometry();
 	}
 }
 
 export class BulletImpact extends ParticleSystem {
-    constructor(parent){
-        super(parent, 100, 1, 1,'./assets/textures/spark.png');
+    constructor(parent, texturePath){
+        super(parent, 100, 1, 1,texturePath);
         this._gravity = true;
         this.alphaDegrading = 1;
-        this.scaleValue = 0.05
+        this.scaleValue = 0.05;
+        this.particlesPerImpact = 5;
     }
 
     impact(pos){
-        for (let i = 0; i < 5; i++){
+        for (let i = 0; i < this.particlesPerImpact; i++){
             let unused = this._findUnusedParticle();
             this._particles[unused].position.copy(pos);
 
             let t1 = 10, t2 = 5;
-
             this._particles[unused].velocity.set(t1*Math.random()-t2, t1*Math.random()-t2, t1*Math.random()-t2);
 
-            this._particles[unused].lifetime = this.particleLifetime;
-            this._particles[unused].size = 0.1;
-            this._particles[unused].color = new THREE.Color();
-            this._particles[unused].alpha = 1;
-       }		
+            this._particles[unused].lifetime    = this.particleLifetime;
+            this._particles[unused].size        = 0.1;
+            this._particles[unused].alpha       = 1;
+        }		
     }
 
 	update(dt){
@@ -228,15 +231,6 @@ export class Smoke extends ParticleSystem {
         this._particles[unused].color = new THREE.Color();
         this._particles[unused].alpha = 1;
     }
-    /*
-    _updateParticle(dt, i){
-        this.particles[i].position.x += this.particles[i].velocity.x * dt;
-        this.particles[i].position.y += this.particles[i].velocity.y * dt;
-        this.particles[i].position.z += this.particles[i].velocity.z * dt; 
-        this.particles[i].size  += 0.1  * dt;
-        this.particles[i].alpha -= 0.2 * dt;
-    }
-    */
 }
 
 function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration){	
