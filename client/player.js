@@ -2,9 +2,10 @@ import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 
 export class WASDMovement extends Component {
-	constructor(gameObject){
+	constructor(gameObject, hashGrid){
         super(gameObject)
         this.name = "wasd"
+        this.hashGrid   = hashGrid;
         this.keyD       = false;   
         this.keyA       = false;   
         this.keyS       = false;   
@@ -85,8 +86,20 @@ export class WASDMovement extends Component {
             this.gameObject.velocity.z = 0
         }
 
-        if (this.keySpace && Math.abs(this.gameObject.velocity.y) < 0.5){ // SPACE
-            this.gameObject.velocity.y += 7;
+        if (this.keySpace){ // SPACE
+            let p = this.gameObject.position.clone();
+            p.setY(p.y - 1.1)
+
+            let possible = this.hashGrid.possible_point_collisions(p);
+
+            for (let box of possible){
+                if (box.box.containsPoint(p)){
+                    console.log("standing on something");
+
+                    this.gameObject.velocity.y += 15;
+                    break;
+                }
+            }
         }
 	}
 }

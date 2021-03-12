@@ -6,7 +6,7 @@ const fs        = require('fs');
 const { Ray }       = require('./Ray.js')
 const { Box3 }      = require('./Box3.js')
 const { Vector3 }   = require('./Vector3.js');
-const { HashGrid } = require('./HashGrid.js');
+const { HashGrid }  = require('./HashGrid.js');
 
 const app 	    = express();
 const server 	= http.createServer(app);
@@ -17,10 +17,9 @@ const hashGrid = new HashGrid(2);
 // serve frontend 
 app.use(express.static('../client'));
 
-let gameData = JSON.parse(fs.readFileSync('../client/assets/game_data.json'));
-
-for (let pos of gameData.boxes){
-    let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
+let gameData = JSON.parse(fs.readFileSync('./game_data.json'));
+for(let pos of gameData.boxes){
+    let box = new Box3(new Vector3(-1,-1,-1), new Vector3(1, 1, 1));
     box.translate(pos);
     hashGrid.insert(box);
 }
@@ -29,7 +28,6 @@ for (let pos of gameData.boxes){
 // { 123: [x,y,z, x,y,z], 234: [x,y,z, x,y,z]}
 const PLAYERS = {};
 const SOCKETS = {};
-
 
 wss.on('connection', (ws) => {
 	let id = -1;

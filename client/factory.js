@@ -49,7 +49,7 @@ export class Factory {
         player.rifle = player.addComponent(this.createRifle(player, bullets))
 
 
-        player.addComponent(new WASDMovement(player))
+        player.addComponent(new WASDMovement(player, this.hashGrid))
         player.addComponent(new Gravity(player))
         player.health = player.addComponent(new Health(player));
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))

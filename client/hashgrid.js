@@ -115,6 +115,17 @@ export class HashGrid {
         return possible;
     }
 
+    possible_point_collisions(point){
+        let h = this.hash(point);
+
+        let key = `${h.x},${h.y},${h.z}`;
+        if (this.space.has(key)){
+            return this.space.get(key);
+        } else {
+            return [];
+        }
+    }
+
 	possible_aabb_collisions(aabb){
 		let min = this.hash(aabb.min)
 		let max = this.hash(aabb.max)

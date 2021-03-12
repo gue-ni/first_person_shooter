@@ -119,7 +119,6 @@ const init = async function(){
 	mesh.receiveShadow = true;
     scene.add(mesh);
 
-
     // create boxes
     for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos, new THREE.Vector3(2,2,2));
@@ -264,17 +263,6 @@ const play = function(dt) {
 		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 
 		if (bullets.length > 0){
-			let b = [];
-            /*
-			bullets.forEach(el => {
-				b.push([ 
-                    el.origin.x,el.origin.y,el.origin.z, 
-                    el.direction.x,el.direction.y,el.direction.z,
-                    el.damage
-                ]);
-			});
-            */
-
 			data['bullets'] = bullets;
 		}
 		
@@ -316,7 +304,7 @@ websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
 	if (data.hit){
-        console.log("hit")
+        // console.log("hit")
 		crosshair.innerText = "x"
 	} else {
 		crosshair.innerText = `+`
