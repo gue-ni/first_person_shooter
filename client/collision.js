@@ -1,10 +1,10 @@
 import * as THREE from './three/build/three.module.js';
 import { Component } from './components.js';
 
-export class AABB2 extends Component {
+export class AABB extends Component {
     constructor(gameObject, size){
         super(gameObject);
-        this.name = "aabb2";
+        this.name = "aabb";
         this.box = new THREE.Box3(
             new THREE.Vector3(-size.x/2, -size.y/2, -size.z/2), 
             new THREE.Vector3( size.x/2,  size.y/2,  size.z/2)

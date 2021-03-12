@@ -4,7 +4,7 @@ import { SemiAutomaticWeapon, FullAutoWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
 import { WASDMovement, FPSCamera, Health } from './player.js';
-import { AABB2 } from './collide.js';
+import { AABB } from './collision.js';
 import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
 
@@ -52,7 +52,7 @@ export class Factory {
         player.addComponent(new WASDMovement(player))
         player.addComponent(new Gravity(player))
         player.health = player.addComponent(new Health(player));
-        player.addComponent(new AABB2(player, new THREE.Vector3(1,2,0.5)))
+        player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
         //player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
         player.position.set(0,0,0)
@@ -69,7 +69,7 @@ export class Factory {
 		testObject.transform.updateMatrix();
 
 		testObject.addComponent(new Box(testObject,  size, 10066329, true, true))
-		let aabb = testObject.addComponent(new AABB2(testObject, size))
+		let aabb = testObject.addComponent(new AABB(testObject, size))
 		this.hashGrid.insert(aabb)
         return testObject;
     }    
@@ -82,7 +82,7 @@ export class Factory {
 		testObject.transform.updateMatrix();
 
 		testObject.addComponent(new Box(testObject,  size, 0xD3D3D3, true, false))
-		let aabb = testObject.addComponent(new AABB2(testObject, size))
+		let aabb = testObject.addComponent(new AABB(testObject, size))
 		this.hashGrid.insert(aabb)
         return testObject;
     }
