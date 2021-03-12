@@ -54,14 +54,12 @@ export class WASDMovement extends Component {
 	}
 
 	update(dt){
-        //this.elapsed += dt;
-
         let tmp = this.gameObject.direction.clone();
         tmp.setY(0);
         tmp.normalize();
 
         let speed = 7 
-        if (this.keyW){ // W
+        if (this.keyW){         // W
             tmp.multiplyScalar(speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
@@ -88,14 +86,11 @@ export class WASDMovement extends Component {
 
         if (this.keySpace){ // SPACE
             let p = this.gameObject.position.clone();
-            p.setY(p.y - 1.1)
+            p.setY(p.y-1.1)
 
-            let possible = this.hashGrid.possible_point_collisions(p);
-
-            for (let box of possible){
+            for (let box of this.hashGrid.possible_point_collisions(p)){
                 if (box.box.containsPoint(p)){
                     console.log("standing on something");
-
                     this.gameObject.velocity.y += 15;
                     break;
                 }

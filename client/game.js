@@ -213,9 +213,10 @@ const play = function(dt) {
 			if (pos_and_dir){
 				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
 				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
-				//let look = new THREE.Vector3();
-				//look.subVectors(gameObject.position, gameObject.direction);
-				//gameObject.transform.lookAt(look);
+				let look = new THREE.Vector3();
+				look.subVectors(gameObject.position, gameObject.direction);
+                look.setY(0)
+				gameObject.transform.lookAt(look);
 			}
 		} else { 
 			gameObject.update(dt);

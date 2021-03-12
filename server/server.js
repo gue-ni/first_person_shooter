@@ -85,7 +85,7 @@ wss.on('connection', (ws) => {
                         let length = tmp.subVectors(impactPoint, ray.origin).length();
                         if (length < closestImpact) {
                             closestImpact = length;
-                            console.log(`hit box at ${closestImpact}`)
+                            //console.log(`hit box at ${closestImpact}`)
                         }
                     }
                 }
@@ -102,7 +102,7 @@ wss.on('connection', (ws) => {
                             let length = tmp.subVectors(impactPoint, ray.origin).length();
 
                             if (length < closestImpact){
-                                console.log(`hit player at ${length}`)
+                                // console.log(`hit player at ${length}`)
                                 response.hit = player
                                 SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet.damage}));
                             } 
