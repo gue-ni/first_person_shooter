@@ -1,26 +1,36 @@
 const express   = require('express');
 const http      = require('http');
 const websocket = require('ws');
+const fs        = require('fs');
 
-//const { Ray, AABB, Vector3 } = require('./collision.js')
 const { Ray } = require('./Ray.js')
 const { Box3 } = require('./Box3.js')
 const { Vector3 } = require('./Vector3.js');
+const { SpaceHash } = require('./spacehash.js');
 
 const app 	    = express();
 const server 	= http.createServer(app);
 const wss 	    = new websocket.Server({ server });
 
+const spaceHash = new SpaceHash(2);
+
 // serve frontend 
 app.use(express.static('../client'));
+
+//let rawdata = fs.readFileSync('../client/assets/game_data.json');
+let gameData = JSON.parse(fs.readFileSync('../client/assets/game_data.json'));
+
+for (let pos of gameData.boxes){
+    let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
+    box.translate(pos);
+    spaceHash.insert(box);
+}
 
 //   id     pos    dir
 // { 123: [x,y,z, x,y,z], 234: [x,y,z, x,y,z]}
 const PLAYERS = {};
 const SOCKETS = {};
 
-// TODO: do bullet collision on server
-// TODO: create broadcast function
 
 wss.on('connection', (ws) => {
 	let id = -1;
@@ -59,54 +69,49 @@ wss.on('connection', (ws) => {
     	}
 
     	if (data.bullets){
-            // TODO check if the bullet hit a box, if so 
-
             let ray = new Ray();
+            let impactPoint = new Vector3();
+            let closestImpact = 0;
+            let tmp = new Vector3();
+            let intersection;
 
             for (let bullet of data.bullets){
-                
-                ray.origin      = bullet.origin;
-                ray.direction   = bullet.direction;
+                closestImpact = 100000;
+
+                ray.origin.set(bullet.origin.x, bullet.origin.y, bullet.origin.z);
+                ray.direction.set(bullet.direction.x, bullet.direction.y, bullet.direction.z);
+
+                for (let box of spaceHash.possible_ray_collisions(ray)){
+                    intersection = ray.intersectBox(box, impactPoint);
+
+                    if (intersection){
+                        let length = tmp.subVectors(impactPoint, ray.origin).length();
+                        if (length < closestImpact) {
+                            closestImpact = length;
+                            console.log(`hit box at ${closestImpact}`)
+                        }
+                    }
+                }
 
                 for (let player in PLAYERS){
                     if (player != id){
-                        console.log("check")
                         let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
-
                         let position = PLAYERS[player];
                         box.translate(new Vector3(position[0], position[1], position[2]));
 
-                        if (ray.intersectsBox(box)){
+                        intersection = ray.intersectBox(box, impactPoint);
+                        if (intersection){
+                            let length = tmp.subVectors(impactPoint, ray.origin).length();
 
-                            console.log(`hit ${Date.now()}`)
-
-                            response.hit = player
-                            
-                            SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet.damage}));
+                            if (length < closestImpact){
+                                console.log(`hit player at ${length}`)
+                                response.hit = player
+                                SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet.damage}));
+                            } 
                         }
                     }
                 }
             }
-
-
-            /*
-            let box = new AABB([0,0,0], new Vector3(1,2,1));
-
-            for (let bullet_ray of data.bullets){
-                //console.log(bullet_ray)
-                for (let player in PLAYERS){
-
-                    if (player != id){ // don't shoot yourself
-                        box.position = PLAYERS[player]
-                     
-                        if (Ray.intersect_box(bullet_ray, box)){
-                            response.hit = player
-                            SOCKETS[player].send(JSON.stringify({'hit_by': id, 'damage': bullet_ray[6]}));
-                        }
-                    }
-                }
-            }
-            */
     	}    
 
         ws.send(JSON.stringify(response));

@@ -260,7 +260,6 @@ const play = function(dt) {
             let intersection = bullet.intersectBox(aabb.box, bulletImpact)
             if (intersection){
                 console.log("hit box")
-                //console.log(intersection)
                 particleSystem.impact(bulletImpact)
             }
         }
