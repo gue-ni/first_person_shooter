@@ -36,9 +36,9 @@ export class GameObject {
 			component.update(dt)
 		}
 		
-		let look = new THREE.Vector3()
-		look.subVectors(this.position, this.direction)
-		this.transform.lookAt(look)
+		//let look = new THREE.Vector3()
+		//look.subVectors(this.position, this.direction)
+		//this.transform.lookAt(look)
 	}
 
 	remove(parent){

@@ -45,9 +45,9 @@ export class Weapon extends Component {
 
         this._damage = 10;
 
-        this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1);
+        this._weaponPosition = new THREE.Vector3(0.1, -0.4, -0.1);
         //this._weaponPosition = new THREE.Vector3(0, -0.4, -0.2);
-        this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
+        this._muzzlePosition = new THREE.Vector3(0.1, -0.4, -1.6);
         //this._muzzlePosition = new THREE.Vector3(0, -0.4, -1.6);
         
         this._fired = false;
@@ -73,14 +73,13 @@ export class Weapon extends Component {
             this.gun.position.copy(this._weaponPosition);
             this.gun.rotateY(-Math.PI);
             this.gun.scale.set(0.1, 0.1, 0.1)
-            this.gameObject.transform.add(this.gun);
-            //this.gameObject.fpv.camera.add(this.gun)
+            this.gameObject.fpv.transform.add(this.gun)
         })();
 
         // muzzle flash light
         this.light = new THREE.PointLight(0x000000, 1, 5);
 		this.light.position.set(1,0.2,-2)
-		this.gameObject.transform.add(this.light)
+		this.gameObject.fpv.transform.add(this.light)
 
         // muzzle flash texture
 		const planeGeometry = new THREE.PlaneGeometry(1, 1, 1);
@@ -106,7 +105,7 @@ export class Weapon extends Component {
         this.flash.add(flash2);
         this.flash.scale.set(0,0,0);
 		this.flash.position.copy(this._muzzlePosition);
-		this.gameObject.transform.add(this.flash);
+		this.gameObject.fpv.transform.add(this.flash);
 
         // gunshot
         (async () => {
@@ -118,12 +117,12 @@ export class Weapon extends Component {
             this.gunshot.setBuffer(buffer);
             this.gunshot.setRefDistance(20);
             this.gunshot.position.copy(this._muzzlePosition);
-            this.gameObject.transform.add(this.gunshot);
+            this.gameObject.fpv.transform.add(this.gunshot);
         })();
 
-        this.slider1 = document.querySelector('#slider1');
-        this.slider2 = document.querySelector('#slider2');
-        this.slider3 = document.querySelector('#slider3');
+        //this.slider1 = document.querySelector('#slider1');
+        //this.slider2 = document.querySelector('#slider2');
+        //this.slider3 = document.querySelector('#slider3');
 
 		this._fire = function(){
             if (this._ammo <= 0 || this._reloading) return;
@@ -142,16 +141,7 @@ export class Weapon extends Component {
                 this.gunshot.play();
             }
 
-            //let tmp = this.gameObject.fpv.camera.position.clone();
-            //tmp = this.gameObject.fpv.camera.localToWorld(tmp);
-            //tmp.y -= 0.7;
-
             let origin = this.gameObject.position.clone();
-            //origin.y += 0.7;
-            
-            //let dir = new THREE.Vector3();
-            //dir.copy(this.gameObject.direction);
-            
             rays[rays.length] = new BulletRay(origin, this.gameObject.direction, this.gameObject.id, this._damage);
 		}
 

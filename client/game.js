@@ -127,9 +127,9 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    let testObject = new GameObject(scene);
+    //let testObject = new GameObject(scene);
     //testObject.addComponent(new Character(testObject));
-    gameObjectArray.add(testObject);
+    //gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);

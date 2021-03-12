@@ -1,6 +1,7 @@
 import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
+import { FullAutoWeapon } from './weapons.js';
 
 export class WASDMovement extends Component {
 	constructor(gameObject, hashGrid){
@@ -194,18 +195,18 @@ export class Character extends Component {
     }
 }
 
-
-
 export class FirstPersonCamera extends Component {
     constructor(gameObject, camera){
         super(gameObject)
         this.name = "camera";
         this.camera = camera;
-        this.camera.position.set(0,0.7,0)
-        this.gameObject.transform.add(this.camera)
+        
         this.yaw        = 0.5 * Math.PI
         this.pitch      = 0
-
+        this.transform = new THREE.Object3D();
+        
+        this.transform.add(this.camera);
+        this.gameObject.transform.add(this.transform)
         
         var that = this;
         function mouse_callback(event){
@@ -241,6 +242,10 @@ export class FirstPersonCamera extends Component {
     }
 
     update(dt){
+		let look = new THREE.Vector3()
+		look.subVectors(this.gameObject.position, this.gameObject.direction)
+		this.transform.lookAt(look)
+        
     }
 
 }

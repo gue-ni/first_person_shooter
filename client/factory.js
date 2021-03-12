@@ -41,19 +41,17 @@ export class Factory {
     createPlayer(bullets){
         let player = new GameObject(this.scene)
         
-
         //let inventory = player.addComponent(this.createFullInventory(player, bullets));
         //inventory.weapons.push(this.createRifle(player, bullets));
 
-
-
         player.addComponent(new WASDMovement(player, this.hashGrid))
         player.addComponent(new Gravity(player))
-        player.health = player.addComponent(new Health(player));
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
-        player.fpv = player.addComponent(new FirstPersonCamera(player, this.camera))
-        player.rifle = player.addComponent(this.createRifle(player, bullets))
+        player.health   = player.addComponent(new Health(player));
+        player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))
+        player.rifle    = player.addComponent(this.createRifle(player, bullets))
+
         //player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
         player.position.set(0,0,0)
         
