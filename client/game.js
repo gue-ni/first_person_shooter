@@ -228,15 +228,15 @@ const play = function(dt) {
 				}
 			}
 
-			if (gameObject.position.x > map_width/2-0.5){
-				gameObject.position.x = map_width/2-0.5;
-			} else if (gameObject.position.x < -map_width/2+0.5){
-				gameObject.position.x 		 = -map_width/2+0.5;
+			if (gameObject.position.x > map_width/2-1){
+				gameObject.position.x = map_width/2-1;
+			} else if (gameObject.position.x < -map_width/2+1){
+				gameObject.position.x 		 = -map_width/2+1;
 			}
-			if (gameObject.position.z > map_depth/2-0.5){
-				gameObject.position.z = map_depth/2-0.5;
-			} else if (gameObject.position.z < -map_depth/2+0.5){
-				gameObject.position.z 		 = -map_depth/2+0.5;
+			if (gameObject.position.z > map_depth/2-1){
+				gameObject.position.z = map_depth/2-1;
+			} else if (gameObject.position.z < -map_depth/2+1){
+				gameObject.position.z 		 = -map_depth/2+1;
 			}
 			if (gameObject.position.y > map_height-3){
 				gameObject.position.y = map_height-3;
