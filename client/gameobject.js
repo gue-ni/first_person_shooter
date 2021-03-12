@@ -32,15 +32,12 @@ export class GameObject {
 	}
 
 	update(dt){
-		let look = new THREE.Vector3()
-		
 		for (const component of this.components){
 			component.update(dt)
 		}
 		
+		let look = new THREE.Vector3()
 		look.subVectors(this.position, this.direction)
-		//look.addVectors(this.position, this.direction)
-		//console.log("update")
 		this.transform.lookAt(look)
 	}
 

@@ -3,7 +3,7 @@ import * as THREE from './three/build/three.module.js';
 import { SemiAutomaticWeapon, FullAutoWeapon, Inventory } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
 import { Box, Gravity } from './components.js';
-import { WASDMovement, FPSCamera, Health } from './player.js';
+import { WASDMovement, FirstPersonCamera, Health } from './player.js';
 import { AABB } from './collision.js';
 import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
@@ -41,12 +41,10 @@ export class Factory {
     createPlayer(bullets){
         let player = new GameObject(this.scene)
         
-        player.fpv = player.addComponent(new FPSCamera(player, this.camera))
 
         //let inventory = player.addComponent(this.createFullInventory(player, bullets));
         //inventory.weapons.push(this.createRifle(player, bullets));
 
-        player.rifle = player.addComponent(this.createRifle(player, bullets))
 
 
         player.addComponent(new WASDMovement(player, this.hashGrid))
@@ -54,6 +52,8 @@ export class Factory {
         player.health = player.addComponent(new Health(player));
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
+        player.fpv = player.addComponent(new FirstPersonCamera(player, this.camera))
+        player.rifle = player.addComponent(this.createRifle(player, bullets))
         //player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
         player.position.set(0,0,0)
         

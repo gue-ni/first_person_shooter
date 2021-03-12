@@ -1,5 +1,6 @@
 import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
+import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
 
 export class WASDMovement extends Component {
 	constructor(gameObject, hashGrid){
@@ -99,7 +100,103 @@ export class WASDMovement extends Component {
 	}
 }
 
-export class FPSCamera extends Component {
+export class Character extends Component {
+    constructor(gameObject){
+        super(gameObject);
+        this.name = "Character";
+
+        let model1 = './assets/objects/fbx/walking.fbx';
+        let model2 = './assets/objects/fbx/Samba Dancing.fbx';
+        
+        let model = './assets/objects/mixamo/Ch11_nonPBR.fbx'
+        let model3 = './assets/objects/mixamo/Walking.fbx'
+
+        this.mixer;
+        //let animationActions = [];
+
+        (async () => {
+            const loader = new FBXLoader();
+            const object = await new Promise((resolve, reject) => {
+                loader.load(model, data => resolve(data), null, reject);
+            });
+
+            object.scale.set(0.015,0.015,0.015)
+            object.translateOnAxis(new THREE.Vector3(0,1,0), -1)
+
+            const animation = await new Promise((resolve, reject) => {
+                loader.load(model3, data => resolve(data), null, reject);
+            })
+            object.animations.push(animation.animations[0])
+
+            console.log(object)
+            
+            this.mixer = new THREE.AnimationMixer(object);
+            const action = this.mixer.clipAction(object.animations[2]);
+            action.play()
+            object.traverse(function(child ){
+                if (child.isMesh) {
+                    child.castShadow    = true;
+                    child.receiveShadow = false;
+                }
+            });
+ 
+            this.gameObject.transform.add(object);
+            console.log("loaded")
+
+        })();
+
+        /*
+        (async () => {
+            const loader = new FBXLoader();
+            const object = await new Promise((resolve, reject) => {
+                loader.load(model, data => resolve(data), null, reject);
+            });
+
+            console.log(object)
+            object.scale.set(0.01,0.01,0.01)
+ 
+            this.mixer = new THREE.AnimationMixer(object);
+            const action = this.mixer.clipAction(object.animations[0]);
+            action.play();
+            object.traverse(function(child ){
+                if (child.isMesh) {
+                    child.castShadow    = false;
+                    child.receiveShadow = false;
+                }
+            });
+           
+            this.gameObject.transform.add(object);
+            console.log("loaded")
+        })();
+        */
+
+
+        /*
+
+        const loader = new FBXLoader();
+        loader.load( 'models/fbx/Samba Dancing.fbx', function ( object ) {
+            mixer = new THREE.AnimationMixer( object );
+            const action = mixer.clipAction( object.animations[ 0 ] );
+            action.play();
+            object.traverse( function ( child ) {
+                if ( child.isMesh ) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            } );
+            scene.add( object );
+        } );
+        */
+    }
+
+    update(dt){
+        if (this.mixer) this.mixer.update(dt);
+    }
+}
+
+
+
+export class FirstPersonCamera extends Component {
     constructor(gameObject, camera){
         super(gameObject)
         this.name = "camera";
@@ -141,6 +238,9 @@ export class FPSCamera extends Component {
 
     get position(){
         return this.camera.position;
+    }
+
+    update(dt){
     }
 
 }

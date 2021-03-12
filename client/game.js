@@ -7,6 +7,7 @@ import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB } from './collision.js';
+import { Character } from './player.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -126,8 +127,9 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    //let testObject = new GameObject(scene);
-    //gameObjectArray.add(testObject);
+    let testObject = new GameObject(scene);
+    //testObject.addComponent(new Character(testObject));
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);

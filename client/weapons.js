@@ -46,7 +46,9 @@ export class Weapon extends Component {
         this._damage = 10;
 
         this._weaponPosition = new THREE.Vector3(0.2, 0.3, -0.1);
+        //this._weaponPosition = new THREE.Vector3(0, -0.4, -0.2);
         this._muzzlePosition = new THREE.Vector3(0.2, 0.3, -1.6);
+        //this._muzzlePosition = new THREE.Vector3(0, -0.4, -1.6);
         
         this._fired = false;
         this._flashDuration = 0.05;
@@ -65,13 +67,14 @@ export class Weapon extends Component {
         (async () => {
             const gltfLoader 	= new GLTFLoader();
             const gltf 			= await new Promise((resolve, reject) => {
-                gltfLoader.load('./assets/AUG_A++.glb', data=> resolve(data), null, reject);
+                gltfLoader.load('./assets/AUG2.glb', data=> resolve(data), null, reject);
             });
             this.gun = gltf.scene;
             this.gun.position.copy(this._weaponPosition);
-            this.gun.rotateY(-Math.PI/2);
+            this.gun.rotateY(-Math.PI);
             this.gun.scale.set(0.1, 0.1, 0.1)
             this.gameObject.transform.add(this.gun);
+            //this.gameObject.fpv.camera.add(this.gun)
         })();
 
         // muzzle flash light
@@ -117,6 +120,10 @@ export class Weapon extends Component {
             this.gunshot.position.copy(this._muzzlePosition);
             this.gameObject.transform.add(this.gunshot);
         })();
+
+        this.slider1 = document.querySelector('#slider1');
+        this.slider2 = document.querySelector('#slider2');
+        this.slider3 = document.querySelector('#slider3');
 
 		this._fire = function(){
             if (this._ammo <= 0 || this._reloading) return;
@@ -196,10 +203,16 @@ export class Weapon extends Component {
     }
 
     update(dt){
-        //this.gunshot.position.copy(this._muzzlePosition);
-        //if (this.gunshot) console.log(this.gunshot.position)
-        //console.log(this.gameObject.position);
+        //let look = new THREE.Vector3();
+        //let tmp = this.gameObject.direction.clone();
+        //tmp.multiplyScalar(100);
+		//look.addVectors(this.gameObject.position, tmp)
+        //this.gun.lookAt(look);
 
+        //if (this.gun) this.gun.position.set(this.slider1.value/5,this.slider2.value/5,this.slider3.value/5);
+
+        //console.log(this.gun.position)
+       
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
             this.flash.scale.multiplyScalar(1.7)

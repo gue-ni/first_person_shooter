@@ -17,3 +17,7 @@ three.module.js
 
 
 doc/
+*.fbx
+*.blend
+*.blend1
+*.glb
