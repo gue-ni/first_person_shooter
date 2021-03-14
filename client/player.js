@@ -106,9 +106,6 @@ export class Character extends Component {
         super(gameObject);
         this.name = "Character";
 
-        let model1 = './assets/objects/fbx/walking.fbx';
-        let model2 = './assets/objects/fbx/Samba Dancing.fbx';
-        
         let model = './assets/objects/mixamo/Ch11_nonPBR.fbx'
 
         let animations = [
@@ -188,6 +185,7 @@ export class FirstPersonCamera extends Component {
         this.name = "camera";
         this.camera = camera;
         
+		this._look = new THREE.Vector3()
         this.yaw        = 0.5 * Math.PI
         this.pitch      = 0
         this.transform = new THREE.Object3D();
@@ -229,9 +227,8 @@ export class FirstPersonCamera extends Component {
     }
 
     update(dt){
-		let look = new THREE.Vector3()
-		look.subVectors(this.gameObject.position, this.gameObject.direction)
-		this.transform.lookAt(look)
+		this._look.subVectors(this.gameObject.position, this.gameObject.direction)
+		this.transform.lookAt(this._look)
         
     }
 

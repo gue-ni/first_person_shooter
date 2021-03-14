@@ -129,7 +129,7 @@ const init = async function(){
 
     // testing
     let testObject = new GameObject(scene);
-    testObject.addComponent(new Character(testObject));
+    //testObject.addComponent(new Character(testObject));
     gameObjectArray.add(testObject);
 
     // create lights

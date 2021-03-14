@@ -11,6 +11,7 @@ export class Inventory extends Component {
         super(gameObject);
         this.weapons = [];
         this._active = 0; 
+        this.transform = new THREE.Object3D()
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
@@ -46,9 +47,7 @@ export class Weapon extends Component {
         this._damage = 10;
 
         this._weaponPosition = new THREE.Vector3(0.1, -0.4, -0.1);
-        //this._weaponPosition = new THREE.Vector3(0, -0.4, -0.2);
         this._muzzlePosition = new THREE.Vector3(0.1, -0.4, -1.6);
-        //this._muzzlePosition = new THREE.Vector3(0, -0.4, -1.6);
         
         this._fired = false;
         this._flashDuration = 0.05;
@@ -189,20 +188,9 @@ export class Weapon extends Component {
     _reload(){
         this._ammo = this._ammoCapacity; 
         this._ammoDisplay.innerText = this._ammo;
-
     }
 
     update(dt){
-        //let look = new THREE.Vector3();
-        //let tmp = this.gameObject.direction.clone();
-        //tmp.multiplyScalar(100);
-		//look.addVectors(this.gameObject.position, tmp)
-        //this.gun.lookAt(look);
-
-        //if (this.gun) this.gun.position.set(this.slider1.value/5,this.slider2.value/5,this.slider3.value/5);
-
-        //console.log(this.gun.position)
-       
         if (this._fired && this._flashDurationCounter <= this._flashDuration){
             
             this.flash.scale.multiplyScalar(1.7)
@@ -273,16 +261,11 @@ export class FullAutoWeapon extends Weapon {
     }
 
     update(dt){
-        //console.log("update")
-
         this._elapsed += dt;
-
 		if (this._firing && this._elapsed >= this._duration){
-            //console.log("firing")
 			this._fire()
 			this._elapsed = 0
 		}      
-        
         super.update(dt);
     }
 }
