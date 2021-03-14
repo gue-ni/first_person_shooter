@@ -39,12 +39,13 @@ export class Inventory extends Component {
     // TODO add cycle through weapons
 }
 
-export class Weapon extends Component {
+export class HitscanWeapon extends Component {
 	constructor(gameObject, rays, listener){
 		super(gameObject);
 		this.name = "Weapon"
 
         this._damage = 10;
+        this._transform = new THREE.Object3D()
 
         this._weaponPosition = new THREE.Vector3(0.1, -0.4, -0.1);
         this._muzzlePosition = new THREE.Vector3(0.1, -0.4, -1.6);
@@ -72,13 +73,13 @@ export class Weapon extends Component {
             this.gun.position.copy(this._weaponPosition);
             this.gun.rotateY(-Math.PI);
             this.gun.scale.set(0.1, 0.1, 0.1)
-            this.gameObject.fpv.transform.add(this.gun)
+            this._transform.add(this.gun)
         })();
 
         // muzzle flash light
         this.light = new THREE.PointLight(0x000000, 1, 5);
-		this.light.position.set(1,0.2,-2)
-		this.gameObject.fpv.transform.add(this.light)
+        this.light.position.copy(this._muzzlePosition)
+		this._transform.add(this.light)
 
         // muzzle flash texture
 		const planeGeometry = new THREE.PlaneGeometry(1, 1, 1);
@@ -104,7 +105,7 @@ export class Weapon extends Component {
         this.flash.add(flash2);
         this.flash.scale.set(0,0,0);
 		this.flash.position.copy(this._muzzlePosition);
-		this.gameObject.fpv.transform.add(this.flash);
+		this._transform.add(this.flash);
 
         // gunshot
         (async () => {
@@ -116,12 +117,8 @@ export class Weapon extends Component {
             this.gunshot.setBuffer(buffer);
             this.gunshot.setRefDistance(20);
             this.gunshot.position.copy(this._muzzlePosition);
-            this.gameObject.fpv.transform.add(this.gunshot);
+            this._transform.add(this.gunshot);
         })();
-
-        //this.slider1 = document.querySelector('#slider1');
-        //this.slider2 = document.querySelector('#slider2');
-        //this.slider3 = document.querySelector('#slider3');
 
 		this._fire = function(){
             if (this._ammo <= 0 || this._reloading) return;
@@ -140,8 +137,7 @@ export class Weapon extends Component {
                 this.gunshot.play();
             }
 
-            let origin = this.gameObject.position.clone();
-            rays[rays.length] = new BulletRay(origin, this.gameObject.direction, this.gameObject.id, this._damage);
+            rays[rays.length] = new BulletRay(this.gameObject.direction, this.gameObject.direction, this.gameObject.id, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {
@@ -152,6 +148,8 @@ export class Weapon extends Component {
                     break;
             }
         })
+
+        this.gameObject.fpv.transform.add(this._transform)
 	}
 
     remove(){
@@ -223,7 +221,7 @@ export class Weapon extends Component {
     }
 }
 
-export class SemiAutomaticWeapon extends Weapon {
+export class SemiAutomaticWeapon extends HitscanWeapon {
     constructor(gameObject, rays, listener){
         super(gameObject, rays, listener);
         this.handler = this._fire.bind(this);
@@ -237,7 +235,7 @@ export class SemiAutomaticWeapon extends Weapon {
     }
 }
 
-export class FullAutoWeapon extends Weapon {
+export class FullAutoWeapon extends HitscanWeapon {
     constructor(gameObject, rays, listener, firingRate){
         super(gameObject, rays, listener);
         this.name = "FullAutoWeapon";
