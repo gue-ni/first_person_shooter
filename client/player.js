@@ -110,10 +110,16 @@ export class Character extends Component {
         let model2 = './assets/objects/fbx/Samba Dancing.fbx';
         
         let model = './assets/objects/mixamo/Ch11_nonPBR.fbx'
-        let model3 = './assets/objects/mixamo/Walking.fbx'
+
+        let animations = [
+            './assets/objects/mixamo/Walking.fbx',
+            './assets/objects/mixamo/Run Forward.fbx',
+            './assets/objects/mixamo/Idle.fbx'
+        ]
+
+        this.actions = []
 
         this.mixer;
-        //let animationActions = [];
 
         (async () => {
             const loader = new FBXLoader();
@@ -124,74 +130,55 @@ export class Character extends Component {
             object.scale.set(0.015,0.015,0.015)
             object.translateOnAxis(new THREE.Vector3(0,1,0), -1)
 
-            const animation = await new Promise((resolve, reject) => {
-                loader.load(model3, data => resolve(data), null, reject);
-            })
-            object.animations.push(animation.animations[0])
+            console.log(object.children)
 
-            console.log(object)
-            
+            for (let path of animations){
+                const animation = await new Promise((resolve, reject) => {
+                    loader.load(path, data => resolve(data), null, reject);
+                })
+                object.animations.push(animation.animations[0])
+            }
+
             this.mixer = new THREE.AnimationMixer(object);
-            const action = this.mixer.clipAction(object.animations[2]);
-            action.play()
-            object.traverse(function(child ){
-                if (child.isMesh) {
-                    child.castShadow    = true;
-                    child.receiveShadow = false;
-                }
-            });
- 
+
+            let run = this.mixer.clipAction(object.animations[3]); 
+            let idle = this.mixer.clipAction(object.animations[4]);
+
+            this.actions = [idle, run];
+            idle.play()
+
+            this.rightArm = object.getObjectByName('mixamorigRightArm');
+            this.leftArm  = object.getObjectByName('mixamorigLeftArm');
+            //console.log(this.rightArm)
+
             this.gameObject.transform.add(object);
             console.log("loaded")
 
+            let btn = document.querySelector('#button');
+
+            //let that = this;
+            btn.onclick = function(){
+                run.time = 0.0;
+                run.setEffectiveTimeScale(1.0);
+                run.setEffectiveWeight(1.0)
+                run.crossFadeFrom(idle, 0.5, true);
+                run.play()
+            }
+
         })();
 
-        /*
-        (async () => {
-            const loader = new FBXLoader();
-            const object = await new Promise((resolve, reject) => {
-                loader.load(model, data => resolve(data), null, reject);
-            });
-
-            console.log(object)
-            object.scale.set(0.01,0.01,0.01)
- 
-            this.mixer = new THREE.AnimationMixer(object);
-            const action = this.mixer.clipAction(object.animations[0]);
-            action.play();
-            object.traverse(function(child ){
-                if (child.isMesh) {
-                    child.castShadow    = false;
-                    child.receiveShadow = false;
-                }
-            });
-           
-            this.gameObject.transform.add(object);
-            console.log("loaded")
-        })();
-        */
-
-
-        /*
-
-        const loader = new FBXLoader();
-        loader.load( 'models/fbx/Samba Dancing.fbx', function ( object ) {
-            mixer = new THREE.AnimationMixer( object );
-            const action = mixer.clipAction( object.animations[ 0 ] );
-            action.play();
-            object.traverse( function ( child ) {
-                if ( child.isMesh ) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            } );
-            scene.add( object );
-        } );
-        */
+        this.slider1 = document.querySelector('#slider1');
     }
 
     update(dt){
-        if (this.mixer) this.mixer.update(dt);
+        console.log(this.slider1.value)
+        if (this.mixer){
+            this.mixer.update(dt);
+            //this.rightArm.rotation.y = this.slider1.value / 100;
+            this.rightArm.rotation.y = THREE.MathUtils.degToRad(this.slider1.value);
+            this.leftArm.rotation.y = THREE.MathUtils.degToRad(this.slider1.value);
+
+        }
     }
 }
 

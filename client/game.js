@@ -70,10 +70,10 @@ const factory           = new Factory(scene, camera, listener, gameObjectArray, 
 const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 var player              = undefined;
 var gameData            = undefined;
-//let particleSystem    = new ParticleSystem(scene, 1000, 10, 5, './assets/textures/fire.png');
-//let particleSystem    = new Smoke(scene, new THREE.Vector3());
 let particleSystem      = new BulletImpact(scene,'./assets/textures/spark.png')
 let impactPoint         = new THREE.Vector3();
+let dead = false;
+let then = 0, dt = 0;
 
 const killPlayer = function(){
     dead = true;
@@ -104,9 +104,10 @@ const init = async function(){
         respawnPlayer();
     });
 
-    button.addEventListener("click", () => {
+    /*button.addEventListener("click", () => {
         console.log("button");
     });
+    */
 
     // create map skybox
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -127,21 +128,18 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    //let testObject = new GameObject(scene);
-    //testObject.addComponent(new Character(testObject));
-    //gameObjectArray.add(testObject);
+    let testObject = new GameObject(scene);
+    testObject.addComponent(new Character(testObject));
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
     pinkLight.position.set(-25, 50, -25);
     scene.add(pinkLight);
-    
     const blueLight = new THREE.PointLight(gameData.colorscheme.blue, 6, 100, 2);
     blueLight.position.set(25, 50, 25);
     scene.add(blueLight);
-  
     scene.add(new THREE.AmbientLight(gameData.colorscheme.white, 0.2))
-   
     const light = new THREE.DirectionalLight(gameData.colorscheme.white, 0.5, 100);
     light.position.set(0, 50, 25)
     light.castShadow 			=  true; 
@@ -286,8 +284,6 @@ const play = function(dt) {
 	renderer.render(scene, camera)
 }
 
-let dead = false;
-let then = 0, dt = 0
 const game = function(now){
     requestAnimationFrame(game)
 
