@@ -1,6 +1,7 @@
 import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
+import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { FullAutoWeapon } from './weapons.js';
 
 export class WASDMovement extends Component {
@@ -101,6 +102,23 @@ export class WASDMovement extends Component {
 	}
 }
 
+export class SimpleModel extends Component {
+    constructor(gameObject, path){
+        super(gameObject);
+        (async () => {
+            const gltfLoader 	= new GLTFLoader();
+            const gltf 			= await new Promise((resolve, reject) => {
+                gltfLoader.load(path, data=> resolve(data), null, reject);
+            });
+            this.model = gltf.scene;
+            this.gameObject.transform.add(this.model)
+        })();
+
+
+
+    }
+}
+
 export class Character extends Component {
     constructor(gameObject){
         super(gameObject);
@@ -184,41 +202,10 @@ export class FirstPersonCamera extends Component {
         super(gameObject)
         this.name = "camera";
         this.camera = camera;
-        
 		this._look = new THREE.Vector3()
-        this.yaw        = 0.5 * Math.PI
-        this.pitch      = 0
         this.transform = new THREE.Object3D();
         this.transform.add(this.camera);
         this.gameObject.transform.add(this.transform)
-        
-        var that = this;
-        function mouse_callback(event){
-            that.yaw   += (event.movementX * 0.1)
-            that.pitch += (event.movementY * 0.1)
-            let pitch = -that.pitch;
-            if (pitch >  89) pitch =  89
-            if (pitch < -89) pitch = -89
-
-            that.gameObject.direction.x = Math.cos(that.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-            that.gameObject.direction.y = Math.sin(pitch*(Math.PI/180))
-            that.gameObject.direction.z = Math.sin(that.yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-            that.gameObject.direction.normalize()
-        }
-        
-
-        canvas.requestPointerLock 	= canvas.requestPointerLock || canvas.mozRequestPointerLock;
-        document.exitPointerLock 	= document.exitPointerLock  || document.mozExitPointerLock;
-        canvas.onclick = function() { canvas.requestPointerLock(); };
-        document.addEventListener('pointerlockchange', 	  lockChangeAlert, false);
-        document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
-        function lockChangeAlert() {
-            if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
-                document.addEventListener("mousemove",    mouse_callback, false);
-            } else {
-                document.removeEventListener("mousemove", mouse_callback, false);
-            }
-        }
     }
 
     get position(){
@@ -229,7 +216,6 @@ export class FirstPersonCamera extends Component {
 		this._look.subVectors(this.gameObject.position, this.gameObject.direction)
 		this.transform.lookAt(this._look)
     }
-
 }
 
 export class Health extends Component {

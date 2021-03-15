@@ -9,6 +9,11 @@ doc/
 *.jpg
 *.zip
 *.sh
+*.png
+*.jpg
+*.jpeg
+*.gif 
+*.webp
 
 p5.js
 three.js

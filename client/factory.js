@@ -7,6 +7,7 @@ import { WASDMovement, FirstPersonCamera, Health } from './player.js';
 import { AABB } from './collision.js';
 import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
+import { CharacterController, PlayerInput } from './character.js';
 
 export class Factory {
     constructor(scene, camera, listener, gameObjectArray, hashGrid){
@@ -36,23 +37,14 @@ export class Factory {
         gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
         gun.smoke.active = false;
         return gun;
-    }
-
-
-    createFullInventory(owner, bullets){
-        let inventory = owner.addComponent(new Inventory(owner));
-        inventory.weapons.push(this.createRifle( owner, bullets));
-        //inventory.weapons.push(this.createPistol(owner, bullets));
-        return inventory;
-    }
-
-    
+    }    
 
     createPlayer(hitscanBullets, projectiles){
         let player = new GameObject(this.scene)
 
         
-        player.addComponent(new WASDMovement(player, this.hashGrid))
+        //player.addComponent(new WASDMovement(player, this.hashGrid))
+        player.addComponent(new CharacterController(player, new PlayerInput(), this.hashGrid));
         player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))

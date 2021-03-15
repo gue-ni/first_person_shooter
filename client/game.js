@@ -7,7 +7,7 @@ import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB } from './collision.js';
-import { Character } from './player.js';
+import { Character, SimpleModel } from './player.js';
 import { CharacterController } from "./character.js";
 
 const canvas  		= document.querySelector('#canvas');
@@ -126,7 +126,8 @@ const init = async function(){
 
     // testing
     let testObject = new GameObject(scene);
-    testObject.addComponent(new CharacterController(testObject));
+    //testObject.addComponent(new CharacterController(testObject));
+    //testObject.addComponent(new SimpleModel(testObject, './assets/blender/basic_with_gun.glb'));
     //testObject.addComponent(new Gravity(testObject));
     //testObject.addComponent(new Box(testObject, new THREE.Vector3(1,1,1), 10066329, false, false))
     //testObject.position.set(0,100,0);
