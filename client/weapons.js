@@ -2,7 +2,7 @@
 import * as THREE from './three/build/three.module.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { GameObject} from './gameobject.js'
-import { Component } from './components.js'
+import { Box, Component, Physics } from './components.js'
 import { BulletRay } from './ray.js'
 import { Smoke } from './particles.js';
 
@@ -12,12 +12,26 @@ export class Inventory extends Component {
         this.weapons = [];
         this._active = 0; 
         this.transform = new THREE.Object3D()
+        
+        this._ammoDisplay = document.querySelector('#ammo');
+
+
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
                 case 69: // e
-                    console.log("switch gun")
-                    //this._active = (this._active + 1) % this.weapons.length;  
+
+                    console.log(this.weapons)
+                    let currentGun = this.weapons[this._active];
+                    currentGun._transform.visible = false;
+                    currentGun.active = false;
+
+                    this._active = (this._active + 1) % this.weapons.length;  
+                    console.log(`current gun ${this._active}`);
+                    let newGun = this.weapons[this._active];
+                    
+                    newGun.active = true;
+                    newGun._transform.visible = true;
                     break;
             }
         });
@@ -32,8 +46,26 @@ export class Inventory extends Component {
         this.weapons = undefined;
     }
 
+    add(weapon){
+        if (this.weapons.length > 0){
+            weapon.active = false;
+            weapon._transform.visible = false;
+        }
+        this.weapons.push(weapon)
+    }
+
+    get currentWeapon(){
+        return this.weapons[this._active];
+    }
+
     update(dt){
-        if (this.weapons) this.weapons[this._active].update(dt);
+        //if (this.weapons) this.weapons[this._active].update(dt);
+        this.weapons.forEach(weapon => {
+            weapon.update(dt);
+        })
+
+        this._ammoDisplay.innerText = this.currentWeapon._reloading ? 
+                                        "reloading" : this.currentWeapon._ammo;
     }
 
     // TODO add cycle through weapons
@@ -43,6 +75,8 @@ export class HitscanWeapon extends Component {
 	constructor(gameObject, rays, listener){
 		super(gameObject);
 		this.name = "Weapon"
+
+        this.active = true;
 
         this._damage = 10;
         this._transform = new THREE.Object3D()
@@ -60,8 +94,6 @@ export class HitscanWeapon extends Component {
         this._reloadTimeCounter = 0;
         this._ammoCapacity = 100;
         this._ammo = this._ammoCapacity;
-        this._ammoDisplay = document.querySelector('#ammo');
-        this._ammoDisplay.innerText = this._ammo;
 
         // load gun model
         (async () => {
@@ -121,6 +153,7 @@ export class HitscanWeapon extends Component {
         })();
 
 		this._fire = function(){
+            if (!this.active) return;
             if (this._ammo <= 0 || this._reloading) return;
 
 
@@ -128,7 +161,7 @@ export class HitscanWeapon extends Component {
 
             this._fired         = true;
             this.flash.scale.copy(this._flashStartingScale);
-            this._ammoDisplay.innerText = --this._ammo;
+            this._ammo--;
             
             if (this.gunshot.isPlaying){
                 this.gunshot.stop();
@@ -137,14 +170,16 @@ export class HitscanWeapon extends Component {
                 this.gunshot.play();
             }
 
-            rays[rays.length] = new BulletRay(this.gameObject.direction, this.gameObject.direction, this.gameObject.id, this._damage);
+            rays[rays.length] = new BulletRay(this.gameObject.position, this.gameObject.direction, this.gameObject.id, this._damage);
 		}
 
         document.addEventListener("keydown", (event) => {
             switch (event.keyCode) {
                 case 82: // r
-                    this._reloading = true;
-                    this._ammoDisplay.innerText = "reloading"
+                    if (this.active){
+                        this._reloading = true;
+                        //this._ammoDisplay.innerText = "reloading"
+                    }
                     break;
             }
         })
@@ -185,7 +220,6 @@ export class HitscanWeapon extends Component {
 
     _reload(){
         this._ammo = this._ammoCapacity; 
-        this._ammoDisplay.innerText = this._ammo;
     }
 
     update(dt){
@@ -224,12 +258,16 @@ export class HitscanWeapon extends Component {
 export class SemiAutomaticWeapon extends HitscanWeapon {
     constructor(gameObject, rays, listener){
         super(gameObject, rays, listener);
+        this.name = "SemiAutomaticWeapon"
+
+        this._ammoCapacity = 10;
+        this._ammo = this._ammoCapacity;
+
         this.handler = this._fire.bind(this);
         document.body.addEventListener("mousedown", this.handler, false);
     }
 
     remove(){
-        console.log("remove")
         document.body.removeEventListener("mousedown", this.handler, false);
         super.remove();
     }
@@ -239,6 +277,9 @@ export class FullAutoWeapon extends HitscanWeapon {
     constructor(gameObject, rays, listener, firingRate){
         super(gameObject, rays, listener);
         this.name = "FullAutoWeapon";
+
+        this._ammoCapacity = 45;
+        this._ammo = this._ammoCapacity;
 
         this._duration =  1 / (firingRate / 60)
 		this._elapsed  = 0
@@ -267,3 +308,47 @@ export class FullAutoWeapon extends HitscanWeapon {
         super.update(dt);
     }
 }
+
+export class ProjectileWeapon extends HitscanWeapon {
+    constructor(gameObject, bullets, listener, gameObjectArray, world){
+        super(gameObject, bullets, listener);
+
+        this.world = world;
+        this.gameObjectArray = gameObjectArray;
+
+        this._fire = function(){
+            if (!this.active) return;
+            if (this._ammo <= 0 || this._reloading) return;
+
+            if (this.smoke) this.smoke.active   = true;
+
+            this._fired         = true;
+            this.flash.scale.copy(this._flashStartingScale);
+            this._ammo--;
+            
+            if (this.gunshot.isPlaying){
+                this.gunshot.stop();
+                this.gunshot.play();
+            } else {
+                this.gunshot.play();
+            }
+            console.log("shot projectile");
+            this.createProjectile(this.gameObject.position, this.gameObject.direction)
+
+        }
+
+        this.handler = this._fire.bind(this);
+        document.body.addEventListener("mousedown", this.handler, false);
+    }
+
+    createProjectile(position, velocity){
+        let projectile = new GameObject(this.world);
+        projectile.addComponent(new Physics(projectile));
+        projectile.addComponent(new Box(projectile,  new THREE.Vector3(0.5,0.5,0.5), 0xD3D3D3, false, false));
+        projectile.position.copy(position);
+        projectile.velocity.copy(velocity);
+        this.gameObjectArray.add(projectile)
+        return projectile;
+    }
+}
+

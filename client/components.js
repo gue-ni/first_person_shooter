@@ -33,16 +33,12 @@ export class Box extends Component {
 	remove(){
 		this.mesh.geometry.dispose()
 		this.mesh.material.dispose()
-
-        //console.log(this.mesh);
-        //console.log(this.mesh.parent);
-
 		this.mesh.parent.remove(this.mesh)
 	}
 }
 
 
-export class Gravity extends Component {
+export class Physics extends Component {
 	constructor(gameObject){
 		super(gameObject)
 		this.name = "gravity"

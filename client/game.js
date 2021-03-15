@@ -2,7 +2,7 @@ import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
 import { GameObject, GameObjectArray} from './gameobject.js';
-import { Box, Gravity } from './components.js';
+import { Box, Physics } from './components.js';
 import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
@@ -62,7 +62,8 @@ window.addEventListener('resize', () => {
 })
 
 const map_width = 50, map_depth = 50, map_height = 80
-const bullets 	        = []
+const hitscanBullets 	        = []
+const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
@@ -97,17 +98,12 @@ const init = async function(){
 	gameData = await json.json();
    
     // create player
-    player = factory.createPlayer(bullets)
+    player = factory.createPlayer(hitscanBullets, projectiles)
     console.log(player.id);
 
     respawnBtn.addEventListener("click", () => {
         respawnPlayer();
     });
-
-    /*button.addEventListener("click", () => {
-        console.log("button");
-    });
-    */
 
     // create map skybox
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
@@ -128,9 +124,12 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    let testObject = new GameObject(scene);
+    //let testObject = new GameObject(scene);
+    //testObject.addComponent(new Gravity(testObject));
+    //testObject.addComponent(new Box(testObject, new THREE.Vector3(1,1,1), 10066329, false, false))
+    //testObject.position.set(0,100,0);
     //testObject.addComponent(new Character(testObject));
-    gameObjectArray.add(testObject);
+    //gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
@@ -247,7 +246,7 @@ const play = function(dt) {
 		}
 	});
 
-    for (let bullet of bullets){
+    for (let bullet of hitscanBullets){
         for (let aabb of hashGrid.possible_ray_collisions(bullet)){
             let intersection = bullet.intersectBox(aabb.box, impactPoint)
             if (intersection){
@@ -263,8 +262,8 @@ const play = function(dt) {
 
 		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 
-		if (bullets.length > 0){
-			data['bullets'] = bullets;
+		if (hitscanBullets.length > 0){
+			data['bullets'] = hitscanBullets;
 		}
 		
 		if (data.player_data || data.bullets){
@@ -273,7 +272,7 @@ const play = function(dt) {
 		}
 	}
 
-	bullets.length = 0;
+	hitscanBullets.length = 0;
 
 	// debug
 	//let dir = player.direction.normalize().clone()
@@ -319,7 +318,7 @@ websocket.onmessage = function (event) {
 			newGameObject.local = false;
 			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
 			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
-			newGameObject.addComponent(new Gravity(newGameObject));
+			newGameObject.addComponent(new Physics(newGameObject));
 			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,1)));
 			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.dark_grey, false, false));
 

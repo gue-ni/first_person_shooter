@@ -1,8 +1,8 @@
 import * as THREE from './three/build/three.module.js';
 
-import { SemiAutomaticWeapon, FullAutoWeapon, Inventory } from './weapons.js'
+import { SemiAutomaticWeapon, FullAutoWeapon, Inventory, ProjectileWeapon } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
-import { Box, Gravity } from './components.js';
+import { Box, Physics } from './components.js';
 import { WASDMovement, FirstPersonCamera, Health } from './player.js';
 import { AABB } from './collision.js';
 import { HashGrid } from './hashgrid.js';
@@ -31,6 +31,14 @@ export class Factory {
         return gun;
     }
 
+    createProjectileRifle(owner, bullets){
+        let gun = new ProjectileWeapon(owner, bullets, this.listener, this.gameObjectArray, this.scene);
+        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
+        gun.smoke.active = false;
+        return gun;
+    }
+
+
     createFullInventory(owner, bullets){
         let inventory = owner.addComponent(new Inventory(owner));
         inventory.weapons.push(this.createRifle( owner, bullets));
@@ -38,25 +46,25 @@ export class Factory {
         return inventory;
     }
 
-    createPlayer(bullets){
-        let player = new GameObject(this.scene)
-        
-        //let inventory = player.addComponent(this.createFullInventory(player, bullets));
-        //inventory.weapons.push(this.createRifle(player, bullets));
+    
 
+    createPlayer(hitscanBullets, projectiles){
+        let player = new GameObject(this.scene)
+
+        
         player.addComponent(new WASDMovement(player, this.hashGrid))
-        player.addComponent(new Gravity(player))
+        player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
         player.health   = player.addComponent(new Health(player));
         player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))
-        player.rifle    = player.addComponent(this.createRifle(player, bullets))
-
-        //player.position.set(Math.floor(Math.random()*50)-50/2,Math.floor(Math.random()*5),Math.floor(Math.random()*50)-50/2)
-        player.position.set(0,0,0)
         
+        let inventory = player.addComponent(new Inventory(player));
+        inventory.add(this.createRifle(player, hitscanBullets));
+        inventory.add(this.createProjectileRifle(player, hitscanBullets));
+
+        player.position.set(0,0,0)
         this.gameObjectArray.add(player)
-       
         return player;
     }
 
