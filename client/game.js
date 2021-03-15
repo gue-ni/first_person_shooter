@@ -8,6 +8,7 @@ import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB } from './collision.js';
 import { Character } from './player.js';
+import { CharacterController } from "./character.js";
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -124,12 +125,13 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    //let testObject = new GameObject(scene);
+    let testObject = new GameObject(scene);
+    testObject.addComponent(new CharacterController(testObject));
     //testObject.addComponent(new Gravity(testObject));
     //testObject.addComponent(new Box(testObject, new THREE.Vector3(1,1,1), 10066329, false, false))
     //testObject.position.set(0,100,0);
     //testObject.addComponent(new Character(testObject));
-    //gameObjectArray.add(testObject);
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);

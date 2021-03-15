@@ -189,7 +189,6 @@ export class FirstPersonCamera extends Component {
         this.yaw        = 0.5 * Math.PI
         this.pitch      = 0
         this.transform = new THREE.Object3D();
-        
         this.transform.add(this.camera);
         this.gameObject.transform.add(this.transform)
         
@@ -229,7 +228,6 @@ export class FirstPersonCamera extends Component {
     update(dt){
 		this._look.subVectors(this.gameObject.position, this.gameObject.direction)
 		this.transform.lookAt(this._look)
-        
     }
 
 }

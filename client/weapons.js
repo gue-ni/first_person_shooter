@@ -333,8 +333,9 @@ export class ProjectileWeapon extends HitscanWeapon {
                 this.gunshot.play();
             }
             console.log("shot projectile");
-            this.createProjectile(this.gameObject.position, this.gameObject.direction)
-
+            let velocity = this.gameObject.direction.clone();
+            velocity.multiplyScalar(40);
+            this.createProjectile(this.gameObject.position, velocity)
         }
 
         this.handler = this._fire.bind(this);
