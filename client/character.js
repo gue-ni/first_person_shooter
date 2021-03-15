@@ -155,7 +155,37 @@ export class CharacterController extends Component {
         // change state if necessary
         this._state.update(this._input);
 
-        // update velocities
         // update view direction
+        
+        // update velocities
+        let tmp = this.gameObject.direction.clone();
+        tmp.setY(0);
+        tmp.normalize();
+
+        let speed = 7 
+        if (this.input.keys.forward){         
+            tmp.multiplyScalar(speed)
+            this.gameObject.velocity.x = tmp.x
+            this.gameObject.velocity.z = tmp.z
+
+        } else if(this.input.keys.backward){   
+            tmp.multiplyScalar(-speed)
+            this.gameObject.velocity.x = tmp.x
+            this.gameObject.velocity.z = tmp.z
+           
+        } else if (this.input.keys.right){  
+            tmp.multiplyScalar(speed)
+            this.gameObject.velocity.x = -tmp.z
+            this.gameObject.velocity.z =  tmp.x 
+
+        } else if (this.input.keys.left){  
+            tmp.multiplyScalar(speed)
+            this.gameObject.velocity.x =  tmp.z
+            this.gameObject.velocity.z = -tmp.x 
+
+        } else { 
+            this.gameObject.velocity.x = 0
+            this.gameObject.velocity.z = 0
+        }
     }
 }
