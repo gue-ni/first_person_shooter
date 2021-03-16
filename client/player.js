@@ -102,23 +102,6 @@ export class WASDMovement extends Component {
 	}
 }
 
-export class SimpleModel extends Component {
-    constructor(gameObject, path){
-        super(gameObject);
-        (async () => {
-            const gltfLoader 	= new GLTFLoader();
-            const gltf 			= await new Promise((resolve, reject) => {
-                gltfLoader.load(path, data=> resolve(data), null, reject);
-            });
-            this.model = gltf.scene;
-            this.gameObject.transform.add(this.model)
-        })();
-
-
-
-    }
-}
-
 export class Character extends Component {
     constructor(gameObject){
         super(gameObject);

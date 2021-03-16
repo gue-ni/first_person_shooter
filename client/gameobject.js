@@ -5,6 +5,7 @@ export class GameObject {
 		this.id         = Math.floor(Math.random() * 1000000000) // not really a good idea
 		this.local      = true; // updating is done locally
 		this.components = []
+
 		this.transform 	= new THREE.Object3D()
 		parent.add(this.transform)
 
@@ -19,9 +20,13 @@ export class GameObject {
 
     removeComponent(name){
         let component = this.getComponent(name);
-        console.log(this.components)
+
+        //console.log(this.components)
+
         this.components = this.components.filter( c => { c.name != name});
-        console.log(this.components)
+
+        //console.log(this.components)
+
         if (component){
             component.remove();
         }
@@ -35,10 +40,6 @@ export class GameObject {
 		for (const component of this.components){
 			component.update(dt)
 		}
-		
-		//let look = new THREE.Vector3()
-		//look.subVectors(this.position, this.direction)
-		//this.transform.lookAt(look)
 	}
 
 	remove(parent){
@@ -50,13 +51,8 @@ export class GameObject {
 		//this.transform = undefined
 	}
 
-	set position(pos){
-		this.transform.position.set(pos.x, pos.y, pos.z)
-	}	
-
-	get position(){
-		return this.transform.position;
-	}
+	set position(p){ this.transform.position.set(p.x, p.y, p.z); }	
+	get position(){  return this.transform.position; }
 }
 
 export class GameObjectArray {
@@ -96,7 +92,6 @@ export class GameObjectArray {
 			}
 
 			f(element);
-			
 		}
 		this._removeQueued();
 	}

@@ -7,8 +7,6 @@ import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB } from './collision.js';
-import { Character, SimpleModel } from './player.js';
-import { CharacterController } from "./character.js";
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');

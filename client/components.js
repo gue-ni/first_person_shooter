@@ -12,6 +12,29 @@ export class Component {
 	remove(){}
 }
 
+export class SimpleGLTFModel extends Component {
+    constructor(gameObject, path, position = new THREE.Vector3(), scale = new THREE.Vector3(1,1,1), rotation = new THREE.Vector3()){
+        super(gameObject);
+        (async () => {
+            const loader = new GLTFLoader();
+            const gltf = await new Promise((resolve, reject) => {
+                loader.load(path, data => resolve(data), null, reject);
+            });
+            this.model = gltf.scene;
+
+            this.model.position.copy(position);
+            
+            this.model.rotateX(rotation.x);
+            this.model.rotateY(rotation.y);
+            this.model.rotateZ(rotation.z);
+           
+            this.model.scale.copy(scale)
+
+            this.gameObject.transform.add(this.model)
+        })();
+    }
+}
+
 export class Box extends Component {
 	constructor(gameObject, size, box_color, castShadow, receiveShadow){
 		super(gameObject)

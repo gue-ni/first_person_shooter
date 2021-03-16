@@ -26,6 +26,9 @@ class FiniteStateMachine {
         } else if (input.keys.jump){
             this._setState("jump");
 
+        } else if (input.firing){
+            this._setState("firing")
+        
         } else {
             this._setState("idle")
         }
@@ -46,7 +49,7 @@ class FiniteStateMachine {
         }
 
         this._current = this._states[state];
-        this._current.enter()
+        this._current.enter(previous)
     }
 
     _add(name, type){
@@ -80,11 +83,15 @@ export class PlayerInput { // should also move the camera
             right: false,
             left: false,
             jump: false,
-            r: false
+            reload: false
         }
 
         this._yaw = 0.5 * Math.PI;
         this._pitch = 0;
+        this.firing = false;
+
+        document.body.addEventListener("mousedown", () => this._mouseDownCallback(), false);
+        document.body.addEventListener("mouseup",   () => this._mouseUpCallback(), false);
 
         document.addEventListener('keydown',   (e) => this._onKeyDown(e),     false);
         document.addEventListener('keyup',     (e) => this._onKeyUp(e),       false);
@@ -116,9 +123,18 @@ export class PlayerInput { // should also move the camera
     }
 
     _mouseCallback(event){
-        //console.log("mouse moved")
         this._yaw   += (event.movementX * 0.1)
         this._pitch += (event.movementY * 0.1)
+   }
+
+   _mouseDownCallback(){
+        //console.log("mousedown")
+        this.firing = true;
+   }
+
+   _mouseUpCallback(){
+        //console.log("mouseup")
+        this.firing = false;
    }
 
     _onKeyDown(event){
@@ -159,12 +175,6 @@ export class NetworkInput {
     }
 }
 
-export class WeaponController extends Component {
-    constructor(gameObject){
-        super(gameObject);
-    }
-}
-
 // third person character
 export class CharacterController extends Component {
     constructor(gameObject, input, hashGrid){
@@ -179,6 +189,7 @@ export class CharacterController extends Component {
         this._state._add("right", new State("right"))
         this._state._add("left", new State("left"))
         this._state._add("jump", new State("jump"))
+        this._state._add("firing", new State("firing"))
         this._state._setState("idle");
     }
 
@@ -193,6 +204,8 @@ export class CharacterController extends Component {
         this.gameObject.direction.y = Math.sin(pitch *(Math.PI/180))
         this.gameObject.direction.z = Math.sin(yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
         this.gameObject.direction.normalize()
+
+        //console.log(this.gameObject.direction)
  
         // update velocities
         let tmp = this.gameObject.direction.clone();

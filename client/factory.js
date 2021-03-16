@@ -2,12 +2,13 @@ import * as THREE from './three/build/three.module.js';
 
 import { SemiAutomaticWeapon, FullAutoWeapon, Inventory, ProjectileWeapon } from './weapons.js'
 import { GameObject, GameObjectArray} from './gameobject.js';
-import { Box, Physics } from './components.js';
+import { Box, Physics, SimpleGLTFModel } from './components.js';
 import { WASDMovement, FirstPersonCamera, Health } from './player.js';
 import { AABB } from './collision.js';
 import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
 import { CharacterController, PlayerInput } from './character.js';
+import { HitscanEmitter, WeaponController } from './weapon-components.js';
 
 export class Factory {
     constructor(scene, camera, listener, gameObjectArray, hashGrid){
@@ -43,22 +44,33 @@ export class Factory {
         let player = new GameObject(this.scene)
 
         
-        //player.addComponent(new WASDMovement(player, this.hashGrid))
 
         let input = new PlayerInput();
         player.addComponent(new CharacterController(player, input, this.hashGrid));
+
         player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
+        
         player.health   = player.addComponent(new Health(player));
         player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))
         
-        let inventory = player.addComponent(new Inventory(player));
-        inventory.add(this.createRifle(player, hitscanBullets));
-        inventory.add(this.createProjectileRifle(player, hitscanBullets));
+        let gunObject = new GameObject(player.fpv.transform);
+        gunObject.addComponent(new WeaponController(gunObject, input, new HitscanEmitter(hitscanBullets)));
+        gunObject.addComponent(new SimpleGLTFModel(gunObject, './assets/AUG2.glb', 
+            new THREE.Vector3(0.1, -0.4, -0.1),
+            new THREE.Vector3(0.1,0.1,0.1),
+            new THREE.Vector3(0,-Math.PI,0)));
+
+        //gunObject.addComponent(new HitscanEmitter(gunObject, hitscanBullets));
+        
+        //let inventory = player.addComponent(new Inventory(player));
+        //inventory.add(this.createRifle(player, hitscanBullets));
+        //inventory.add(this.createProjectileRifle(player, hitscanBullets));
 
         player.position.set(0,0,0)
         this.gameObjectArray.add(player)
+        this.gameObjectArray.add(gunObject);
         return player;
     }
 
