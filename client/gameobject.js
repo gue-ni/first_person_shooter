@@ -5,6 +5,7 @@ export class GameObject {
 		this.id         = Math.floor(Math.random() * 1000000000) // not really a good idea
 		this.local      = true; // updating is done locally
 		this.components = []
+        this.subscribers = {};
 
 		this.transform 	= new THREE.Object3D()
 		parent.add(this.transform)
@@ -12,6 +13,27 @@ export class GameObject {
 		this.velocity   = new THREE.Vector3()
 		this.direction  = new THREE.Vector3(1,0,0)
 	}
+
+    subscribe(event, callback){
+        
+        if (!this.subscribers[event]){
+             this.subscribers[event] = [];
+        }
+
+        let index = this.subscribers[event].push(callback) - 1;
+
+        return {
+            unsubscribe: () => {
+                // not optimal, but works if no big changes with subscribers
+                this.subscribers[event][index] = () => {}; 
+            }
+        }
+    }
+
+    publish(event, data){
+        if (!this.subscribers[event]) return;
+        this.subscribers[event].forEach(callback => callback(data));
+    }
 
 	addComponent(component) {
 		this.components.push(component);
@@ -51,7 +73,7 @@ export class GameObject {
 		//this.transform = undefined
 	}
 
-	set position(p){ this.transform.position.set(p.x, p.y, p.z); }	
+    set position(p){ this.transform.position.set(p.x, p.y, p.z); }	
 	get position(){  return this.transform.position; }
 }
 
