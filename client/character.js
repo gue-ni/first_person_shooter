@@ -116,48 +116,28 @@ export class PlayerInput { // should also move the camera
     }
 
     _mouseCallback(event){
-        console.log("mouse moved")
+        //console.log("mouse moved")
         this._yaw   += (event.movementX * 0.1)
         this._pitch += (event.movementY * 0.1)
    }
 
     _onKeyDown(event){
         switch (event.keyCode) {
-            case 68: //d
-                this.keys.right = true;
-                break;
-            case 83: //s
-                this.keys.backward = true;
-                break;
-            case 65: //a
-                this.keys.left = true;
-                break;
-            case 87: //w
-                this.keys.forward = true;
-                break;
-            case 32: // space
-                this.keys.jump = true;
-                break
+            case 68:  this.keys.right       = true; break;
+            case 83:  this.keys.backward    = true; break;
+            case 65:  this.keys.left        = true; break;
+            case 87:  this.keys.forward     = true; break;
+            case 32:  this.keys.jump        = true; break
         }
     }
 
     _onKeyUp(event){
         switch (event.keyCode) {
-            case 68: //d
-                this.keys.right = false;
-                break;
-            case 83: //s
-                this.keys.backward = false;
-                break;
-            case 65: //a
-                this.keys.left = false;
-                break;
-            case 87: //w
-                this.keys.forward = false;
-                break;
-            case 32: // space
-                this.keys.jump = false;
-                break
+            case 68:  this.keys.right       = false; break;
+            case 83:  this.keys.backward    = false; break;
+            case 65:  this.keys.left        = false; break;
+            case 87:  this.keys.forward     = false; break;
+            case 32:  this.keys.jump        = false; break
         }
     }
 }
@@ -179,6 +159,13 @@ export class NetworkInput {
     }
 }
 
+export class WeaponController extends Component {
+    constructor(gameObject){
+        super(gameObject);
+    }
+}
+
+// third person character
 export class CharacterController extends Component {
     constructor(gameObject, input, hashGrid){
         super(gameObject);

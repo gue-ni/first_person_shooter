@@ -44,7 +44,9 @@ export class Factory {
 
         
         //player.addComponent(new WASDMovement(player, this.hashGrid))
-        player.addComponent(new CharacterController(player, new PlayerInput(), this.hashGrid));
+
+        let input = new PlayerInput();
+        player.addComponent(new CharacterController(player, input, this.hashGrid));
         player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
         player.addComponent(new Box(player,  new THREE.Vector3(1,2,0.5), 0x999999, false, false))
