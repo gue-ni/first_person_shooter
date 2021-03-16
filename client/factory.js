@@ -1,13 +1,13 @@
 import * as THREE from './three/build/three.module.js';
 
 import { GameObject, GameObjectArray} from './game-object.js';
-import { Box, EventRelay, Physics, SimpleGLTFModel } from './components.js';
+import { Box, EventRelay, HUD, Physics, SimpleGLTFModel } from './components.js';
 import { WASDMovement, FirstPersonCamera, Health } from './player.js';
 import { AABB } from './collision.js';
 import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
 import { CharacterController, PlayerInput } from './player-components.js';
-import { HitscanEmitter, MuzzleFlash, WeaponController } from './weapon-components.js';
+import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController } from './weapon-components.js';
 
 export class Factory {
     constructor(scene, camera, listener, gameObjectArray, hashGrid){
@@ -17,34 +17,11 @@ export class Factory {
         this.gameObjectArray = gameObjectArray;
         this.hashGrid = hashGrid;
     }
-    /*
-    createPistol(owner, bullets){
-        let gun = new SemiAutomaticWeapon(owner, bullets, this.listener);
-        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
-        gun.smoke.active = false;
-        return gun;
-    }
 
-    createRifle(owner, bullets){
-        let gun = new FullAutoWeapon(owner, bullets, this.listener, 625);
-        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
-        gun.smoke.active = false;
-        return gun;
-    }
-
-    createProjectileRifle(owner, bullets){
-        let gun = new ProjectileWeapon(owner, bullets, this.listener, this.gameObjectArray, this.scene);
-        gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
-        gun.smoke.active = false;
-        return gun;
-    }    
-    */
-
-    createPlayer(hitscanBullets, projectiles){
+    createPlayer(rays, projectiles){
         let player = new GameObject(this.scene)
         
-
-        //let input = new PlayerInput();
+        let hud = new HUD();
 
         player.addComponent(new PlayerInput(player))
         player.addComponent(new CharacterController(player, this.hashGrid));
@@ -56,16 +33,14 @@ export class Factory {
         player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))
         
         let gunObject = new GameObject(player.fpv.transform);
-        gunObject.addComponent(new HitscanEmitter(gunObject, hitscanBullets));
-        gunObject.addComponent(new WeaponController(gunObject));
+        gunObject.addComponent(new ProjectileEmitter(gunObject, rays));
+        gunObject.addComponent(new WeaponController(gunObject, hud, 620, 30));
         gunObject.addComponent(new EventRelay(gunObject, player, ["firing", "reload"]));
         gunObject.addComponent(new SimpleGLTFModel(gunObject, './assets/AUG2.glb', 
             new THREE.Vector3(0.1,-0.4,-0.1),
             new THREE.Vector3(0.1,0.1,0.1),
             new THREE.Vector3(0,-Math.PI,0)));
         gunObject.addComponent(new MuzzleFlash(gunObject, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene, new THREE.Vector3()) ));
-
-
         
         //let inventory = player.addComponent(new Inventory(player));
         //inventory.add(this.createRifle(player, hitscanBullets));

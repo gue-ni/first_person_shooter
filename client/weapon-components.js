@@ -37,7 +37,14 @@ export class HitscanEmitter extends Component {
     }
 }
 
-export class ProjectileEmitter {
+export class ProjectileEmitter extends HitscanEmitter {
+    constructor(gameObject, bullets){
+        super(gameObject, bullets);
+    }
+
+    emit(origin, direction){
+        console.log("emit projectile")
+    }
 }
 
 // light, smoke and flash 
@@ -145,23 +152,24 @@ export class MuzzleFlash extends Component {
 } 
 
 export class WeaponController extends Component {
-    constructor(gameObject, input, firingRate = 620, ammoCapacity = 30){
+    constructor(gameObject, hud, firingRate = 620, ammoCapacity = 30){
         super(gameObject);
-        this._input = input;
 
         this.active = true;
-        this._firing = false;
 
-        this._rotation  = new THREE.Quaternion();
-        this._origin    = new THREE.Vector3();
+        this._firing = false;
+        this._hud = hud;
+        //this._rotation  = new THREE.Quaternion();
+        //this._origin    = new THREE.Vector3();
 
         this._reloading = false;
         this._reloadTime = 2;
         this._reloadTimeCounter = 0;
-        this._ammo = this._fullAmmoCapacity = ammoCapacity;
+        this._ammo = this._fullAmmoCapacity = this._hud.ammo = ammoCapacity;
 
         this.gameObject.subscribe("reload", () => {
             this._reloading = true;
+            this._hud.reloading()
         })
 
         this.gameObject.subscribe("firing", (event) => {
@@ -175,6 +183,7 @@ export class WeaponController extends Component {
     fire(){
         if (this._ammo <= 0 || this._reloading) return;
         this._ammo--;
+        this._hud.ammo = this._ammo;
 
         this.gameObject.publish("fire", { transform: this.gameObject.transform })
     }
@@ -194,7 +203,7 @@ export class WeaponController extends Component {
             if (this._reloadTimeCounter > this._reloadTime){
                 this._reloading = false;
                 this._reloadTimeCounter = 0;
-                this._ammo = this._fullAmmoCapacity;
+                this._hud.ammo = this._ammo = this._fullAmmoCapacity;
             }
         }
     }

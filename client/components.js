@@ -12,6 +12,22 @@ export class Component {
 	remove(){}
 }
 
+export class HUD {
+    constructor(){
+        this.ammoDisplay = document.querySelector('#ammo');
+
+        this.ammo = -1;
+    }
+
+    set ammo(value){
+        this.ammoDisplay.innerText = value;
+    }
+
+    reloading(){
+        this.ammoDisplay.innerText = "reloading";
+    }
+}
+
 // allows a gameObject to subscribe to the events of another gameobject
 export class EventRelay extends Component {
     constructor(gameObject, hostObject, eventTypes){
