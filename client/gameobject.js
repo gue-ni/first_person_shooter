@@ -31,6 +31,10 @@ export class GameObject {
     }
 
     publish(event, data){
+        if (this.subscribers["all"]){
+            this.subscribers["all"].forEach(callback => callback({event: event, data: data}));
+        }
+
         if (!this.subscribers[event]) return;
         this.subscribers[event].forEach(callback => callback(data));
     }
@@ -43,11 +47,7 @@ export class GameObject {
     removeComponent(name){
         let component = this.getComponent(name);
 
-        //console.log(this.components)
-
         this.components = this.components.filter( c => { c.name != name});
-
-        //console.log(this.components)
 
         if (component){
             component.remove();
@@ -68,7 +68,6 @@ export class GameObject {
 		for (let component of this.components){
 			component.remove()
 		}
-
 		//parent.remove(this.transform)
 		//this.transform = undefined
 	}

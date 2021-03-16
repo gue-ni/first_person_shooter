@@ -12,6 +12,21 @@ export class Component {
 	remove(){}
 }
 
+// allows a gameObject to subscribe to the events of another gameobject
+export class EventRelay extends Component {
+    constructor(gameObject, hostObject, eventTypes){
+        super(gameObject);
+
+        this.hostObject = hostObject;
+        
+        for (let eventType of eventTypes){
+            this.hostObject.subscribe(eventType, (event) => {
+                this.gameObject.publish(eventType, event);
+            });
+        }
+    }
+}
+
 export class SimpleGLTFModel extends Component {
     constructor(gameObject, path, position = new THREE.Vector3(), scale = new THREE.Vector3(1,1,1), rotation = new THREE.Vector3()){
         super(gameObject);
@@ -59,7 +74,6 @@ export class Box extends Component {
 		this.mesh.parent.remove(this.mesh)
 	}
 }
-
 
 export class Physics extends Component {
 	constructor(gameObject){

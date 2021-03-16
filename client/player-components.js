@@ -11,30 +11,29 @@ class FiniteStateMachine {
 
     update(input, dt){
         // update states according to user input
-        if (input.keys.forward){
+        if (input.forward){
             this._setState("forward");
 
-        } else if (input.keys.backward){
+        } else if (input.backward){
             this._setState("backward");
 
-        } else if (input.keys.right){
+        } else if (input.right){
             this._setState("right");
 
-        } else if (input.keys.left){
+        } else if (input.left){
             this._setState("left");
 
-        } else if (input.keys.jump){
+        } else if (input.jump){
             this._setState("jump");
 
-        } else if (input.firing){
-            this._setState("firing")
+        } else if (input.reloading){
+            this._setState("reloading");
         
         } else {
             this._setState("idle")
         }
 
         this._current.update(dt);
-
     }
 
     _setState(state){
@@ -75,8 +74,10 @@ class State {
     }
 }
 
-export class PlayerInput { // should also move the camera
-    constructor(){
+export class PlayerInput extends Component{ // should also move the camera
+    constructor(gameObject){
+        super(gameObject);
+
         this.keys = {
             forward: false,
             backward: false,
@@ -86,7 +87,7 @@ export class PlayerInput { // should also move the camera
             reload: false
         }
 
-        this._yaw = 0.5 * Math.PI;
+        this._yaw   = 0.5 * Math.PI;
         this._pitch = 0;
         this.firing = false;
 
@@ -111,6 +112,10 @@ export class PlayerInput { // should also move the camera
         }
     }
 
+    update(dt){
+        this.gameObject.publish("input", { keys: this.keys, pitch: this.pitch, yaw: this.yaw })
+    }
+
     get pitch(){
         let p = -this._pitch;
         if (p >  89) p =  89
@@ -128,22 +133,41 @@ export class PlayerInput { // should also move the camera
    }
 
    _mouseDownCallback(){
-        //console.log("mousedown")
         this.firing = true;
+        this.gameObject.publish("firing", {firing: true});
    }
 
    _mouseUpCallback(){
-        //console.log("mouseup")
         this.firing = false;
+        this.gameObject.publish("firing", {firing: false});
    }
 
     _onKeyDown(event){
         switch (event.keyCode) {
-            case 68:  this.keys.right       = true; break;
-            case 83:  this.keys.backward    = true; break;
-            case 65:  this.keys.left        = true; break;
-            case 87:  this.keys.forward     = true; break;
-            case 32:  this.keys.jump        = true; break
+            case 68:  
+                this.keys.right       = true; 
+                break;
+                
+            case 83:  
+                this.keys.backward    = true; 
+                break;
+
+            case 65:  
+                this.keys.left        = true; 
+                break;
+
+            case 87:  
+                this.keys.forward     = true; 
+                break;
+
+            case 32:  
+                this.keys.jump        = true; 
+                break;
+
+            case 82:  
+                this.keys.reload = true; 
+                this.gameObject.publish("reload", true);
+                break;
         }
     }
 
@@ -153,7 +177,8 @@ export class PlayerInput { // should also move the camera
             case 83:  this.keys.backward    = false; break;
             case 65:  this.keys.left        = false; break;
             case 87:  this.keys.forward     = false; break;
-            case 32:  this.keys.jump        = false; break
+            case 32:  this.keys.jump        = false; break;
+            case 82:  this.keys.reload      = false; break;
         }
     }
 }
@@ -164,23 +189,12 @@ class AiInput { // TODO sometime in the future
     }
 }
 
-export class NetworkInput {
-    constructor(websocket){
-        this.websocket = websocket;
-        this.websocket.addEventListener("onmessage", (e) => this.handle(e) ,false);
-    }
-
-    handle(message){
-        console.log("received message")
-    }
-}
-
 // third person character
 export class CharacterController extends Component {
-    constructor(gameObject, input, hashGrid){
+    constructor(gameObject, hashGrid){
         super(gameObject);
         this._hashGrid  = hashGrid;
-        this._input     = input;
+        this.keys     = null;
 
         this._state = new FiniteStateMachine();
         this._state._add("idle", new State("idle"))
@@ -190,45 +204,48 @@ export class CharacterController extends Component {
         this._state._add("left", new State("left"))
         this._state._add("jump", new State("jump"))
         this._state._add("firing", new State("firing"))
+        this._state._add("reloading", new State("reloading"))
         this._state._setState("idle");
+
+        this.gameObject.subscribe("input", (event) => {
+
+            this.keys = event.keys;
+            
+            let yaw     = event.yaw;
+            let pitch   = event.pitch;
+            this.gameObject.direction.x = Math.cos(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
+            this.gameObject.direction.y = Math.sin(pitch*(Math.PI/180))
+            this.gameObject.direction.z = Math.sin(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
+            this.gameObject.direction.normalize()
+        });
     }
 
     update(dt){
         // change state if necessary
-        this._state.update(this._input, dt);
+        this._state.update(this.keys, dt);
 
-        // update view direction
-        let yaw     = this._input.yaw;
-        let pitch   = this._input.pitch;
-        this.gameObject.direction.x = Math.cos(yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-        this.gameObject.direction.y = Math.sin(pitch *(Math.PI/180))
-        this.gameObject.direction.z = Math.sin(yaw  *(Math.PI/180)) * Math.cos(pitch*(Math.PI/180))
-        this.gameObject.direction.normalize()
-
-        //console.log(this.gameObject.direction)
- 
         // update velocities
         let tmp = this.gameObject.direction.clone();
         tmp.setY(0);
         tmp.normalize();
 
         let speed = 7 
-        if (this._input.keys.forward){         
+        if (this.keys.forward){         
             tmp.multiplyScalar(speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
 
-        } else if(this._input.keys.backward){   
+        } else if(this.keys.backward){   
             tmp.multiplyScalar(-speed)
             this.gameObject.velocity.x = tmp.x
             this.gameObject.velocity.z = tmp.z
            
-        } else if (this._input.keys.right){  
+        } else if (this.keys.right){  
             tmp.multiplyScalar(speed)
             this.gameObject.velocity.x = -tmp.z
             this.gameObject.velocity.z =  tmp.x 
 
-        } else if (this._input.keys.left){  
+        } else if (this.keys.left){  
             tmp.multiplyScalar(speed)
             this.gameObject.velocity.x =  tmp.z
             this.gameObject.velocity.z = -tmp.x 
@@ -238,13 +255,12 @@ export class CharacterController extends Component {
             this.gameObject.velocity.z = 0
         }
 
-        if (this._input.keys.jump){ // SPACE
+        if (this.keys.jump){ // SPACE
             let p = this.gameObject.position.clone();
             p.setY(p.y-1.1)
 
             for (let aabb of this._hashGrid.possible_point_collisions(p)){
                 if (aabb.box.containsPoint(p)){
-                    console.log("standing on something");
                     this.gameObject.velocity.y += 15;
                     break;
                 }

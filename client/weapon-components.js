@@ -35,7 +35,7 @@ export class ProjectileEmitter {
 
 // light and flash texture
 export class MuzzleFlash extends Component {
-    constructor(gameObject, muzzlePosition, listener){
+    constructor(gameObject, muzzlePosition, listener, smoke){
         super(gameObject);
 
         this._muzzlePosition = muzzlePosition;
@@ -52,6 +52,8 @@ export class MuzzleFlash extends Component {
         this.light.position.copy(this._muzzlePosition)
 		this.gameObject.transform.add(this.light)
 
+        this.smoke = smoke;
+        this.smoke.active = false;
 
 		const planeGeometry = new THREE.PlaneGeometry(1,1,1);
         planeGeometry.translate(0.5, 0, 0)
@@ -91,16 +93,14 @@ export class MuzzleFlash extends Component {
             this.gunshot.position.copy(this._muzzlePosition);
             this.gameObject.transform.add(this.gunshot);
         })();
-
-
-
-
     }
 
     start(){
         this._fired = true;
         
         this.flash.scale.copy(this._flashStartingScale);
+
+        if (this.smoke) this.smoke.active = true;
 
         if (this.gunshot.isPlaying){
             this.gunshot.stop();
@@ -127,6 +127,11 @@ export class MuzzleFlash extends Component {
                 if (this.smoke) this.smoke.active = false;
             }
         }
+
+        if (this.smoke){
+            this.smoke._source.copy(this.flash.localToWorld(this._muzzlePosition));
+            this.smoke.update(dt);
+        }
     }
 } 
 
@@ -134,38 +139,58 @@ export class WeaponController extends Component {
     constructor(gameObject, input){
         super(gameObject);
         this._input = input;
+
         this.active = true;
+        this._firing = false;
 
         this._rotation  = new THREE.Quaternion();
         this._origin    = new THREE.Vector3();
 
-        this._ammo = 100;
-        this._reloading = false;
 
-        this._duration =  1 / (620 / 60)
-		this._elapsed  = 0
+        this._reloading = false;
+        this._reloadTime = 2;
+        this._reloadTimeCounter = 0;
+        this._fullAmmoCapacity = 30;
+        this._ammo = this._fullAmmoCapacity;
+
+        this.gameObject.subscribe("reload", () => {
+            this._reloading = true;
+        })
+
+        this.gameObject.subscribe("firing", (event) => {
+            this._firing = event.firing;
+        })
+        
+        
+        this._duration =  1 / (620 / 60);
+		this._elapsed  = 0;
     }
 
     fire(){
         if (this._ammo <= 0 || this._reloading) return;
-
         this._ammo--;
-
-        console.log("fire")
 
         this.gameObject.publish("fire", { transform: this.gameObject.transform })
     }
 
     update(dt){
-        //if (this._input.firing && this.active){
-        //    this.fire();
-        //}
-
         this._elapsed += dt;
-		if (this._input.firing && this._elapsed >= this._duration){
+
+		if (this._firing && this._elapsed >= this._duration){
 			this.fire()
 			this._elapsed = 0
 		}
+
+        if (this._reloading && this._reloadTimeCounter <= this._reloadTime){
+            
+            this._reloadTimeCounter += dt;
+            
+            if (this._reloadTimeCounter > this._reloadTime){
+                this._reloading = false;
+                this._reloadTimeCounter = 0;
+                this._ammo = this._fullAmmoCapacity;
+            }
+        }
     }
 }
 
