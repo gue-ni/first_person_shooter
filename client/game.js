@@ -1,7 +1,7 @@
 import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
 
-import { GameObject, GameObjectArray} from './gameobject.js';
+import { GameObject, GameObjectArray} from './game-object.js';
 import { Box, Physics } from './components.js';
 import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
@@ -123,14 +123,8 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    let testObject = new GameObject(scene);
-    //testObject.addComponent(new CharacterController(testObject));
-    //testObject.addComponent(new SimpleModel(testObject, './assets/blender/basic_with_gun.glb'));
-    //testObject.addComponent(new Gravity(testObject));
-    //testObject.addComponent(new Box(testObject, new THREE.Vector3(1,1,1), 10066329, false, false))
-    //testObject.position.set(0,100,0);
-    //testObject.addComponent(new Character(testObject));
-    gameObjectArray.add(testObject);
+    //let testObject = new GameObject(scene);
+    //gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);

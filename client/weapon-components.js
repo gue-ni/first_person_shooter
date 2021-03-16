@@ -1,6 +1,13 @@
 import * as THREE from './three/build/three.module.js';
 import { Component } from "./components.js";
-import { BulletRay } from "./ray.js";
+
+export class BulletRay extends THREE.Ray {
+	constructor(origin, direction, owner, damage){
+		super(origin, direction);
+		this.owner = owner;
+        this.damage = damage;
+	}
+}
 
 // emitts bullet rays
 export class HitscanEmitter extends Component {
@@ -8,8 +15,8 @@ export class HitscanEmitter extends Component {
         super(gameObject);
 
         this.bullets = bullets;
-        this._rotation = new THREE.Quaternion();
-        this._origin = new THREE.Vector3();
+        this._rotation  = new THREE.Quaternion();
+        this._origin    = new THREE.Vector3();
 
         this.gameObject.subscribe("fire", (e) => {
             this.emitFromTransform(e.transform);
@@ -33,7 +40,7 @@ export class HitscanEmitter extends Component {
 export class ProjectileEmitter {
 }
 
-// light and flash texture
+// light, smoke and flash 
 export class MuzzleFlash extends Component {
     constructor(gameObject, muzzlePosition, listener, smoke){
         super(gameObject);
@@ -102,11 +109,13 @@ export class MuzzleFlash extends Component {
 
         if (this.smoke) this.smoke.active = true;
 
-        if (this.gunshot.isPlaying){
-            this.gunshot.stop();
-            this.gunshot.play();
-        } else {
-            this.gunshot.play();
+        if (this.gunshot){
+            if (this.gunshot.isPlaying){
+                this.gunshot.stop();
+                this.gunshot.play();
+            } else {
+                this.gunshot.play();
+            }
         }
     }
 
@@ -136,7 +145,7 @@ export class MuzzleFlash extends Component {
 } 
 
 export class WeaponController extends Component {
-    constructor(gameObject, input){
+    constructor(gameObject, input, firingRate = 620, ammoCapacity = 30){
         super(gameObject);
         this._input = input;
 
@@ -146,12 +155,10 @@ export class WeaponController extends Component {
         this._rotation  = new THREE.Quaternion();
         this._origin    = new THREE.Vector3();
 
-
         this._reloading = false;
         this._reloadTime = 2;
         this._reloadTimeCounter = 0;
-        this._fullAmmoCapacity = 30;
-        this._ammo = this._fullAmmoCapacity;
+        this._ammo = this._fullAmmoCapacity = ammoCapacity;
 
         this.gameObject.subscribe("reload", () => {
             this._reloading = true;
@@ -161,8 +168,7 @@ export class WeaponController extends Component {
             this._firing = event.firing;
         })
         
-        
-        this._duration =  1 / (620 / 60);
+        this._duration =  1 / (firingRate / 60);
 		this._elapsed  = 0;
     }
 

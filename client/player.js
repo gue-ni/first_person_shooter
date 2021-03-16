@@ -1,8 +1,6 @@
 import { Component } from './components.js'
 import * as THREE from './three/build/three.module.js';
 import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
-import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
-import { FullAutoWeapon } from './weapons.js';
 
 export class WASDMovement extends Component {
 	constructor(gameObject, hashGrid){

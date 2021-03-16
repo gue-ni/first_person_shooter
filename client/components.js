@@ -1,12 +1,12 @@
 import * as THREE from './three/build/three.module.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 
-import { GameObject} from './gameobject.js'
+import { GameObject} from './game-object.js'
 
 export class Component {
 	constructor(gameObject){
 		this.gameObject = gameObject
-		this.name = "component"
+		this.name = this.constructor.name;
 	}
 	update(dt){}
 	remove(){}
@@ -36,15 +36,11 @@ export class SimpleGLTFModel extends Component {
                 loader.load(path, data => resolve(data), null, reject);
             });
             this.model = gltf.scene;
-
             this.model.position.copy(position);
-            
             this.model.rotateX(rotation.x);
             this.model.rotateY(rotation.y);
             this.model.rotateZ(rotation.z);
-           
             this.model.scale.copy(scale)
-
             this.gameObject.transform.add(this.model)
         })();
     }

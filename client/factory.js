@@ -1,7 +1,6 @@
 import * as THREE from './three/build/three.module.js';
 
-import { SemiAutomaticWeapon, FullAutoWeapon, Inventory, ProjectileWeapon } from './weapons.js'
-import { GameObject, GameObjectArray} from './gameobject.js';
+import { GameObject, GameObjectArray} from './game-object.js';
 import { Box, EventRelay, Physics, SimpleGLTFModel } from './components.js';
 import { WASDMovement, FirstPersonCamera, Health } from './player.js';
 import { AABB } from './collision.js';
@@ -18,7 +17,7 @@ export class Factory {
         this.gameObjectArray = gameObjectArray;
         this.hashGrid = hashGrid;
     }
-
+    /*
     createPistol(owner, bullets){
         let gun = new SemiAutomaticWeapon(owner, bullets, this.listener);
         gun.smoke = new Smoke(this.scene, new THREE.Vector3(0,0,0));
@@ -39,6 +38,7 @@ export class Factory {
         gun.smoke.active = false;
         return gun;
     }    
+    */
 
     createPlayer(hitscanBullets, projectiles){
         let player = new GameObject(this.scene)

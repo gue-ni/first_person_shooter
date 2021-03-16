@@ -1,7 +1,5 @@
 import { Component } from "./components";
 
-
-
 export class NetworkInput {
     constructor(websocket){
         this.websocket = websocket;
