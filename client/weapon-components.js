@@ -48,7 +48,7 @@ export class ProjectileEmitter extends HitscanEmitter {
     }
 
     emit(origin, direction){
-        console.log("emit projectile")
+        //console.log("emit projectile")
         let size = new THREE.Vector3(0.25, 0.25, 0.25);
         let projectile = new GameObject(this.gameObject.root);
 
@@ -102,10 +102,10 @@ export class Explosive extends Component {
     constructor(gameObject){
         super(gameObject);
 
-        console.log("creating explosive")
+        //console.log("creating explosive")
 
         this.gameObject.subscribe("collision", (event) => {
-            console.log("exploding now");
+            //console.log("exploding now");
         })
     }
 }

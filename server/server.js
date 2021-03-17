@@ -64,7 +64,7 @@ wss.on('connection', (ws) => {
     		PLAYERS[id] = data.player_data;
             response.players = PLAYERS;
     	}
-
+        /*
     	if (data.bullets){
             let ray = new Ray();
             let impactPoint = new Vector3();
@@ -111,7 +111,9 @@ wss.on('connection', (ws) => {
                 }
             }
     	}    
+        */
 
+        console.log(PLAYERS)
         ws.send(JSON.stringify(response));
 	});
 

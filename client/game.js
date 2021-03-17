@@ -8,6 +8,7 @@ import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
 import { AABB } from './collision.js';
+import { NetworkController } from './networking.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -69,13 +70,14 @@ const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
-const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid);
 const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+const network           = new NetworkController(websocket);
+const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid);
 var player              = undefined;
 var gameData            = undefined;
 let particleSystem      = new BulletImpact(scene,'./assets/textures/spark.png')
 let impactPoint         = new THREE.Vector3();
-let dead = false;
+let dead                = false;
 let then = 0, dt = 0;
 
 const killPlayer = function(){
@@ -100,7 +102,7 @@ const init = async function(){
 	gameData = await json.json();
    
     // create player
-    player = factory.createPlayer(rays, projectiles)
+    player = factory.createPlayer(network)
     console.log(player.id);
 
     respawnBtn.addEventListener("click", () => {
@@ -127,11 +129,6 @@ const init = async function(){
 
     // testing
     let testObject = new GameObject(scene);
-    /*
-    testObject.addComponent(new SimpleGLTFModel(testObject, './assets/important/model.glb', {
-        scale: new THREE.Vector3(0.5, 0.5, 0.5)
-    }))
-    */
     gameObjectArray.add(testObject);
 
     // create lights
@@ -209,7 +206,13 @@ const menu = function(dt){
 }
 
 const play = function(dt) {
+
+    // TODO 
+    // sync network objects
+
+
 	gameObjectArray.forEach(gameObject => {
+        /*
 		if (!gameObject.local){ 
 			let pos_and_dir = network_data[gameObject.id];
 			if (pos_and_dir){
@@ -220,13 +223,13 @@ const play = function(dt) {
                 look.setY(0)
 				gameObject.transform.lookAt(look);
 			}
-		} else { 
+		} */
+        { 
 			gameObject.update(dt);
 
 			let aabb = gameObject.getComponent("aabb");
 			if (aabb){
 				for (let otherObject of hashGrid.possible_aabb_collisions(aabb)){
-					//if (otherObject != gameObject) otherObject.collide(aabb); 
 					if (otherObject != gameObject) aabb.collide2(otherObject); 
 				}
 			}
@@ -234,33 +237,36 @@ const play = function(dt) {
             if (gameObject.lifetime){
                 gameObject.lifetime -= dt;
                 if (gameObject.lifetime <= 0){
-                    console.log("lifetime ran out");
+                    console.log("removing gameObject");
                     gameObjectArray.remove(gameObject);
                 }
             }
-
-			if (gameObject.position.x > map_width/2-1){
-				gameObject.position.x = map_width/2-1;
-			} else if (gameObject.position.x < -map_width/2+1){
-				gameObject.position.x 		 = -map_width/2+1;
-			}
-			if (gameObject.position.z > map_depth/2-1){
-				gameObject.position.z = map_depth/2-1;
-			} else if (gameObject.position.z < -map_depth/2+1){
-				gameObject.position.z 		 = -map_depth/2+1;
-			}
-			if (gameObject.position.y > map_height-3){
-				gameObject.position.y = map_height-3;
-			} else if (gameObject.position.y < -5){
-                gameObject.position.y = -5;
-                gameObject.velocity.y = -5;
+            {
+                /*
+                if (gameObject.position.x > map_width/2-1){
+                    gameObject.position.x = map_width/2-1;
+                } else if (gameObject.position.x < -map_width/2+1){
+                    gameObject.position.x 		 = -map_width/2+1;
+                }
+                if (gameObject.position.z > map_depth/2-1){
+                    gameObject.position.z = map_depth/2-1;
+                } else if (gameObject.position.z < -map_depth/2+1){
+                    gameObject.position.z 		 = -map_depth/2+1;
+                }
+                if (gameObject.position.y > map_height-3){
+                    gameObject.position.y = map_height-3;
+                } else if (gameObject.position.y < -5){
+                    gameObject.position.y = -5;
+                    gameObject.velocity.y = -5;
+                }
+                */
             }
 		}
 	});
 
-    for (let bullet of rays){
-        for (let aabb of hashGrid.possible_ray_collisions(bullet)){
-            let intersection = bullet.intersectBox(aabb.box, impactPoint)
+    for (let ray of network.rays){
+        for (let aabb of hashGrid.possible_ray_collisions(ray)){
+            let intersection = ray.intersectBox(aabb.box, impactPoint)
             if (intersection){
                 particleSystem.impact(impactPoint)
             }
@@ -268,8 +274,13 @@ const play = function(dt) {
     }
 
     particleSystem.update(dt);
-
+    network.sync();
+	network.rays.length = 0;
+ 
+    /*
 	if (websocket.readyState === WebSocket.OPEN){
+        //console.log("send")
+
 		let data = {}
 
 		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
@@ -283,13 +294,13 @@ const play = function(dt) {
 			websocket.send(JSON.stringify(data));
 		}
 	}
+    */
 
-	rays.length = 0;
 
 	// debug
-	let dir = player.direction.normalize().clone()
-	camera.position.set(player.position.x+dir.x, player.position.y+5, player.position.z+dir.z)
-	camera.lookAt(player.position)
+	//let dir = player.direction.normalize().clone()
+	//camera.position.set(player.position.x+dir.x, player.position.y+5, player.position.z+dir.z)
+	//camera.lookAt(player.position)
 	
 	stats.update()	
 	renderer.render(scene, camera)
@@ -310,11 +321,11 @@ const game = function(now){
     }
 }
 
+/*
 websocket.onmessage = function (event) {
 	let data = JSON.parse(event.data);
 
 	if (data.hit){
-        // console.log("hit")
 		crosshair.innerText = "x"
 	} else {
 		crosshair.innerText = `+`
@@ -361,5 +372,6 @@ websocket.onmessage = function (event) {
 		taking_hits.style.display = 'none'
 	}
 };
+*/
 
 init();

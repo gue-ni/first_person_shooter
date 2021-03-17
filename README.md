@@ -14,4 +14,10 @@ https://gltf-viewer.donmccurdy.com/
 * GameObject
 * Components
 
+### Networking
 
+Messages:
+* take damage
+* hit something
+* connected/disconnected player
+* 

@@ -4,12 +4,40 @@ import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 
 
 export class FiniteStateMachine {
-    constructor(gameObject){
-        this.gameObject = gameObject;
+    constructor(){
         this._states = {};
         this._current = null;
         this._loaded = false;
+    }
 
+    update(input, dt){}
+
+    //syncNetwork(network){}
+
+    _setState(state){
+        if (this._current !== null && this._current.name === state){
+            return
+        }
+
+        const previous = this._current;
+
+        if (previous){
+            previous.exit()
+        }
+
+        this._current = this._states[state];
+        this._current.enter(previous)
+    }
+
+    _add(name, type){
+        this._states[name] = type;
+    }
+}
+
+export class NetworkFSM extends FiniteStateMachine {
+    constructor(gameObject){
+        super();
+        this.gameObject = gameObject;
         this.init();
     }
 
@@ -34,68 +62,93 @@ export class FiniteStateMachine {
             let back   = this.mixer.clipAction(animations[0])
             let front  = this.mixer.clipAction(animations[1]);
 
-
-            this._add("idle", new State("idle", idle))
-            this._add("forward", new State("forward", front))
-            this._add("backward", new State("backward", back))
-            this._add("left", new State("left", left))
-            this._add("right", new State("right", right))
+            this._add("idle", new AnimationState("idle", idle))
+            this._add("forward", new AnimationState("forward", front))
+            this._add("backward", new AnimationState("backward", back))
+            this._add("left", new AnimationState("left", left))
+            this._add("right", new AnimationState("right", right))
             
             console.log("loaded")
             this._loaded = true;
         })();
-   }
+    }
+    /*
+    syncNetwork(network){
+        // TODO
+        if (this._loaded){
+            this._setState()        
+        }
+    }
+    */
+
 
     update(input, dt){
-        
-        if (this._loaded){
 
-            if (input.forward){
-                this._setState("forward");
-            } else if(input.backward){
-                this._setState("backward");
-            } else if(input.left){
-                this._setState("left");
-            } else if (input.right){
-                this._setState("right");
-            } else {
-                this._setState("idle")
+        if (this._loaded){
+            
+            if (input.forward){         this._setState("forward");
+            } else if(input.backward){  this._setState("backward");
+            } else if(input.left){      this._setState("left");
+            } else if (input.right){    this._setState("right");
+            } else {                    this._setState("idle")
             }
 
-            this._current.update(dt);
             this.mixer.update(dt);
         }
     }
+}
 
-    _setState(state){
-        if (this._current !== null && this._current.name === state){
-            return
-        }
-
-        const previous = this._current;
-
-        if (previous){
-            previous.exit()
-        }
-
-        this._current = this._states[state];
-        this._current.enter(previous)
+export class LocalFSM extends FiniteStateMachine {
+    constructor(gameObject){
+        super();
+        this.gameObject = gameObject;
+        this.init();
     }
 
-    _add(name, type){
-        this._states[name] = type;
+    init(){
+        this._add("idle",       new State("idle"))
+        this._add("forward",    new State("forward"))
+        this._add("backward",   new State("backward"))
+        this._add("left",       new State("left"))
+        this._add("right",      new State("right"))
     }
+
+    update(input, dt){
+        if (input.forward){         this._setState("forward");
+        } else if(input.backward){  this._setState("backward");
+        } else if(input.left){      this._setState("left");
+        } else if (input.right){    this._setState("right");
+        } else {                    this._setState("idle")
+        }       
+    }
+
+    /*syncNetwork(network){
+        network.player.state = this._current.name;
+    }*/
 }
 
 export class State {
-    constructor(name, animation){
+    constructor(name){
         this.name = name;
+    }
+    enter(previous){
+        //console.log(`enter ${this.name}`);
+    }
+
+    exit(){
+        //console.log(`exit ${this.name}`);
+    }
+}
+
+export class AnimationState extends State{
+    constructor(name, animation){
+        super(name); 
         this.animation = animation;
         this._fade = 0.2;
     }
 
     enter(previous){
-        console.log(`enter ${this.name}`);
+        //console.log(`enter ${this.name}`);
         this.animation.reset();
         this.animation.setEffectiveTimeScale(1);
         this.animation.setEffectiveWeight(1);
@@ -104,9 +157,7 @@ export class State {
     }
 
     exit(){
-        console.log(`exit ${this.name}`);
+        //console.log(`exit ${this.name}`);
         this.animation.fadeOut(this._fade);
     }
-
-    update(dt){}
 }
