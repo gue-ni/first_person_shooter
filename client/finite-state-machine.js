@@ -11,16 +11,13 @@ export class FiniteStateMachine {
         this._loaded = false;
 
         this.init();
-        
-       
-
     }
 
     init(){
         (async () => {
             const loader = new GLTFLoader();
             const object = await new Promise((resolve, reject) => {
-                loader.load('./assets/important/model.glb', data => resolve(data), null, reject);
+                loader.load('./assets/important/combine.glb', data => resolve(data), null, reject);
             });
 
             this.model = object.scene;
@@ -28,18 +25,19 @@ export class FiniteStateMachine {
             this.gameObject.transform.add(this.model);
 
             const animations = object.animations;
-            //console.log(animations)
+            console.log(animations)
 
             this.mixer = new THREE.AnimationMixer(this.model);
-            let idle  = this.mixer.clipAction(animations[0]);
-            let left  = this.mixer.clipAction(animations[1]);
-            let right = this.mixer.clipAction(animations[2]);
-            let walk  = this.mixer.clipAction(animations[3]);
+            let idle   = this.mixer.clipAction(animations[2]);
+            let left   = this.mixer.clipAction(animations[3]);
+            let right  = this.mixer.clipAction(animations[4]);
+            let back   = this.mixer.clipAction(animations[0])
+            let front  = this.mixer.clipAction(animations[1]);
 
-            this.actions = [ idle, walk, right, left ];
 
             this._add("idle", new State("idle", idle))
-            this._add("forward", new State("forward", walk))
+            this._add("forward", new State("forward", front))
+            this._add("backward", new State("backward", back))
             this._add("left", new State("left", left))
             this._add("right", new State("right", right))
             
@@ -55,7 +53,7 @@ export class FiniteStateMachine {
             if (input.forward){
                 this._setState("forward");
             } else if(input.backward){
-                this._setState("forward");
+                this._setState("backward");
             } else if(input.left){
                 this._setState("left");
             } else if (input.right){
@@ -82,8 +80,6 @@ export class FiniteStateMachine {
 
         this._current = this._states[state];
         this._current.enter(previous)
-
-        //console.log(this._current)
     }
 
     _add(name, type){
@@ -95,32 +91,22 @@ export class State {
     constructor(name, animation){
         this.name = name;
         this.animation = animation;
+        this._fade = 0.2;
     }
 
     enter(previous){
         console.log(`enter ${this.name}`);
-        
-        //run.crossFadeFrom(idle, 0.5, true);
-        /*
-        this.animation.time = 0.0;
-        this.animation.enabled = true;
-
-    
-        this.animation.setEffectiveTimeScale(1.0);
-        this.animation.setEffectiveWeight(1.0)
-        if (previous){
-            this.animation.crossFadeFrom(previous.animation, 0.5, true);
-        }         
-        */
+        this.animation.reset();
+        this.animation.setEffectiveTimeScale(1);
+        this.animation.setEffectiveWeight(1);
+        this.animation.fadeIn(this._fade);
         this.animation.play()
     }
 
     exit(){
         console.log(`exit ${this.name}`);
-        this.animation.stop()
+        this.animation.fadeOut(this._fade);
     }
 
-    update(dt){
-
-    }
+    update(dt){}
 }
