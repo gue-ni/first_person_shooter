@@ -44,8 +44,14 @@ export class EventRelay extends Component {
 }
 
 export class SimpleGLTFModel extends Component {
-    constructor(gameObject, path, position = new THREE.Vector3(), scale = new THREE.Vector3(1,1,1), rotation = new THREE.Vector3()){
+    constructor(gameObject, path, params){
         super(gameObject);
+
+
+        let rotation = params.rotation ? params.rotation : new THREE.Vector3();
+        let position = params.position ? params.position : new THREE.Vector3();
+        let scale    = params.scale    ? params.scale : new THREE.Vector3(1,1,1);
+
         (async () => {
             const loader = new GLTFLoader();
             const gltf = await new Promise((resolve, reject) => {
@@ -63,28 +69,43 @@ export class SimpleGLTFModel extends Component {
 }
 
 export class Box extends Component {
-	constructor(gameObject, size, box_color, castShadow, receiveShadow, position = new THREE.Vector3()){
+	constructor(gameObject, params){
 		super(gameObject)
 		this.name = "box"
+
+        let rotation        = params.rotation       ? params.rotation : new THREE.Vector3();
+        let position        = params.position       ? params.position : new THREE.Vector3();
+        let size            = params.size           ? params.size : new THREE.Vector3(1,1,1);
+        let castShadow      = params.castShadow     ? params.castShadow : false;
+        let receiveShadow   = params.receiveShadow  ? params.receiveShadow : false;
+        let color           = params.color          ? params.color : 0xD9D9D9;
+
 		let geometry 	= new THREE.BoxBufferGeometry(size.x, size.y, size.z)
 		let material 	= new THREE.MeshStandardMaterial({ 
-			color: box_color, 
+			color: color, 
 			flatShading: true, 
 			emissive: 0xffffff, 
 			emissiveIntensity: 0,
 			roughness: 0.5
 		});
-		this.mesh 		= new THREE.Mesh(geometry, material)
-		this.mesh.castShadow 	= castShadow
-		this.mesh.receiveShadow = receiveShadow
-        this.mesh.position.copy(position);
-		this.gameObject.transform.add(this.mesh)
+		this.model 		= new THREE.Mesh(geometry, material)
+		
+        this.model.castShadow 	= castShadow
+		this.model.receiveShadow = receiveShadow
+        
+        this.model.rotateX(rotation.x);
+        this.model.rotateY(rotation.y);
+        this.model.rotateZ(rotation.z);
+    
+        this.model.position.copy(position);
+
+		this.gameObject.transform.add(this.model)
 	}
 
 	destroy(){
-		this.mesh.geometry.dispose()
-		this.mesh.material.dispose()
-		this.mesh.parent.remove(this.mesh)
+		this.model.geometry.dispose()
+		this.model.material.dispose()
+		this.model.parent.remove(this.model)
 	}
 }
 

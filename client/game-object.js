@@ -56,7 +56,7 @@ export class GameObject {
         this.components = this.components.filter( c => { c.name != name});
 
         if (component){
-            component.remove();
+            component.destroy();
         }
     }
 
@@ -80,6 +80,16 @@ export class GameObject {
 
     set position(p){ this.transform.position.set(p.x, p.y, p.z); }	
 	get position(){  return this.transform.position; }
+    
+    get root(){
+        let tmp = this.transform;
+
+        while (tmp.parent !== null){
+            tmp = tmp.parent;
+        }
+
+        return tmp;
+    }
 }
 
 export class GameObjectArray {
@@ -132,6 +142,9 @@ export class GameObjectArray {
 
 	_removeQueued() {
 		if (this.toRemove.size) {
+            this.toRemove.forEach( el => {
+                el.destroy();
+            })
 			this.array = this.array.filter(element => !this.toRemove.has(element));
 			this.toRemove.clear();
 		}

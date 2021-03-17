@@ -85,7 +85,7 @@ export class ParticleSystem {
 		parent.add(this._points);
 	}
 
-    remove(){
+    destroy(){
         this._points.material.dispose();
         this._points.geometry.dispose();
         this._points.parent.remove(this._points);

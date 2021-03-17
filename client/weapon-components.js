@@ -2,6 +2,7 @@ import * as THREE from './three/build/three.module.js';
 
 import { Component, Physics, Box } from "./components.js";
 import { GameObject } from './game-object.js';
+import { AABB } from './collision.js';
 
 export class BulletRay extends THREE.Ray {
 	constructor(origin, direction, owner, damage){
@@ -39,21 +40,34 @@ export class HitscanEmitter extends Component {
     }
 }
 
+
+
 export class ProjectileEmitter extends HitscanEmitter {
-    constructor(gameObject, projectiles, scene, gameObjectArray){
+    constructor(gameObject, projectiles, gameObjectArray){
         super(gameObject, projectiles);
         this.gameObjectArray = gameObjectArray;
-        this.scene = scene;
+        this._speed = 30;
     }
 
     emit(origin, direction){
         console.log("emit projectile")
+        let size = new THREE.Vector3(0.25, 0.25, 0.25);
+        let projectile = new GameObject(this.gameObject.root);
 
-        let projectile = new GameObject(this.scene);
-        projectile.addComponent(new Box(projectile, new THREE.Vector3(0.25,0.25,0.25), 13882323, false, false));
+
+        projectile.addComponent(new Box(projectile, {
+            color: 0xff0000,
+            size: size
+        }));
+
         projectile.addComponent(new Physics(projectile));
+        projectile.addComponent(new AABB(projectile, size));
+       
+        projectile.lifetime = 2;
+        
+        projectile.velocity.copy(direction.clone().multiplyScalar(this._speed));
         projectile.position.copy(origin);
-        projectile.velocity.copy(direction.clone().multiplyScalar(30));
+        
         this.gameObjectArray.add(projectile)
     }
 }

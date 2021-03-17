@@ -29,6 +29,7 @@ const window_width 	= canvas.width
 const window_height = canvas.height
 
 const scene 	= new THREE.Scene();
+scene.name = "Scene";
 const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
 const menuCamera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
 const renderer 	= new THREE.WebGLRenderer({
@@ -221,6 +222,14 @@ const play = function(dt) {
 					if (otherObject != gameObject) otherObject.collide(aabb); 
 				}
 			}
+
+            if (gameObject.lifetime){
+                gameObject.lifetime -= dt;
+                if (gameObject.lifetime <= 0){
+                    console.log("removing due to lifetime");
+                    gameObjectArray.remove(gameObject);
+                }
+            }
 
 			if (gameObject.position.x > map_width/2-1){
 				gameObject.position.x = map_width/2-1;
