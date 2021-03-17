@@ -1,78 +1,9 @@
 
 import { Component } from './components.js';
+import { State, FiniteStateMachine } from "./finite-state-machine.js";
 import * as THREE from './three/build/three.module.js';
+import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 
-
-class FiniteStateMachine {
-    constructor(){
-        this._states = {};
-        this._current = null;
-    }
-
-    update(input, dt){
-        // update states according to user input
-        if (input.forward){
-            this._setState("forward");
-
-        } else if (input.backward){
-            this._setState("backward");
-
-        } else if (input.right){
-            this._setState("right");
-
-        } else if (input.left){
-            this._setState("left");
-
-        } else if (input.jump){
-            this._setState("jump");
-
-        } else if (input.reloading){
-            this._setState("reloading");
-        
-        } else {
-            this._setState("idle")
-        }
-
-        this._current.update(dt);
-    }
-
-    _setState(state){
-        if (this._current !== null && this._current.name === state){
-            return
-        }
-
-        const previous = this._current;
-
-        if (previous){
-            previous.exit()
-        }
-
-        this._current = this._states[state];
-        this._current.enter(previous)
-    }
-
-    _add(name, type){
-        this._states[name] = type;
-    }
-}
-
-class State {
-    constructor(name){
-        this.name = name;
-    }
-
-    enter(previous){
-        //console.log(`enter ${this.name}`);
-    }
-
-    exit(){
-        //console.log(`exit ${this.name}`);
-    }
-
-    update(dt){
-
-    }
-}
 
 export class PlayerInput extends Component{ // should also move the camera
     constructor(gameObject){
@@ -199,16 +130,7 @@ export class CharacterController extends Component {
         this._hashGrid  = hashGrid;
         this.keys     = null;
 
-        this._state = new FiniteStateMachine();
-        this._state._add("idle", new State("idle"))
-        this._state._add("forward", new State("forward"))
-        this._state._add("backward", new State("backward"))
-        this._state._add("right", new State("right"))
-        this._state._add("left", new State("left"))
-        this._state._add("jump", new State("jump"))
-        this._state._add("firing", new State("firing"))
-        this._state._add("reloading", new State("reloading"))
-        this._state._setState("idle");
+        this._state = new FiniteStateMachine(this.gameObject);
 
         this.gameObject.subscribe("input", (event) => {
 

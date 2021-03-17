@@ -39,7 +39,8 @@ export class Factory {
         
         player.health   = player.addComponent(new Health(player));
         player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))
-        
+       
+        /*
         let primary = new GameObject(player.fpv.transform);
         primary.addComponent(new HitscanEmitter(primary, rays));
         primary.addComponent(new WeaponController(primary, hud, 620, 30));
@@ -67,6 +68,7 @@ export class Factory {
         this.gameObjectArray.add(secondary);
         
         player.addComponent(new Inventory(player, primary, secondary));
+        */
 
         player.position.set(0,0,0)
         this.gameObjectArray.add(player)

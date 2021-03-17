@@ -1,8 +1,9 @@
 import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
+import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 
 import { GameObject, GameObjectArray} from './game-object.js';
-import { Box, Physics } from './components.js';
+import { Box, Physics, SimpleGLTFModel } from './components.js';
 import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
@@ -31,6 +32,7 @@ const window_height = canvas.height
 const scene 	= new THREE.Scene();
 scene.name = "Scene";
 const camera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
+
 const menuCamera 	= new THREE.PerspectiveCamera(77, window_width / window_height, 0.01, 100);
 const renderer 	= new THREE.WebGLRenderer({
     canvas: canvas, 
@@ -124,8 +126,13 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-4,0), new THREE.Vector3(60,2,60))
 
     // testing
-    //let testObject = new GameObject(scene);
-    //gameObjectArray.add(testObject);
+    let testObject = new GameObject(scene);
+    /*
+    testObject.addComponent(new SimpleGLTFModel(testObject, './assets/important/model.glb', {
+        scale: new THREE.Vector3(0.5, 0.5, 0.5)
+    }))
+    */
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
@@ -280,9 +287,9 @@ const play = function(dt) {
 	rays.length = 0;
 
 	// debug
-	//let dir = player.direction.normalize().clone()
-	//camera.position.set(player.position.x+dir.x, player.position.y+5, player.position.z+dir.z)
-	//camera.lookAt(player.position)
+	let dir = player.direction.normalize().clone()
+	camera.position.set(player.position.x+dir.x, player.position.y+5, player.position.z+dir.z)
+	camera.lookAt(player.position)
 	
 	stats.update()	
 	renderer.render(scene, camera)
