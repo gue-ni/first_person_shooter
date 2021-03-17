@@ -2,7 +2,7 @@ import * as THREE from './three/build/three.module.js';
 
 export class GameObject {
 	constructor(parent){
-		this.id         = Math.floor(Math.random() * 1000000000) // not really a good idea
+		this.id         = this._generateId();
 		this.local      = true; // updating is done locally
 		this.components = []
         this.subscribers = {};
@@ -10,9 +10,24 @@ export class GameObject {
 		this.transform 	= new THREE.Object3D()
 		parent.add(this.transform)
 
-		this.velocity   = new THREE.Vector3()
-		this.direction  = new THREE.Vector3(1,0,0)
+		this.velocity   = new THREE.Vector3();
+		this.direction  = new THREE.Vector3(1,0,0);
+        this.active = true;
+        this.lifetime = undefined;
 	}
+
+    _generateId(){
+        return Math.floor(Math.random() * 1000000000) // not really a good idea
+    }
+
+    clone(){
+        // TODO implement
+        let clone = new GameObject(this.transform.parent);
+        clone.velocity.copy(this.velocity);
+        clone.position.copy(this.position);
+
+        return clone;
+    }
 
     subscribe(event, callback){
         

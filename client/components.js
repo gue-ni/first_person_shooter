@@ -63,7 +63,7 @@ export class SimpleGLTFModel extends Component {
 }
 
 export class Box extends Component {
-	constructor(gameObject, size, box_color, castShadow, receiveShadow){
+	constructor(gameObject, size, box_color, castShadow, receiveShadow, position = new THREE.Vector3()){
 		super(gameObject)
 		this.name = "box"
 		let geometry 	= new THREE.BoxBufferGeometry(size.x, size.y, size.z)
@@ -77,6 +77,7 @@ export class Box extends Component {
 		this.mesh 		= new THREE.Mesh(geometry, material)
 		this.mesh.castShadow 	= castShadow
 		this.mesh.receiveShadow = receiveShadow
+        this.mesh.position.copy(position);
 		this.gameObject.transform.add(this.mesh)
 	}
 

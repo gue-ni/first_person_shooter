@@ -15,6 +15,12 @@ export class NetworkInput {
     }
 }
 
+export class NetworkController {
+    constructor(){
+        
+    }
+}
+
 
 
 

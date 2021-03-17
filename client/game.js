@@ -120,7 +120,7 @@ const init = async function(){
     for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos, new THREE.Vector3(2,2,2));
 	}
-    factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
+    factory.createGroundBox(new THREE.Vector3(0,-4,0), new THREE.Vector3(60,2,60))
 
     // testing
     //let testObject = new GameObject(scene);
@@ -234,9 +234,9 @@ const play = function(dt) {
 			}
 			if (gameObject.position.y > map_height-3){
 				gameObject.position.y = map_height-3;
-			} else if (gameObject.position.y < 0){
-                gameObject.position.y = 0;
-                gameObject.velocity.y = 0;
+			} else if (gameObject.position.y < -5){
+                gameObject.position.y = -5;
+                gameObject.velocity.y = -5;
             }
 		}
 	});

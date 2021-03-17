@@ -38,12 +38,52 @@ export class HitscanEmitter extends Component {
 }
 
 export class ProjectileEmitter extends HitscanEmitter {
-    constructor(gameObject, bullets){
-        super(gameObject, bullets);
+    constructor(gameObject, projectiles, projectilePrototype, gameObjectArray){
+        super(gameObject, projectiles);
+        this.projectilePrototype = projectilePrototype;
+        this.gameObjectArray = gameObjectArray;
     }
 
     emit(origin, direction){
         console.log("emit projectile")
+        console.log(this.projectilePrototype) 
+        let projectile = this.projectilePrototype.clone();
+
+        console.log(projectile)
+
+
+
+        //projectile.position.copy(origin);
+        //projectile.velocity.copy(direction.clone().multiplyScalar(10));
+        //this.gameObjectArray.add(projectile)
+        //console.log(projectile);
+    }
+}
+
+export class Inventory extends Component {
+    constructor(gameObject, primary, secondary){
+        super(gameObject);
+        this.primary = primary;
+        this.secondary = secondary;
+
+        this.primary.active = true;
+        this.primary.transform.visible = true;
+
+        this.secondary.active = false;
+        this.secondary.transform.visible = false;
+
+
+
+        this.gameObject.subscribe("toggleGun", (e) => {
+            this.toggle(this.primary);
+            this.toggle(this.secondary);
+            console.log("toggleGun");
+        })
+    }
+
+    toggle(gun){
+        gun.transform.visible = !gun.transform.visible;
+        gun.active = !gun.active;
     }
 }
 
@@ -159,8 +199,6 @@ export class WeaponController extends Component {
 
         this._firing = false;
         this._hud = hud;
-        //this._rotation  = new THREE.Quaternion();
-        //this._origin    = new THREE.Vector3();
 
         this._reloading = false;
         this._reloadTime = 2;
@@ -168,12 +206,14 @@ export class WeaponController extends Component {
         this._ammo = this._fullAmmoCapacity = this._hud.ammo = ammoCapacity;
 
         this.gameObject.subscribe("reload", () => {
-            this._reloading = true;
-            this._hud.reloading()
+            if (this.gameObject.active){
+                this._reloading = true;
+                this._hud.reloading()
+            }
         })
 
-        this.gameObject.subscribe("firing", (event) => {
-            this._firing = event.firing;
+        this.gameObject.subscribe("trigger", (event) => {
+            if (this.gameObject.active) this._firing = event.firing;
         })
         
         this._duration =  1 / (firingRate / 60);

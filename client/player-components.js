@@ -134,12 +134,12 @@ export class PlayerInput extends Component{ // should also move the camera
 
    _mouseDownCallback(){
         this.firing = true;
-        this.gameObject.publish("firing", {firing: true});
+        this.gameObject.publish("trigger", {firing: true});
    }
 
    _mouseUpCallback(){
         this.firing = false;
-        this.gameObject.publish("firing", {firing: false});
+        this.gameObject.publish("trigger", {firing: false});
    }
 
     _onKeyDown(event){
@@ -168,6 +168,9 @@ export class PlayerInput extends Component{ // should also move the camera
                 this.keys.reload = true; 
                 this.gameObject.publish("reload", true);
                 break;
+
+            case 69: // e
+                this.gameObject.publish("toggleGun", "whatever");
         }
     }
 

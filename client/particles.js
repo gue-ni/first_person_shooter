@@ -215,7 +215,7 @@ export class BulletImpact extends ParticleSystem {
 }
 
 export class Smoke extends ParticleSystem {
-    constructor(parent, source){
+    constructor(parent, source = new THREE.Vector3()){
         super(parent, 1000, 10, 5,'./assets/textures/smoke.png');
         this._source = source;
     }
