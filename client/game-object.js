@@ -142,8 +142,8 @@ export class GameObjectArray {
 
 	_removeQueued() {
 		if (this.toRemove.size) {
-            this.toRemove.forEach( el => {
-                el.destroy();
+            this.toRemove.forEach( element => {
+                element.destroy();
             })
 			this.array = this.array.filter(element => !this.toRemove.has(element));
 			this.toRemove.clear();

@@ -40,7 +40,7 @@ export class ParticleSystem {
         this.startSize          = 0.1;
 		this.particleLifetime   = particleLifetime;
         this.active             = true;
-        this.alphaDegrading     = 0.2;
+        this.alphaDegrading     = 0.5;
         this.scaleValue         = 0.1;
 
         this._particles = []

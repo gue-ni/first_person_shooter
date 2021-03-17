@@ -62,7 +62,7 @@ window.addEventListener('resize', () => {
 })
 
 const map_width = 50, map_depth = 50, map_height = 80
-const hitscanBullets 	        = []
+const rays         	    = []
 const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
@@ -98,7 +98,7 @@ const init = async function(){
 	gameData = await json.json();
    
     // create player
-    player = factory.createPlayer(hitscanBullets, projectiles)
+    player = factory.createPlayer(rays, projectiles)
     console.log(player.id);
 
     respawnBtn.addEventListener("click", () => {
@@ -219,14 +219,15 @@ const play = function(dt) {
 			let aabb = gameObject.getComponent("aabb");
 			if (aabb){
 				for (let otherObject of hashGrid.possible_aabb_collisions(aabb)){
-					if (otherObject != gameObject) otherObject.collide(aabb); 
+					//if (otherObject != gameObject) otherObject.collide(aabb); 
+					if (otherObject != gameObject) aabb.collide2(otherObject); 
 				}
 			}
 
             if (gameObject.lifetime){
                 gameObject.lifetime -= dt;
                 if (gameObject.lifetime <= 0){
-                    console.log("removing due to lifetime");
+                    console.log("lifetime ran out");
                     gameObjectArray.remove(gameObject);
                 }
             }
@@ -250,7 +251,7 @@ const play = function(dt) {
 		}
 	});
 
-    for (let bullet of hitscanBullets){
+    for (let bullet of rays){
         for (let aabb of hashGrid.possible_ray_collisions(bullet)){
             let intersection = bullet.intersectBox(aabb.box, impactPoint)
             if (intersection){
@@ -266,8 +267,8 @@ const play = function(dt) {
 
 		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
 
-		if (hitscanBullets.length > 0){
-			data['bullets'] = hitscanBullets;
+		if (rays.length > 0){
+			data['bullets'] = rays;
 		}
 		
 		if (data.player_data || data.bullets){
@@ -276,7 +277,7 @@ const play = function(dt) {
 		}
 	}
 
-	hitscanBullets.length = 0;
+	rays.length = 0;
 
 	// debug
 	//let dir = player.direction.normalize().clone()

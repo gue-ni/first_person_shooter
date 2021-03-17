@@ -40,8 +40,6 @@ export class HitscanEmitter extends Component {
     }
 }
 
-
-
 export class ProjectileEmitter extends HitscanEmitter {
     constructor(gameObject, projectiles, gameObjectArray){
         super(gameObject, projectiles);
@@ -62,6 +60,7 @@ export class ProjectileEmitter extends HitscanEmitter {
 
         projectile.addComponent(new Physics(projectile));
         projectile.addComponent(new AABB(projectile, size));
+        projectile.addComponent(new Explosive(projectile));
        
         projectile.lifetime = 2;
         
@@ -96,6 +95,18 @@ export class Inventory extends Component {
     toggle(gun){
         gun.transform.visible = !gun.transform.visible;
         gun.active = !gun.active;
+    }
+}
+
+export class Explosive extends Component {
+    constructor(gameObject){
+        super(gameObject);
+
+        console.log("creating explosive")
+
+        this.gameObject.subscribe("collision", (event) => {
+            console.log("exploding now");
+        })
     }
 }
 

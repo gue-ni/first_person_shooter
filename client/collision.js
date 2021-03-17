@@ -34,8 +34,57 @@ export class AABB extends Component {
         this.box.translate(this._offset)
     }
 
+    collide2(aabb2){
+        let aabb = this;
+
+		if (aabb2.box.intersectsBox(aabb.box)){
+
+            this.gameObject.publish("collision", "whatever");
+            
+			let d0, d1;
+			if (aabb2.gameObject.velocity.length() < aabb.gameObject.velocity.length()){
+				d0 = aabb.box.max.x - aabb2.box.min.x
+				d1 = aabb2.box.max.x - aabb.box.min.x
+				let x = (d0 < d1 ? d0 : -d1)
+
+				d0 = aabb.box.max.y - aabb2.box.min.y
+				d1 = aabb2.box.max.y - aabb.box.min.y
+				let y = (d0 < d1 ? d0 : -d1)
+
+				d0 = aabb.box.max.z - aabb2.box.min.z
+				d1 = aabb2.box.max.z - aabb.box.min.z
+				let z = (d0 < d1 ? d0 : -d1)
+
+				if (Math.abs(x) > Math.abs(y) && Math.abs(z) > Math.abs(y)){
+					aabb.gameObject.position.setY(aabb.gameObject.position.y-y)
+					aabb.gameObject.velocity.setY(0)
+					return true
+				}
+
+				if (Math.abs(y) > Math.abs(x) && Math.abs(z) > Math.abs(x)){
+					aabb.gameObject.position.setX(aabb.gameObject.position.x-x)  
+					aabb.gameObject.velocity.setX(0)
+					return true
+				}
+
+				if (Math.abs(y) > Math.abs(z) && Math.abs(x) > Math.abs(z)){
+					aabb.gameObject.position.setZ(aabb.gameObject.position.z-z)  
+					aabb.gameObject.velocity.setZ(0)
+					return true
+				}
+			}
+		} else {
+			return false;
+		}
+
+    }
+
 	collide(aabb){
 		if (this.box.intersectsBox(aabb.box)){
+
+            //console.log("collsion")
+
+            this.gameObject.publish("collision", "whatever");
 
 			let d0, d1;
 			if (this.gameObject.velocity.length() < aabb.gameObject.velocity.length()){
