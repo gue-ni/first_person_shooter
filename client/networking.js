@@ -4,6 +4,7 @@ import { Component } from "./components.js";
 export class NetworkController {
     constructor(websocket){
         this.websocket = websocket;
+        this.id = Math.random() * 1000000;
 
         // changes to connected objects
         this.connected    = [];
@@ -12,8 +13,8 @@ export class NetworkController {
         // information concerning everyone
         this.projectile = [];
         this.rays       = [];
-        this.w_objects    = new Map();
-        this.r_objects    = new Map();
+        this.w_objects    = {};
+        this.r_objects    = {};
         
         // information that only concerns the player
         this.player = {
@@ -31,17 +32,19 @@ export class NetworkController {
     }
 
     sync(){
-        //console.log(this.w_objects)
 
-        let data = {};
-
-        for (let object of this.w_objects){
-            
+        let data = {
+            id : this.id,
+            objects: this.w_objects
+        }
+        
+	    if (this.websocket.readyState === WebSocket.OPEN){
+            this.websocket.send(JSON.stringify(data));
         }
     }
 
     write(id, value){
-        this.w_objects.set(id, value);
+        this.w_objects[id] = value;
     }
 }
 
@@ -53,8 +56,10 @@ export class ActiveNetworkComponent extends Component {
 
     update(_){
         let value = {
-            position: this.gameObject.position,
-            direction: this.gameObject.direction
+		    pd: [  
+                this.gameObject.position.x,  this.gameObject.position.y, this.gameObject.player.position.z, 
+                this.gameObject.direction.x, this.gameObject.direction.y, this.gameObject.player.direction.z 
+            ]
         }
 
         this.network.write(this.gameObject.id, value)

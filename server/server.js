@@ -26,7 +26,7 @@ for(let pos of gameData.boxes){
 
 //   id     pos    dir
 // { 123: [x,y,z, x,y,z], 234: [x,y,z, x,y,z]}
-const PLAYERS = {};
+const OBJECTS = {};
 const SOCKETS = {};
 
 wss.on('connection', (ws) => {
@@ -51,8 +51,8 @@ wss.on('connection', (ws) => {
             // notify user of other connected players
             let connected_players = []
 
-            for (let player_id in PLAYERS){
-                connected_players.push({'id': player_id, 'player_data': PLAYERS[player_id]})
+            for (let player_id in OBJECTS){
+                connected_players.push({'id': player_id, 'player_data': OBJECTS[player_id]})
             }
 
             if (connected_players.length > 0){
@@ -61,8 +61,8 @@ wss.on('connection', (ws) => {
     	}
 
     	if (data.player_data){
-    		PLAYERS[id] = data.player_data;
-            response.players = PLAYERS;
+    		OBJECTS[id] = data.player_data;
+            response.players = OBJECTS;
     	}
         /*
     	if (data.bullets){
@@ -113,7 +113,7 @@ wss.on('connection', (ws) => {
     	}    
         */
 
-        console.log(PLAYERS)
+        console.log(OBJECTS)
         ws.send(JSON.stringify(response));
 	});
 
@@ -124,7 +124,7 @@ wss.on('connection', (ws) => {
                 client.send(JSON.stringify({disconnected: id}))
             }
         });
-		delete(PLAYERS[id]);
+		delete(OBJECTS[id]);
         delete(SOCKETS[id]);
 	})
 });
