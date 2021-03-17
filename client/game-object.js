@@ -20,15 +20,6 @@ export class GameObject {
         return Math.floor(Math.random() * 1000000000) // not really a good idea
     }
 
-    clone(){
-        // TODO implement
-        let clone = new GameObject(this.transform.parent);
-        clone.velocity.copy(this.velocity);
-        clone.position.copy(this.position);
-
-        return clone;
-    }
-
     subscribe(event, callback){
         
         if (!this.subscribers[event]){
@@ -79,11 +70,11 @@ export class GameObject {
 		}
 	}
 
-	remove(parent){
+	destroy(parent){
 		for (let component of this.components){
-			component.remove()
+			component.destroy()
 		}
-		//parent.remove(this.transform)
+		this.transform.parent.remove(this.transform)
 		//this.transform = undefined
 	}
 

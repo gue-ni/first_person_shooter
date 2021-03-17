@@ -9,7 +9,7 @@ export class Component {
 		this.name = this.constructor.name;
 	}
 	update(dt){}
-	remove(){}
+	destroy(){}
 }
 
 export class HUD {
@@ -81,7 +81,7 @@ export class Box extends Component {
 		this.gameObject.transform.add(this.mesh)
 	}
 
-	remove(){
+	destroy(){
 		this.mesh.geometry.dispose()
 		this.mesh.material.dispose()
 		this.mesh.parent.remove(this.mesh)

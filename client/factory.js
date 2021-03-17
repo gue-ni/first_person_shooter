@@ -52,9 +52,9 @@ export class Factory {
         this.gameObjectArray.add(primary);
 
         let secondary = new GameObject(player.fpv.transform);
-        secondary.addComponent(new WeaponController(secondary, hud, 30, 10));
+        secondary.addComponent(new WeaponController(secondary, hud, 200, 10));
         secondary.addComponent(new MuzzleFlash(secondary, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene)));
-        secondary.addComponent(new ProjectileEmitter(secondary, projectiles, this.createProjectile(), this.gameObjectArray));
+        secondary.addComponent(new ProjectileEmitter(secondary, projectiles, this.scene, this.gameObjectArray));
         secondary.addComponent(new EventRelay(secondary, player, ["trigger", "reload"]));
         secondary.addComponent(new Box(secondary, new THREE.Vector3(0.25,0.25,1), 13882323, false, false, new THREE.Vector3(0.1, -0.4, -0.1)))
         this.gameObjectArray.add(secondary);
