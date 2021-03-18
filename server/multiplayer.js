@@ -24,58 +24,70 @@ const OBJECTS = {};
 const SOCKETS = {};
 
 wss.on('connection', (ws) => {
-	let connectionId = -1;
+	let connId = -1;
 
 	ws.on('message', message => {
 		let data = JSON.parse(message);
     	let response = {};
 
-		if (connectionId == -1) { // first message
-        	connectionId = data.id;
-            
-            console.log(`new connection ${connectionId}`);
-            
-            SOCKETS[id] = ws;
+		if (connId == -1) { // first message
+        	connId = data.id;            
+            console.log(`new connection ${connId}`);
+            SOCKETS[connId] = ws;
 
-        	// notify users of new player
-            /*
             wss.clients.forEach( client => {
                 if (client !== ws && client.readyState === websocket.OPEN){
-                    client.send(JSON.stringify({connected: [{ 'id': connectionId, 'player_data': data.player_data}]}))
+                    client.send(JSON.stringify({ 
+                        'connected': { 
+                            'ids': [connId], 
+                            'objects': data.objects
+                        }
+                    }));
                 }
-            })
+            });
 
             // notify user of other connected players
-            let connected_players = []
-
-            for (let objectId in OBJECTS){
-                connected_players.push({'id': objectId, 'player_data': OBJECTS[objectId]})
+            let connected = []
+            for (const [id, _] of Object.entries(SOCKETS)){
+                if (id != connId) connected.push(id);
             }
 
-            if (connected_players.length > 0){
-                ws.send(JSON.stringify({connected: connected_players}))
+            ws.send(JSON.stringify({
+                'connected': {
+                    'ids': connected,
+                    'objects': OBJECTS
+                }
+            }));
+    	}
+
+    	if (data.objects){
+            for (const [id, object] of Object.entries(data.objects)){
+                object.connection = connId;
+                OBJECTS[id] = object;
             }
-            */
+            response.objects = OBJECTS;
     	}
 
-    	if (data.player_data){
-    		OBJECTS[id] = data.player_data;
-            response.players = OBJECTS;
-    	}
-
-        console.log(OBJECTS)
         ws.send(JSON.stringify(response));
 	});
 
 	ws.on('close',() => {
     	// notify the others of disconnected player
+
         wss.clients.forEach( client => {
             if (client !== ws && client.readyState === websocket.OPEN){
-                client.send(JSON.stringify({disconnected: id}))
+                client.send(JSON.stringify({disconnected: connId}))
             }
         });
-		delete(OBJECTS[id]);
-        delete(SOCKETS[id]);
+
+        for (let [id, object] of Object.entries(OBJECTS)){
+            if (object.connection == connId){
+                delete(OBJECTS[id]);
+            }
+        }
+
+        console.log(`lost connection ${connId}`);
+        delete(SOCKETS[connId]);
 	})
 });
 

@@ -208,59 +208,50 @@ const menu = function(dt){
 const play = function(dt) {
 
     // TODO 
-    // sync network objects
+    // add network objects
+    for (const [id, object] of Object.entries(network.connected)){
+        console.log(`creating object ${id}`)
+        factory.createNetworkPlayer(network, {'id': id});
+    }
 
+    network.connected = {};
 
 	gameObjectArray.forEach(gameObject => {
-        /*
-		if (!gameObject.local){ 
-			let pos_and_dir = network_data[gameObject.id];
-			if (pos_and_dir){
-				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
-				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
-				let look = new THREE.Vector3();
-				look.subVectors(gameObject.position, gameObject.direction);
-                look.setY(0)
-				gameObject.transform.lookAt(look);
-			}
-		} */
-        { 
-			gameObject.update(dt);
+        gameObject.update(dt);
 
-			let aabb = gameObject.getComponent("aabb");
-			if (aabb){
-				for (let otherObject of hashGrid.possible_aabb_collisions(aabb)){
-					if (otherObject != gameObject) aabb.collide2(otherObject); 
-				}
-			}
+        let aabb = gameObject.getComponent("aabb");
+        if (aabb){
+            for (let otherObject of hashGrid.possible_aabb_collisions(aabb)){
+                if (otherObject != gameObject) aabb.collide2(otherObject); 
+            }
+        }
 
-            if (gameObject.lifetime){
-                gameObject.lifetime -= dt;
-                if (gameObject.lifetime <= 0){
-                    console.log("removing gameObject");
-                    gameObjectArray.remove(gameObject);
-                }
+        if (gameObject.lifetime){
+            gameObject.lifetime -= dt;
+            if (gameObject.lifetime <= 0){
+                console.log("removing gameObject");
+                gameObjectArray.remove(gameObject);
             }
-            {
-                /*
-                if (gameObject.position.x > map_width/2-1){
-                    gameObject.position.x = map_width/2-1;
-                } else if (gameObject.position.x < -map_width/2+1){
-                    gameObject.position.x 		 = -map_width/2+1;
-                }
-                if (gameObject.position.z > map_depth/2-1){
-                    gameObject.position.z = map_depth/2-1;
-                } else if (gameObject.position.z < -map_depth/2+1){
-                    gameObject.position.z 		 = -map_depth/2+1;
-                }
-                if (gameObject.position.y > map_height-3){
-                    gameObject.position.y = map_height-3;
-                } else if (gameObject.position.y < -5){
-                    gameObject.position.y = -5;
-                    gameObject.velocity.y = -5;
-                }
-                */
+        }
+        {
+            /*
+            if (gameObject.position.x > map_width/2-1){
+                gameObject.position.x = map_width/2-1;
+            } else if (gameObject.position.x < -map_width/2+1){
+                gameObject.position.x 		 = -map_width/2+1;
             }
+            if (gameObject.position.z > map_depth/2-1){
+                gameObject.position.z = map_depth/2-1;
+            } else if (gameObject.position.z < -map_depth/2+1){
+                gameObject.position.z 		 = -map_depth/2+1;
+            }
+            if (gameObject.position.y > map_height-3){
+                gameObject.position.y = map_height-3;
+            } else if (gameObject.position.y < -5){
+                gameObject.position.y = -5;
+                gameObject.velocity.y = -5;
+            }
+            */
 		}
 	});
 

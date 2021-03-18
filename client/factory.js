@@ -9,7 +9,7 @@ import { Smoke } from './particles.js';
 import { CharacterController, PlayerInput } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory } from './weapon-components.js';
 import { LocalFSM, NetworkFSM } from './finite-state-machine.js';
-import { ActiveNetworkComponent } from './networking.js';
+import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js';
 
 export class Factory {
     constructor(scene, camera, listener, gameObjectArray, hashGrid){
@@ -27,6 +27,15 @@ export class Factory {
         return projectile;
     }
 
+    createNetworkPlayer(network, params){
+        let player = new GameObject(this.scene);
+        player.id = params.id;
+        //player.addComponent(new Box(player, { color: 0xff0000 }));
+        player.addComponent(new CharacterController(player, new NetworkFSM(player)))
+        player.addComponent(new PassiveNetworkComponent(player, network));
+        this.gameObjectArray.add(player);
+    }
+
     createPlayer(network){
         let player = new GameObject(this.scene)
         
@@ -34,7 +43,7 @@ export class Factory {
 
         player.addComponent(new PlayerInput(player, network, this.hashGrid))
         player.addComponent(new CharacterController(player, new LocalFSM(player)));
-        player.addComponent(new ActiveNetworkComponent(player, network));
+        player.addComponent(new ActiveNetworkComponent(player, network, "player"));
 
         player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
@@ -113,7 +122,6 @@ export class Factory {
         return testObject;
     }
 
-    createNetworkPlayer(){}
 }
 
 

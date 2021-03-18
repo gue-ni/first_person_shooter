@@ -86,13 +86,14 @@ export class NetworkFSM extends FiniteStateMachine {
 
         if (this._loaded){
             
-            if (input.forward){         this._setState("forward");
-            } else if(input.backward){  this._setState("backward");
-            } else if(input.left){      this._setState("left");
-            } else if (input.right){    this._setState("right");
-            } else {                    this._setState("idle")
+            if (input){
+                if (input.forward){         this._setState("forward");
+                } else if(input.backward){  this._setState("backward");
+                } else if(input.left){      this._setState("left");
+                } else if (input.right){    this._setState("right");
+                } else {                    this._setState("idle")
+                }
             }
-
             this.mixer.update(dt);
         }
     }
@@ -114,12 +115,14 @@ export class LocalFSM extends FiniteStateMachine {
     }
 
     update(input, dt){
-        if (input.forward){         this._setState("forward");
-        } else if(input.backward){  this._setState("backward");
-        } else if(input.left){      this._setState("left");
-        } else if (input.right){    this._setState("right");
-        } else {                    this._setState("idle")
-        }       
+        if (input){
+            if (input.forward){         this._setState("forward");
+            } else if(input.backward){  this._setState("backward");
+            } else if(input.left){      this._setState("left");
+            } else if (input.right){    this._setState("right");
+            } else {                    this._setState("idle")
+            }       
+        }
     }
 
     /*syncNetwork(network){

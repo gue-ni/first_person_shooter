@@ -58,10 +58,11 @@ export class PlayerInput extends Component{ // should also move the camera
         }
     }
 
-    update(dt){
-        //this.network.player.state = this.keys;
-        
+    _publishData(){
         this.gameObject.publish("input", { keys: this.keys, direction: this._direction });
+    }
+
+    update(dt){
 
         // update velocities
         let direction = this._direction.clone();
@@ -120,6 +121,8 @@ export class PlayerInput extends Component{ // should also move the camera
         this._direction.y = Math.sin(pitch*(Math.PI/180))
         this._direction.z = Math.sin(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
         this._direction.normalize()
+
+        this._publishData();
    }
 
    _mouseDownCallback(){
@@ -162,6 +165,8 @@ export class PlayerInput extends Component{ // should also move the camera
             case 69: // e
                 this.gameObject.publish("toggleGun", "whatever");
         }
+
+        this._publishData();
     }
 
     _onKeyUp(event){
@@ -173,6 +178,7 @@ export class PlayerInput extends Component{ // should also move the camera
             case 32:  this.keys.jump        = false; break;
             case 82:  this.keys.reload      = false; break;
         }
+        this._publishData();
     }
 }
 
