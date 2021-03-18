@@ -95,7 +95,7 @@ export class GameObject {
 		for (let component of this.components){
 			component.destroy()
 		}
-		this.transform.parent.remove(this.transform)
+		//this.transform.parent.remove(this.transform)
 	}
 
     set position(p){ this.transform.position.set(p.x, p.y, p.z); }	
@@ -161,9 +161,6 @@ export class GameObjectArray {
 
 	_removeQueued() {
 		if (this.toRemove.size) {
-            this.toRemove.forEach( element => {
-                element.destroy();
-            })
 			this.array = this.array.filter(element => !this.toRemove.has(element));
 			this.toRemove.clear();
 		}

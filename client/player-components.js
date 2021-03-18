@@ -63,7 +63,6 @@ export class PlayerInput extends Component{ // should also move the camera
     }
 
     update(dt){
-
         // update velocities
         let direction = this._direction.clone();
         direction.setY(0);
@@ -179,6 +178,22 @@ export class PlayerInput extends Component{ // should also move the camera
             case 82:  this.keys.reload      = false; break;
         }
         this._publishData();
+    }
+}
+
+export class Health extends Component {
+    constructor(gameObject){
+        super(gameObject);
+        this.value = 100;
+
+        this.gameObject.subscribe("damage", (event) => {
+            this.value -= event;
+            console.log(this.value)
+        })
+    }
+
+    reset(){
+        this.value = 100;
     }
 }
 

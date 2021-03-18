@@ -40,28 +40,35 @@ export class NetworkController {
             for (let id of data.connected.ids){
                 console.log(`new connection: ${id}`)
             }
-
             this.connected = data.connected.objects;
-
-            for (let [_, object] of Object.entries(this.connected)){
-                //console.log(object)
-            }
         }
 
         if (data.objects){
             this.r_objects = data.objects;
         }
+
+        if (data.hit){
+            for (let hit of data.hit){
+                this.r_objects[hit.id].hit = hit.impact;   
+            }
+        }
+
+        if (data.damage){
+            this.r_objects[data.damage.id].damage = data.damage.damage;
+        }
     }
 
     sync(){
-
         let data = {
             id : this.id,
             objects: this.w_objects
         }
         
+        if (this.rays.length > 0){
+            data.rays = this.rays;
+        }
+
 	    if (this.websocket.readyState === WebSocket.OPEN){
-            //console.log(data.objects)
             this.websocket.send(JSON.stringify(data));
         }
     }
@@ -79,7 +86,8 @@ export class NetworkController {
 value = {
     'pd': [x,y,z, x,y,z],  // position and direction
     's': ['forward'],     // character state
-    'h': 95,              // player health   
+    'd': 10,               // damage to take
+    'h':                    // hit something              
 }
 */
 
@@ -102,6 +110,20 @@ export class ActiveNetworkComponent extends Component {
     }
 
     update(_){
+        let r = this.network.read(this.gameObject.id);
+
+        if (r){
+            if (r.hit){
+                //console.log(`hit ${r.hit}`)
+                this.gameObject.publish("hit", r.hit)
+            }
+
+            if (r.damage){
+                //console.log(`taking damage ${r.damage}`)
+                this.gameObject.publish("damage", r.damage);
+            }
+        }
+
         this.value.pd = [
             this.gameObject.position.x,  this.gameObject.position.y, this.gameObject.position.z, 
             this.gameObject.direction.x, this.gameObject.direction.y, this.gameObject.direction.z 

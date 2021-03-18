@@ -5,7 +5,7 @@ import { Box, EventRelay, HUD, Physics, SimpleGLTFModel } from './components.js'
 import { FirstPersonCamera } from './player.js';
 import { AABB } from './collision.js';
 import { Smoke } from './particles.js';
-import { CharacterController, PlayerInput } from './player-components.js';
+import { CharacterController, Health, PlayerInput } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory } from './weapon-components.js';
 import { LocalFSM, NetworkFSM } from './finite-state-machine.js';
 import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js';
@@ -48,14 +48,14 @@ export class Factory {
         player.addComponent(new PlayerInput(player, network, this.hashGrid))
         player.addComponent(new CharacterController(player, new LocalFSM(player)));
         player.addComponent(new ActiveNetworkComponent(player, network, "player"));
-
+        player.addComponent(new Health(player))
         player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,1)))
         
-        player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))       
+        player.fpv = player.addComponent(new FirstPersonCamera(player, this.camera))       
         
         let primary = new GameObject(player.fpv.transform);
-        primary.addComponent(new HitscanEmitter(primary, network.rays));
+        primary.addComponent(new HitscanEmitter(primary, network.rays, player.id));
         primary.addComponent(new WeaponController(primary, hud, 620, 30));
         primary.addComponent(new EventRelay(primary, player, ["trigger", "reload"]));
         primary.addComponent(new MuzzleFlash(primary, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene)));

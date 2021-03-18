@@ -14,9 +14,10 @@ export class BulletRay extends THREE.Ray {
 
 // emitts bullet rays
 export class HitscanEmitter extends Component {
-    constructor(gameObject, bullets){
+    constructor(gameObject, bullets, owner){
         super(gameObject);
 
+        this._owner = owner;
         this.bullets = bullets;
         this._rotation  = new THREE.Quaternion();
         this._origin    = new THREE.Vector3();
@@ -27,7 +28,7 @@ export class HitscanEmitter extends Component {
     }
 
     emit(origin, direction){
-        this.bullets[this.bullets.length] = new BulletRay(origin, direction, 1, 1);
+        this.bullets[this.bullets.length] = new BulletRay(origin, direction, this._owner, 10);
     }
 
     emitFromTransform(transform){

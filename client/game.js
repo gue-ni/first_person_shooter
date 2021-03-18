@@ -82,16 +82,15 @@ const killPlayer = function(){
     hud.style.display       = 'none';
     menuEl.style.display    = 'block';
     gameObjectArray.remove(player);
-    player.position.set(0,-10, 0);
 }
 
 const respawnPlayer = function(){
-    player.position.set(Math.random()*20-10, 5, Math.random()*20-10);
-    player.health.reset()
-    gameObjectArray.add(player);
+    console.log("respawn")
+    dead = false;
     hud.style.display       = 'block';
     menuEl.style.display    = 'none';
-    dead = false;
+    player.getComponent("Health").reset()
+    gameObjectArray.add(player);
 }
 
 const init = async function(){
@@ -176,32 +175,6 @@ const init = async function(){
 	requestAnimationFrame(game)
 }
 
-const menu = function(dt){
-	gameObjectArray.forEach(gameObject => {
-		if (!gameObject.local){ 
-
-			let pos_and_dir = network_data[gameObject.id];
-			if (pos_and_dir){
-				gameObject.position.set( pos_and_dir[0], pos_and_dir[1], pos_and_dir[2]);
-				gameObject.direction.set(pos_and_dir[3], pos_and_dir[4], pos_and_dir[5]);
-
-				let look = new THREE.Vector3();
-				look.subVectors(gameObject.position, gameObject.direction);
-				gameObject.transform.lookAt(look);
-			}
-        }
-    });
-
-	if (websocket.readyState === WebSocket.OPEN){
-        let data = {'id': player.id};
-		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
-	    websocket.send(JSON.stringify(data));
-    }
-
-    stats.update()	
-	renderer.render(scene, menuCamera)
-}
-
 const play = function(dt) {
 
     // TODO: add network objects
@@ -231,11 +204,18 @@ const play = function(dt) {
             if (gameObject.lifetime <= 0){
                 console.log("removing gameObject");
                 gameObjectArray.remove(gameObject);
+                gameObject.destroy();
             }
         }
 	});
 
-    network.disconnected = [];
+    let health = player.getComponent("Health");
+    if (health){
+        if (health.value <= 0 && !dead){
+            console.log("kill player")
+            killPlayer();
+        }
+    }
 
     for (let ray of network.rays){
         for (let aabb of hashGrid.possible_ray_collisions(ray)){
@@ -243,10 +223,11 @@ const play = function(dt) {
             if (intersection) particleSystem.impact(impactPoint)
         }
     }
-
     particleSystem.update(dt);
+
     network.sync();
 	network.rays.length = network.explosions.length = 0;
+    network.disconnected = [];
 
 	// debug
 	//let dir = player.direction.normalize().clone()
@@ -254,7 +235,7 @@ const play = function(dt) {
 	//camera.lookAt(player.position)
 	
 	stats.update()	
-	renderer.render(scene, camera)
+	renderer.render(scene, dead ? menuCamera : camera)
 }
 
 const game = function(now){
@@ -265,11 +246,7 @@ const game = function(now){
 	then = now;
 	if (dt > 0.1) dt = 0.1;
 
-    if (!dead){
-        play(dt);
-    } else {
-        menu(dt);
-    }
+    play(dt);
 }
 
 init();
