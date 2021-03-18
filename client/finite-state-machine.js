@@ -45,7 +45,7 @@ export class NetworkFSM extends FiniteStateMachine {
         (async () => {
             const loader = new GLTFLoader();
             const object = await new Promise((resolve, reject) => {
-                loader.load('./assets/important/combine3.glb', data => resolve(data), null, reject);
+                loader.load('./assets/objects/combine3.glb', data => resolve(data), null, reject);
             });
 
             this.model = object.scene;

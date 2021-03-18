@@ -63,7 +63,7 @@ export class Factory {
         primary.addComponent(new WeaponController(primary, hud, 620, 30));
         primary.addComponent(new EventRelay(primary, player, ["trigger", "reload"]));
         primary.addComponent(new MuzzleFlash(primary, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene)));
-        primary.addComponent(new SimpleGLTFModel(primary, './assets/AUG2.glb', {
+        primary.addComponent(new SimpleGLTFModel(primary, './assets/objects/AUG2.glb', {
             position: new THREE.Vector3(0.1,-0.4,-0.1),
             scale: new THREE.Vector3(0.1,0.1,0.1),
             rotation: new THREE.Vector3(0,-Math.PI,0)

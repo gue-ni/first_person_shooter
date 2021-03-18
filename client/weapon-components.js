@@ -162,7 +162,7 @@ export class MuzzleFlash extends Component {
         (async () => {
             const audioLoader = new THREE.AudioLoader();
             const buffer = await new Promise((resolve, reject) => {
-                audioLoader.load('./assets/audio/used/machine_gun_edited.mp3', data => resolve(data), null, reject);
+                audioLoader.load('./assets/audio/machine_gun_edited.mp3', data => resolve(data), null, reject);
             });
             this.gunshot = new THREE.PositionalAudio(listener);
             this.gunshot.setBuffer(buffer);
