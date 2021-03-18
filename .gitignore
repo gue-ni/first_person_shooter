@@ -1,9 +1,6 @@
-src/assets/downloaded/
-client/assets/downloaded/
 three/
-three.js-master/
+resources/
 example/
-assets/downloaded/
 doc/
 
 *.jpg
@@ -14,15 +11,8 @@ doc/
 *.jpeg
 *.gif 
 *.webp
-
-p5.js
-three.js
-three.module.js
-
-
-
-doc/
 *.fbx
 *.blend
 *.blend1
 *.glb
+

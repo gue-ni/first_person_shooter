@@ -12,7 +12,7 @@ export class FiniteStateMachine {
 
     update(input, dt){}
 
-    //syncNetwork(network){}
+    destroy(){}
 
     _setState(state){
         if (this._current !== null && this._current.name === state){
@@ -39,6 +39,10 @@ export class NetworkFSM extends FiniteStateMachine {
         super();
         this.gameObject = gameObject;
         this.init();
+    }
+
+    destroy(){
+
     }
 
     init(){
@@ -73,20 +77,9 @@ export class NetworkFSM extends FiniteStateMachine {
             this._loaded = true;
         })();
     }
-    /*
-    syncNetwork(network){
-        // TODO
-        if (this._loaded){
-            this._setState()        
-        }
-    }
-    */
-
 
     update(input, dt){
-
         if (this._loaded){
-            
             if (input){
                 if (input.forward){         this._setState("forward");
                 } else if(input.backward){  this._setState("backward");
@@ -115,9 +108,9 @@ export class LocalFSM extends FiniteStateMachine {
         this._add("right",      new State("right"))
     }
 
-    update(input, dt){
+    update(input, _){
         if (input){
-            if (input.forward){         this._setState("forward");
+            if       (input.forward){   this._setState("forward");
             } else if(input.backward){  this._setState("backward");
             } else if(input.left){      this._setState("left");
             } else if (input.right){    this._setState("right");
@@ -125,10 +118,6 @@ export class LocalFSM extends FiniteStateMachine {
             }       
         }
     }
-
-    /*syncNetwork(network){
-        network.player.state = this._current.name;
-    }*/
 }
 
 export class State {

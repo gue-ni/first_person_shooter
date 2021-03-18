@@ -195,6 +195,10 @@ export class CharacterController extends Component {
         });
     }
 
+    destroy(){
+        this.fsm.destroy();
+    }
+
     update(dt){
         this.fsm.update(this.keys, dt);
     }

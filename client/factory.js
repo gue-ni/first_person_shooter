@@ -1,10 +1,9 @@
 import * as THREE from './three/build/three.module.js';
 
-import { GameObject, GameObjectArray} from './game-object.js';
+import { GameObject, GameObjectArray } from './game-object.js';
 import { Box, EventRelay, HUD, Physics, SimpleGLTFModel } from './components.js';
-import { WASDMovement, FirstPersonCamera, Health } from './player.js';
+import { FirstPersonCamera } from './player.js';
 import { AABB } from './collision.js';
-import { HashGrid } from './hashgrid.js';
 import { Smoke } from './particles.js';
 import { CharacterController, PlayerInput } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory } from './weapon-components.js';
@@ -51,12 +50,9 @@ export class Factory {
         player.addComponent(new ActiveNetworkComponent(player, network, "player"));
 
         player.addComponent(new Physics(player))
-        player.addComponent(new AABB(player, new THREE.Vector3(1,2,0.5)))
-        //player.addComponent(new Box(player, new THREE.Vector3(1,2,1), 10066329,false, false))
+        player.addComponent(new AABB(player, new THREE.Vector3(1,2,1)))
         
-        //player.addComponent(new Health(player));
-        player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))
-       
+        player.fpv      = player.addComponent(new FirstPersonCamera(player, this.camera))       
         
         let primary = new GameObject(player.fpv.transform);
         primary.addComponent(new HitscanEmitter(primary, network.rays));

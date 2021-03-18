@@ -1,13 +1,10 @@
 import * as THREE from './three/build/three.module.js';
 import Stats from './three/examples/jsm/libs/stats.module.js'
-import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 
 import { GameObject, GameObjectArray} from './game-object.js';
-import { Box, Physics, SimpleGLTFModel } from './components.js';
 import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
-import { AABB } from './collision.js';
 import { NetworkController } from './networking.js';
 
 const canvas  		= document.querySelector('#canvas');
@@ -128,8 +125,8 @@ const init = async function(){
     factory.createGroundBox(new THREE.Vector3(0,-4,0), new THREE.Vector3(60,2,60))
 
     // testing
-    let testObject = new GameObject(scene);
-    gameObjectArray.add(testObject);
+    //let testObject = new GameObject(scene);
+    //gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
@@ -207,14 +204,14 @@ const menu = function(dt){
 
 const play = function(dt) {
 
-    // TODO 
-    // add network objects
+    // TODO: add network objects
     for (const [id, object] of Object.entries(network.connected)){
         console.log(`creating object ${id}`)
         factory.createNetworkPlayer(network, {'id': id});
     }
-
     network.connected = {};
+
+    // TODO: remove network objects
 
 	gameObjectArray.forEach(gameObject => {
         gameObject.update(dt);
@@ -233,60 +230,19 @@ const play = function(dt) {
                 gameObjectArray.remove(gameObject);
             }
         }
-        {
-            /*
-            if (gameObject.position.x > map_width/2-1){
-                gameObject.position.x = map_width/2-1;
-            } else if (gameObject.position.x < -map_width/2+1){
-                gameObject.position.x 		 = -map_width/2+1;
-            }
-            if (gameObject.position.z > map_depth/2-1){
-                gameObject.position.z = map_depth/2-1;
-            } else if (gameObject.position.z < -map_depth/2+1){
-                gameObject.position.z 		 = -map_depth/2+1;
-            }
-            if (gameObject.position.y > map_height-3){
-                gameObject.position.y = map_height-3;
-            } else if (gameObject.position.y < -5){
-                gameObject.position.y = -5;
-                gameObject.velocity.y = -5;
-            }
-            */
-		}
 	});
 
     for (let ray of network.rays){
         for (let aabb of hashGrid.possible_ray_collisions(ray)){
             let intersection = ray.intersectBox(aabb.box, impactPoint)
-            if (intersection){
-                particleSystem.impact(impactPoint)
-            }
+            if (intersection) particleSystem.impact(impactPoint)
         }
     }
 
     particleSystem.update(dt);
     network.sync();
 	network.rays.length = 0;
- 
-    /*
-	if (websocket.readyState === WebSocket.OPEN){
-        //console.log("send")
-
-		let data = {}
-
-		data['player_data'] = [  player.position.x, player.position.y, player.position.z, player.direction.x, player.direction.y, player.direction.z ];
-
-		if (rays.length > 0){
-			data['bullets'] = rays;
-		}
-		
-		if (data.player_data || data.bullets){
-			data['id'] = player.id
-			websocket.send(JSON.stringify(data));
-		}
-	}
-    */
-
+    network.explosions.length = 0;
 
 	// debug
 	//let dir = player.direction.normalize().clone()
@@ -311,58 +267,5 @@ const game = function(now){
         menu(dt);
     }
 }
-
-/*
-websocket.onmessage = function (event) {
-	let data = JSON.parse(event.data);
-
-	if (data.hit){
-		crosshair.innerText = "x"
-	} else {
-		crosshair.innerText = `+`
-	}
-
-	if (data.players){ network_data = data.players }
-
-	if (data.connected){
-		for (let player of data.connected){
-			console.log(`player ${player.id} connected`);
-			let newGameObject = new GameObject(scene);
-			newGameObject.id = player.id;
-			newGameObject.local = false;
-			newGameObject.position.set( player.player_data[0], player.player_data[1], player.player_data[2]);
-			newGameObject.direction.set(player.player_data[3], player.player_data[4], player.player_data[5]);
-			newGameObject.addComponent(new Physics(newGameObject));
-			newGameObject.addComponent(new AABB(newGameObject, new THREE.Vector3(1,2,1)));
-			newGameObject.addComponent(new Box(newGameObject,  new THREE.Vector3(1,2,0.5), gameData.colorscheme.dark_grey, false, false));
-
-			gameObjectArray.add(newGameObject);
-		}
-	}
-
-	if (data.disconnected){ // TODO implement
-		console.log(`player ${data.disconnected} disconnected`)
-		let gameObject = gameObjectArray.get(data.disconnected)
-        if (gameObject){
-            gameObject.remove(scene);
-            gameObjectArray.remove(gameObject)
-        }
-	}
-
-	if (data.hit_by){
-        //console.log(data);
-		taking_hits.style.display = 'block'
-        player.health.health -= data.damage;
-
-        if (player.health.health <= 0){
-            //player.position.set(0,-5,0);
-
-            killPlayer(player);
-        }
-	} else {
-		taking_hits.style.display = 'none'
-	}
-};
-*/
 
 init();

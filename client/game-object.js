@@ -12,12 +12,12 @@ export class GameObject {
 
 		this.velocity   = new THREE.Vector3();
 		this.direction  = new THREE.Vector3(1,0,0);
-        this.active = true;
-        this.lifetime = undefined;
+        this.active     = true;
+        this.lifetime   = undefined;
 	}
 
     _generateId(){
-        return Math.floor(Math.random() * 1000000000) // not really a good idea
+        return Math.floor(Math.random() * 1000000) // not really a good idea
     }
 
     subscribe(event, callback){
@@ -70,24 +70,43 @@ export class GameObject {
 		}
 	}
 
-	destroy(parent){
+    keepInBounds(map_width, map_height, map_depth){
+        if (this.position.x > map_width/2-1){
+            this.position.x = map_width/2-1;
+        } else if (this.position.x < -map_width/2+1){
+            this.position.x 		 = -map_width/2+1;
+        }
+
+        if (this.position.z > map_depth/2-1){
+            this.position.z = map_depth/2-1;
+        } else if (this.position.z < -map_depth/2+1){
+            this.position.z 		 = -map_depth/2+1;
+        }
+
+        if (this.position.y > map_height-3){
+            this.position.y = map_height-3;
+        } else if (this.position.y < -5){
+            this.position.y = -5;
+            this.velocity.y = -5;
+        }
+    }
+
+	destroy(){
 		for (let component of this.components){
 			component.destroy()
 		}
 		this.transform.parent.remove(this.transform)
-		//this.transform = undefined
 	}
 
     set position(p){ this.transform.position.set(p.x, p.y, p.z); }	
-	get position(){  return this.transform.position; }
+	
+    get position() { return this.transform.position; }
     
     get root(){
         let tmp = this.transform;
-
         while (tmp.parent !== null){
             tmp = tmp.parent;
         }
-
         return tmp;
     }
 }
