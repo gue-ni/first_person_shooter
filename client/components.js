@@ -47,7 +47,6 @@ export class SimpleGLTFModel extends Component {
     constructor(gameObject, path, params){
         super(gameObject);
 
-
         let rotation = params.rotation ? params.rotation : new THREE.Vector3();
         let position = params.position ? params.position : new THREE.Vector3();
         let scale    = params.scale    ? params.scale : new THREE.Vector3(1,1,1);
@@ -66,6 +65,13 @@ export class SimpleGLTFModel extends Component {
             this.gameObject.transform.add(this.model)
         })();
     }
+
+    destroy(){
+		this.model.geometry.dispose()
+		this.model.material.dispose()
+		this.model.parent.remove(this.model)
+	}
+
 }
 
 export class Box extends Component {

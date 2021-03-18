@@ -24,22 +24,22 @@ const OBJECTS = {};
 const SOCKETS = {};
 
 wss.on('connection', (ws) => {
-	let connId = -1;
+	let cid = -1;
 
 	ws.on('message', message => {
 		let data = JSON.parse(message);
     	let response = {};
 
-		if (connId == -1) { // first message
-        	connId = data.id;            
-            console.log(`new connection ${connId}`);
-            SOCKETS[connId] = ws;
+		if (cid == -1) { // first message
+        	cid = data.id;            
+            console.log(`new connection ${cid}`);
+            SOCKETS[cid] = ws;
 
             wss.clients.forEach( client => {
                 if (client !== ws && client.readyState === websocket.OPEN){
                     client.send(JSON.stringify({ 
                         'connected': { 
-                            'ids': [connId], 
+                            'ids': [cid], 
                             'objects': data.objects
                         }
                     }));
@@ -49,7 +49,7 @@ wss.on('connection', (ws) => {
             // notify user of other connected players
             let connected = []
             for (const [id, _] of Object.entries(SOCKETS)){
-                if (id != connId) connected.push(id);
+                if (id != cid) connected.push(id);
             }
 
             ws.send(JSON.stringify({
@@ -62,7 +62,7 @@ wss.on('connection', (ws) => {
 
     	if (data.objects){
             for (const [id, object] of Object.entries(data.objects)){
-                object.connection = connId;
+                object.connection = cid;
                 OBJECTS[id] = object;
             }
             response.objects = OBJECTS;
@@ -74,20 +74,28 @@ wss.on('connection', (ws) => {
 	ws.on('close',() => {
     	// notify the others of disconnected player
 
-        wss.clients.forEach( client => {
-            if (client !== ws && client.readyState === websocket.OPEN){
-                client.send(JSON.stringify({disconnected: connId}))
-            }
-        });
+        let disconnected_objects = [];
 
         for (let [id, object] of Object.entries(OBJECTS)){
-            if (object.connection == connId){
+            if (object.connection == cid){
                 delete(OBJECTS[id]);
+                disconnected_objects.push(id);
             }
         }
 
-        console.log(`lost connection ${connId}`);
-        delete(SOCKETS[connId]);
+        wss.clients.forEach( client => {
+            if (client !== ws && client.readyState === websocket.OPEN){
+                client.send(JSON.stringify({
+                    'disconnected': {
+                        'id': cid,
+                        'objects': disconnected_objects
+                    }
+                }))
+            }
+        });
+
+        console.log(`lost connection ${cid}`);
+        delete(SOCKETS[cid]);
 	})
 });
 

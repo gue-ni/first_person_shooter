@@ -183,7 +183,7 @@ export class PlayerInput extends Component{ // should also move the camera
 }
 
 export class CharacterController extends Component {
-    constructor(gameObject, fsm = new FiniteStateMachine(), network){
+    constructor(gameObject, fsm = new FiniteStateMachine()){
         super(gameObject);
         
         this.keys = null;

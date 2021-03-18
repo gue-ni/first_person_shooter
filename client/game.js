@@ -211,9 +211,12 @@ const play = function(dt) {
     }
     network.connected = {};
 
-    // TODO: remove network objects
-
 	gameObjectArray.forEach(gameObject => {
+
+        if (network.disconnected.includes(gameObject.id)){
+            gameObject.lifetime = 0;
+        }
+
         gameObject.update(dt);
 
         let aabb = gameObject.getComponent("aabb");
@@ -223,7 +226,7 @@ const play = function(dt) {
             }
         }
 
-        if (gameObject.lifetime){
+        if (gameObject.lifetime != undefined){
             gameObject.lifetime -= dt;
             if (gameObject.lifetime <= 0){
                 console.log("removing gameObject");
@@ -231,6 +234,8 @@ const play = function(dt) {
             }
         }
 	});
+
+    network.disconnected = [];
 
     for (let ray of network.rays){
         for (let aabb of hashGrid.possible_ray_collisions(ray)){
@@ -241,8 +246,7 @@ const play = function(dt) {
 
     particleSystem.update(dt);
     network.sync();
-	network.rays.length = 0;
-    network.explosions.length = 0;
+	network.rays.length = network.explosions.length = 0;
 
 	// debug
 	//let dir = player.direction.normalize().clone()

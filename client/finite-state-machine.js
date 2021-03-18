@@ -42,8 +42,9 @@ export class NetworkFSM extends FiniteStateMachine {
     }
 
     destroy(){
-
-    }
+        console.log("TODO: improve this")
+		this.model.parent.remove(this.model)
+	}
 
     init(){
         (async () => {
@@ -58,7 +59,7 @@ export class NetworkFSM extends FiniteStateMachine {
             this.gameObject.transform.add(this.model);
 
             const animations = object.animations;
-            console.log(animations)
+            //console.log(animations)
 
             this.mixer = new THREE.AnimationMixer(this.model);
             let idle   = this.mixer.clipAction(animations[2]);

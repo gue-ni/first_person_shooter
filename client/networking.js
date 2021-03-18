@@ -10,7 +10,7 @@ export class NetworkController {
 
         // changes to connected objects
         this.connected    = {};
-        this.disconnected = {};
+        this.disconnected = [];
 
         // information concerning everyone
         this.projectile = [];
@@ -28,6 +28,12 @@ export class NetworkController {
 
         if (data.disconnected){
             console.log(`lost connection: ${data.disconnected.id}`)
+
+            this.disconnected = data.disconnected.objects;
+
+            for (let id of this.disconnected){
+                console.log(`need to remove ${id}`)
+            }
         }
     
         if (data.connected){
@@ -109,7 +115,6 @@ export class PassiveNetworkComponent extends Component {
         super(gameObject)
         this.network = network;
         this.value = {};
-        this._look = new THREE.Vector3();
     }
 
     update(_){
@@ -122,7 +127,7 @@ export class PassiveNetworkComponent extends Component {
 
             this.gameObject.transform.rotation.y = Math.atan2(
                 -this.gameObject.direction.z,
-                this.gameObject.direction.x
+                 this.gameObject.direction.x
             )
 
             if (this.value.s){
