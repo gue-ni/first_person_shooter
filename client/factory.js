@@ -30,7 +30,12 @@ export class Factory {
     createNetworkPlayer(network, params){
         let player = new GameObject(this.scene);
         player.id = params.id;
-        //player.addComponent(new Box(player, { color: 0xff0000 }));
+        /*
+        player.addComponent(new Box(player, { 
+            color: 0xff0000, 
+            size: new THREE.Vector3(1,2,1),
+            position: new THREE.Vector3(2,0,2)}));
+            */
         player.addComponent(new CharacterController(player, new NetworkFSM(player)))
         player.addComponent(new PassiveNetworkComponent(player, network));
         this.gameObjectArray.add(player);

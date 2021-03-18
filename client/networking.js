@@ -109,17 +109,12 @@ export class PassiveNetworkComponent extends Component {
         this.value = this.network.read(this.gameObject.id);
 
         if (this.value){
-            this.gameObject.position.set(this.value.pd[0], this.value.pd[1], this.value.pd[2])
+            this.gameObject.position.set( this.value.pd[0], this.value.pd[1], this.value.pd[2])
+            this.gameObject.direction.set(this.value.pd[3], this.value.pd[4], this.value.pd[5])
 
             if (this.value.state){
-                //console.log(this.value.state)
                 let keys = {};
-                for (let state of this.value.state){
-                    keys[state] = true;
-                }
-
-                //console.log(keys);
-
+                for (let state of this.value.state) keys[state] = true;
                 this.gameObject.publish("input", { 'keys': keys, 'direction': this.gameObject.direction.clone() })
             }
         }

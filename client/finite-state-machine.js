@@ -45,11 +45,12 @@ export class NetworkFSM extends FiniteStateMachine {
         (async () => {
             const loader = new GLTFLoader();
             const object = await new Promise((resolve, reject) => {
-                loader.load('./assets/important/combine.glb', data => resolve(data), null, reject);
+                loader.load('./assets/important/combine3.glb', data => resolve(data), null, reject);
             });
 
             this.model = object.scene;
-            this.model.scale.set(0.1, 0.1, 0.1);
+            this.model.rotateY(Math.PI/2)
+            this.model.scale.set(0.4, 0.4, 0.4);
             this.gameObject.transform.add(this.model);
 
             const animations = object.animations;
