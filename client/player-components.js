@@ -108,7 +108,7 @@ export class PlayerInput extends Component{ // should also move the camera
 
             for (let aabb of this.hashGrid.possible_point_collisions(p)){
                 if (aabb.box.containsPoint(p)){
-                    this.gameObject.velocity.y += 15;
+                    this.gameObject.velocity.y += 5;
                     break;
                 }
             }

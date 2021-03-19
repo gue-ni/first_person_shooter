@@ -52,9 +52,8 @@ export class ProjectileEmitter extends HitscanEmitter {
         let size = new THREE.Vector3(0.25, 0.25, 0.25);
         let projectile = new GameObject(this.gameObject.root);
 
-
         projectile.addComponent(new Box(projectile, {
-            color: 0xff0000,
+            color: 0xffff00,
             size: size
         }));
 
@@ -102,7 +101,8 @@ export class Explosive extends Component {
         //console.log("creating explosive")
 
         this.gameObject.subscribe("collision", (event) => {
-            //console.log("exploding now");
+            console.log("exploding now");
+            this.gameObject.lifetime = 0;
         })
     }
 }

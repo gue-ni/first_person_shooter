@@ -198,7 +198,7 @@ const play = function(dt) {
         let aabb = gameObject.getComponent("aabb");
         if (aabb){
             for (let otherObject of hashGrid.possible_aabb_collisions(aabb)){
-                if (otherObject != gameObject) aabb.collide2(otherObject); 
+                if (otherObject != gameObject) aabb.collide(otherObject); 
             }
         }
 

@@ -13,7 +13,7 @@ export class NetworkController {
         this.disconnected = [];
 
         // information concerning everyone
-        this.projectile = [];
+        this.projectiles = [];
         this.rays       = [];
         this.explosions = [];
 
