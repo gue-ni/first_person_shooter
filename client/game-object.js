@@ -1,5 +1,15 @@
 import * as THREE from './three/build/three.module.js';
 
+/*
+    events:
+        * spawn
+        * killed 
+        * damage
+        * trigger
+        * reload
+        * ammo
+*/
+
 export class GameObject {
 	constructor(parent){
 		this.id         = this._generateId();

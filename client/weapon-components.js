@@ -12,7 +12,6 @@ export class BulletRay extends THREE.Ray {
 	}
 }
 
-// emitts bullet rays
 export class HitscanEmitter extends Component {
     constructor(gameObject, bullets, owner){
         super(gameObject);
@@ -28,7 +27,7 @@ export class HitscanEmitter extends Component {
     }
 
     emit(origin, direction){
-        this.bullets[this.bullets.length] = new BulletRay(origin, direction, this._owner, 10);
+        this.bullets[this.bullets.length] = new BulletRay(origin, direction, this._owner, 20);
     }
 
     emitFromTransform(transform){
@@ -78,19 +77,16 @@ export class Inventory extends Component {
         this.primary = primary;
         this.secondary = secondary;
 
-        this.primary.active = true;
-        this.primary.transform.visible = true;
+        this.primary.active                 = true;
+        this.primary.transform.visible      = true;
 
-        this.secondary.active = false;
-        this.secondary.transform.visible = false;
-
-
+        this.secondary.active               = false;
+        this.secondary.transform.visible    = false;
 
         this.gameObject.subscribe("toggleGun", (e) => {
             this.toggle(this.primary);
             this.toggle(this.secondary);
-            console.log("toggleGun");
-        })
+        });
     }
 
     toggle(gun){
@@ -111,7 +107,6 @@ export class Explosive extends Component {
     }
 }
 
-// light, smoke and flash 
 export class MuzzleFlash extends Component {
     constructor(gameObject, muzzlePosition, listener, smoke){
         super(gameObject);
@@ -216,45 +211,59 @@ export class MuzzleFlash extends Component {
 } 
 
 export class WeaponController extends Component {
-    constructor(gameObject, hud, firingRate = 620, ammoCapacity = 30){
+    constructor(gameObject, rpm = 620, capacity = 30){
         super(gameObject);
 
         this.active = true;
 
         this._firing = false;
-        this._hud = hud;
 
         this._reloading = false;
         this._reloadTime = 2;
         this._reloadTimeCounter = 0;
-        this._ammo = this._fullAmmoCapacity = this._hud.ammo = ammoCapacity;
+        this._ammo = this._fullAmmoCapacity = capacity;
 
-        this.gameObject.subscribe("reload", () => {
-            if (this.gameObject.active){
+        this.gameObject.subscribe("reload", (event) => {
+            if (this.gameObject.active && !event.finished){
                 this._reloading = true;
-                this._hud.reloading()
             }
         })
 
         this.gameObject.subscribe("trigger", (event) => {
-            if (this.gameObject.active) this._firing = event.firing;
+            if (this.gameObject.active) {
+                this._firing = event.firing;
+            }
+        })
+
+        this.gameObject.subscribe("spawn", (event) => {
+            this._ammo = this._fullAmmoCapacity;
+            if (this.gameObject.active) this.gameObject.publish("ammo", this._ammo);
+        })
+
+        this.gameObject.subscribe("toggleGun", () => {
+
+            this.gameObject.active            = !this.gameObject.active;
+            this.gameObject.transform.visible = !this.gameObject.transform.visible;
+            if (this._firing) this._firing = false;
+
+            if (this.gameObject.active) {
+                this.gameObject.publish("ammo", this._ammo);
+            }
         })
         
-        this._duration =  1 / (firingRate / 60);
+        this._duration =  1 / (rpm / 60);
 		this._elapsed  = 0;
     }
 
     fire(){
         if (this._ammo <= 0 || this._reloading) return;
         this._ammo--;
-        this._hud.ammo = this._ammo;
-
         this.gameObject.publish("fire", { transform: this.gameObject.transform })
+        this.gameObject.publish("ammo", this._ammo);
     }
 
     update(dt){
         this._elapsed += dt;
-
 		if (this._firing && this._elapsed >= this._duration){
 			this.fire()
 			this._elapsed = 0
@@ -267,11 +276,9 @@ export class WeaponController extends Component {
             if (this._reloadTimeCounter > this._reloadTime){
                 this._reloading = false;
                 this._reloadTimeCounter = 0;
-                this._hud.ammo = this._ammo = this._fullAmmoCapacity;
+                this._ammo = this._fullAmmoCapacity;
+                this.gameObject.publish("reload", { 'ammo': this._fullAmmoCapacity, 'finished': true});
             }
         }
     }
 }
-
-
-

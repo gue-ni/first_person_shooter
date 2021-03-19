@@ -4,7 +4,7 @@ import { Component } from "./components.js";
 export class NetworkController {
     constructor(websocket){
         this.websocket = websocket;
-        this.id = Math.floor(Math.random() * 1000000000) // not really a good idea
+        this.id = Math.floor(Math.random() * 10000000) // not really a good idea
 
         console.log(`Network Id: ${this.id}`);
 
@@ -87,7 +87,9 @@ value = {
     'pd': [x,y,z, x,y,z],  // position and direction
     's': ['forward'],     // character state
     'd': 10,               // damage to take
-    'h':                    // hit something              
+    'h':                    // hit something       
+    'v': visible    
+'k': true               // killed   
 }
 */
 
@@ -98,13 +100,21 @@ export class ActiveNetworkComponent extends Component {
         this.value = { type: type };
         this.type = type;
 
+        this.gameObject.subscribe("killed", (event) => {
+            this.gameObject.position.set(0, -10, 0);
+            this.update()
+        })
+
+        this.gameObject.subscribe("spawn", () => {
+            this.gameObject.position.set(0, 5, 0);
+            this.update()
+        })
+
         this.gameObject.subscribe("input", (event) => {
             let state = [];
-
             for (let [k, v] of Object.entries(event.keys)){
                 if (v) state.push(k);
             }
-
             this.value.s = state;
         })
     }
@@ -114,20 +124,19 @@ export class ActiveNetworkComponent extends Component {
 
         if (r){
             if (r.hit){
-                //console.log(`hit ${r.hit}`)
                 this.gameObject.publish("hit", r.hit)
             }
 
             if (r.damage){
-                //console.log(`taking damage ${r.damage}`)
                 this.gameObject.publish("damage", r.damage);
             }
         }
 
         this.value.pd = [
             this.gameObject.position.x,  this.gameObject.position.y, this.gameObject.position.z, 
-            this.gameObject.direction.x, this.gameObject.direction.y, this.gameObject.direction.z 
+            this.gameObject.direction.x, this.gameObject.direction.y, this.gameObject.direction.z
         ];
+
         this.network.write(this.gameObject.id, this.value)
     }
 }
@@ -160,7 +169,4 @@ export class PassiveNetworkComponent extends Component {
         }
     }
 }
-
-
-
 

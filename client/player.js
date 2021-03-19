@@ -80,24 +80,4 @@ export class Character extends Component {
     }
 }
 
-export class FirstPersonCamera extends Component {
-    constructor(gameObject, camera){
-        super(gameObject)
-        this.name = "camera";
-        this.camera = camera;
-		this._look = new THREE.Vector3()
-        this.transform = new THREE.Object3D();
-        this.transform.translateY(0.5)
-        this.transform.add(this.camera);
-        this.gameObject.transform.add(this.transform)
-    }
 
-    get position(){
-        return this.camera.position;
-    }
-
-    update(dt){
-		this._look.subVectors(this.gameObject.position, this.gameObject.direction)
-		this.transform.lookAt(this._look)
-    }
-}

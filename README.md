@@ -9,6 +9,9 @@ https://www.donmccurdy.com/2017/11/06/creating-animated-gltf-characters-with-mix
 https://unboring.net/workflows/animation.html
 https://gltf-viewer.donmccurdy.com/
 
+## TODO
+* improve physics
+
 ## Software Architecture
 
 * GameObject

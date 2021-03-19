@@ -3,16 +3,18 @@ import * as THREE from './three/build/three.module.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 
 
-export class FiniteStateMachine {
-    constructor(){
+export class CharacterController extends Component {
+    constructor(gameObject){
+        super(gameObject)
         this._states = {};
         this._current = null;
         this._loaded = false;
+
+        this.gameObject.subscribe("input", (event) => {
+            this.input = event.keys;
+            this.gameObject.direction.copy(event.direction);
+        });
     }
-
-    update(input, dt){}
-
-    destroy(){}
 
     _setState(state){
         if (this._current !== null && this._current.name === state){
@@ -34,10 +36,9 @@ export class FiniteStateMachine {
     }
 }
 
-export class NetworkFSM extends FiniteStateMachine {
+export class NetworkCC extends CharacterController {
     constructor(gameObject){
-        super();
-        this.gameObject = gameObject;
+        super(gameObject);
         this.init();
     }
 
@@ -79,13 +80,13 @@ export class NetworkFSM extends FiniteStateMachine {
         })();
     }
 
-    update(input, dt){
+    update(dt){
         if (this._loaded){
-            if (input){
-                if (input.forward){         this._setState("forward");
-                } else if(input.backward){  this._setState("backward");
-                } else if(input.left){      this._setState("left");
-                } else if (input.right){    this._setState("right");
+            if (this.input){
+                if (this.input.forward){         this._setState("forward");
+                } else if(this.input.backward){  this._setState("backward");
+                } else if(this.input.left){      this._setState("left");
+                } else if (this.input.right){    this._setState("right");
                 } else {                    this._setState("idle")
                 }
             }
@@ -94,10 +95,9 @@ export class NetworkFSM extends FiniteStateMachine {
     }
 }
 
-export class LocalFSM extends FiniteStateMachine {
+export class LocalCC extends CharacterController {
     constructor(gameObject){
-        super();
-        this.gameObject = gameObject;
+        super(gameObject);
         this.init();
     }
 
@@ -109,12 +109,12 @@ export class LocalFSM extends FiniteStateMachine {
         this._add("right",      new State("right"))
     }
 
-    update(input, _){
-        if (input){
-            if       (input.forward){   this._setState("forward");
-            } else if(input.backward){  this._setState("backward");
-            } else if(input.left){      this._setState("left");
-            } else if (input.right){    this._setState("right");
+    update(dt){
+        if (this.input){
+            if       (this.input.forward){   this._setState("forward");
+            } else if(this.input.backward){  this._setState("backward");
+            } else if(this.input.left){      this._setState("left");
+            } else if (this.input.right){    this._setState("right");
             } else {                    this._setState("idle")
             }       
         }

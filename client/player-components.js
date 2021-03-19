@@ -1,18 +1,26 @@
 
 import { Component } from './components.js';
-import { AnimationState, FiniteStateMachine } from "./finite-state-machine.js";
 import * as THREE from './three/build/three.module.js';
-import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 
-
-export class NetworkInput extends Component {
-    constructor(gameObject, network){
-        super(gameObject);
-        this.network = network;
+export class FirstPersonCamera extends Component {
+    constructor(gameObject, camera){
+        super(gameObject)
+        this.camera = camera;
+		this._look = new THREE.Vector3()
+        
+        this.transform = new THREE.Object3D();
+        this.transform.translateY(0.5)
+        this.transform.add(this.camera);
+        this.gameObject.transform.add(this.transform)
     }
 
-    update(_){
-        // TODO generate input event with received keys
+    get position(){
+        return this.camera.position;
+    }
+
+    update(dt){
+		this._look.subVectors(this.gameObject.position, this.gameObject.direction)
+		this.transform.lookAt(this._look)
     }
 }
 
@@ -49,6 +57,7 @@ export class PlayerInput extends Component{ // should also move the camera
         canvas.onclick = function() { canvas.requestPointerLock(); };
         document.addEventListener('pointerlockchange', 	  lockChangeAlert, false);
         document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+        
         function lockChangeAlert() {
             if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
                 document.addEventListener("mousemove",    callback, false);
@@ -158,7 +167,7 @@ export class PlayerInput extends Component{ // should also move the camera
 
             case 82:  
                 this.keys.reload = true; 
-                this.gameObject.publish("reload", true);
+                this.gameObject.publish("reload", { 'finished': false});
                 break;
 
             case 69: // e
@@ -188,7 +197,10 @@ export class Health extends Component {
 
         this.gameObject.subscribe("damage", (event) => {
             this.value -= event;
-            console.log(this.value)
+        })
+
+        this.gameObject.subscribe("spawn", () => {
+            this.reset();
         })
     }
 
@@ -197,24 +209,3 @@ export class Health extends Component {
     }
 }
 
-export class CharacterController extends Component {
-    constructor(gameObject, fsm = new FiniteStateMachine()){
-        super(gameObject);
-        
-        this.keys = null;
-        this.fsm = fsm;
-
-        this.gameObject.subscribe("input", (event) => {
-            this.keys = event.keys;
-            this.gameObject.direction.copy(event.direction);
-        });
-    }
-
-    destroy(){
-        this.fsm.destroy();
-    }
-
-    update(dt){
-        this.fsm.update(this.keys, dt);
-    }
-}

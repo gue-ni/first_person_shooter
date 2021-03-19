@@ -78,18 +78,21 @@ let dead                = false;
 let then = 0, dt = 0;
 
 const killPlayer = function(){
+    player.publish("killed", {})
     dead = true;
     hud.style.display       = 'none';
     menuEl.style.display    = 'block';
+    player.transform.visible = false;
     gameObjectArray.remove(player);
 }
 
 const respawnPlayer = function(){
     console.log("respawn")
+    player.publish("spawn", {})
     dead = false;
+    player.transform.visible = true;
     hud.style.display       = 'block';
     menuEl.style.display    = 'none';
-    player.getComponent("Health").reset()
     gameObjectArray.add(player);
 }
 
@@ -121,7 +124,7 @@ const init = async function(){
     for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos, new THREE.Vector3(2,2,2));
 	}
-    factory.createGroundBox(new THREE.Vector3(0,-4,0), new THREE.Vector3(60,2,60))
+    factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
     //let testObject = new GameObject(scene);
@@ -213,6 +216,7 @@ const play = function(dt) {
     if (health){
         if (health.value <= 0 && !dead){
             console.log("kill player")
+            player.publish("killed", {});
             killPlayer();
         }
     }

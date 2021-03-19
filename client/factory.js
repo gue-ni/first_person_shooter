@@ -2,13 +2,13 @@ import * as THREE from './three/build/three.module.js';
 
 import { GameObject, GameObjectArray } from './game-object.js';
 import { Box, EventRelay, HUD, Physics, SimpleGLTFModel } from './components.js';
-import { FirstPersonCamera } from './player.js';
 import { AABB } from './collision.js';
 import { Smoke } from './particles.js';
-import { CharacterController, Health, PlayerInput } from './player-components.js';
+import { FirstPersonCamera, Health, PlayerInput } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory } from './weapon-components.js';
-import { LocalFSM, NetworkFSM } from './finite-state-machine.js';
+import { LocalCC, NetworkCC } from './character-controller.js';
 import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js';
+import { AmmoDisplay, HealthDisplay, HitDisplay } from './ui.js';
 
 export class Factory {
     constructor(scene, camera, listener, gameObjectArray, hashGrid){
@@ -29,35 +29,44 @@ export class Factory {
     createNetworkPlayer(network, params){
         let player = new GameObject(this.scene);
         player.id = params.id;
-        /*
-        player.addComponent(new Box(player, { 
-            color: 0xff0000, 
-            size: new THREE.Vector3(1,2,1),
-            position: new THREE.Vector3(2,0,2)}));
-            */
-        player.addComponent(new CharacterController(player, new NetworkFSM(player)))
+        player.addComponent(new NetworkCC(player))
         player.addComponent(new PassiveNetworkComponent(player, network));
         this.gameObjectArray.add(player);
     }
 
     createPlayer(network){
         let player = new GameObject(this.scene)
-        
-        let hud = new HUD();
+
+        // hud
+        player.addComponent(new HealthDisplay(player));
+        player.addComponent(new HitDisplay(player));
 
         player.addComponent(new PlayerInput(player, network, this.hashGrid))
-        player.addComponent(new CharacterController(player, new LocalFSM(player)));
+        player.addComponent(new LocalCC(player));
         player.addComponent(new ActiveNetworkComponent(player, network, "player"));
         player.addComponent(new Health(player))
         player.addComponent(new Physics(player))
         player.addComponent(new AABB(player, new THREE.Vector3(1,2,1)))
+        player.addComponent(new FirstPersonCamera(player, this.camera))       
         
-        player.fpv = player.addComponent(new FirstPersonCamera(player, this.camera))       
+        this.createPrimaryWeapon(player, network)
+        this.createSecondaryWeapon(player, network)
         
-        let primary = new GameObject(player.fpv.transform);
+        player.position.set(0,0,0)
+        player.publish("spawn", {});
+        this.gameObjectArray.add(player)
+        return player;
+    }
+
+    createPrimaryWeapon(player, network){
+
+        let fpv = player.getComponent("FirstPersonCamera");
+ 
+        let primary = new GameObject(fpv.transform);
         primary.addComponent(new HitscanEmitter(primary, network.rays, player.id));
-        primary.addComponent(new WeaponController(primary, hud, 620, 30));
-        primary.addComponent(new EventRelay(primary, player, ["trigger", "reload"]));
+        primary.addComponent(new AmmoDisplay(primary));
+        primary.addComponent(new WeaponController(primary, 620, 30));
+        primary.addComponent(new EventRelay(primary, player, ["trigger", "reload", "toggleGun", "spawn"]));
         primary.addComponent(new MuzzleFlash(primary, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene)));
         primary.addComponent(new SimpleGLTFModel(primary, './assets/objects/AUG2.glb', {
             position: new THREE.Vector3(0.1,-0.4,-0.1),
@@ -65,12 +74,19 @@ export class Factory {
             rotation: new THREE.Vector3(0,-Math.PI,0)
         }));
         this.gameObjectArray.add(primary);
+        return primary;
+    }
 
-        let secondary = new GameObject(player.fpv.transform);
-        secondary.addComponent(new WeaponController(secondary, hud, 200, 10));
+    createSecondaryWeapon(player, network){
+        let fpv = player.getComponent("FirstPersonCamera");
+        
+        let secondary = new GameObject(fpv.transform);
+        secondary.transform.visible = secondary.active = false;
+        secondary.addComponent(new AmmoDisplay(secondary));
+        secondary.addComponent(new WeaponController(secondary, 200, 10));
         secondary.addComponent(new MuzzleFlash(secondary, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene)));
         secondary.addComponent(new ProjectileEmitter(secondary, network.projectiles, this.gameObjectArray));
-        secondary.addComponent(new EventRelay(secondary, player, ["trigger", "reload"]));
+        secondary.addComponent(new EventRelay(secondary, player, ["trigger", "reload", "toggleGun", "spawn"]));
         secondary.addComponent(new Box(secondary, {
             size: new THREE.Vector3(0.25,0.25,1), 
             color: 13882323, 
@@ -79,12 +95,7 @@ export class Factory {
             position: new THREE.Vector3(0.1, -0.4, -0.1)
         }))
         this.gameObjectArray.add(secondary);
-        
-        player.addComponent(new Inventory(player, primary, secondary));
-        
-        player.position.set(0,0,0)
-        this.gameObjectArray.add(player)
-        return player;
+        return secondary;
     }
 
     createGroundBox(pos, size){
@@ -96,7 +107,7 @@ export class Factory {
 		testObject.addComponent(new Box(testObject,  {
             size: size, 
             color: 10066329,
-            receiveShadwo: true,
+            receiveShadow: true,
             castShadow: true
         }));
 
@@ -122,7 +133,6 @@ export class Factory {
 		this.hashGrid.insert(aabb)
         return testObject;
     }
-
 }
 
 
