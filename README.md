@@ -17,6 +17,8 @@ https://gltf-viewer.donmccurdy.com/
 * GameObject
 * Components
 
+Components belong to a GameObject. Components can communicate by publishing and subscribing to events.
+
 ### Networking
 
 Messages:

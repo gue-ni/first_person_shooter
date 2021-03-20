@@ -49,7 +49,7 @@ export class SimpleGLTFModel extends Component {
 
         let rotation = params.rotation ? params.rotation : new THREE.Vector3();
         let position = params.position ? params.position : new THREE.Vector3();
-        let scale    = params.scale    ? params.scale : new THREE.Vector3(1,1,1);
+        let scale    = params.scale    ? params.scale    : new THREE.Vector3(1,1,1);
 
         (async () => {
             const loader = new GLTFLoader();

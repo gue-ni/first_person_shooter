@@ -5,7 +5,7 @@ import { Box, EventRelay, HUD, Physics, SimpleGLTFModel } from './components.js'
 import { AABB } from './collision.js';
 import { Smoke } from './particles.js';
 import { FirstPersonCamera, Health, PlayerInput } from './player-components.js';
-import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory } from './weapon-components.js';
+import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory, Explosive } from './weapon-components.js';
 import { LocalCC, NetworkCC } from './character-controller.js';
 import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js';
 import { AmmoDisplay, HealthDisplay, HitDisplay } from './ui.js';
@@ -19,10 +19,30 @@ export class Factory {
         this.hashGrid = hashGrid;
     }
 
+    /*
     createProjectile(){
         let projectile = new GameObject(this.scene);
         projectile.addComponent(new Box(projectile, new THREE.Vector3(0.25,0.25,0.25), 13882323, false, false));
         projectile.addComponent(new Physics(projectile));
+        return projectile;
+    }
+    */
+
+    createProjectile(){
+        let projectile = new GameObject(this.scene);
+
+        let size = new THREE.Vector3(0.25, 0.25, 0.25);
+        projectile.addComponent(new Box(projectile, {
+            color: 0xffff00,
+            size: size
+        }));
+
+        projectile.addComponent(new Physics(projectile));
+        projectile.addComponent(new AABB(projectile, size));
+        projectile.addComponent(new Explosive(projectile));
+        projectile.lifetime = 2;
+        
+        this.gameObjectArray.add(projectile);
         return projectile;
     }
 

@@ -41,14 +41,16 @@ export class HitscanEmitter extends Component {
 }
 
 export class ProjectileEmitter extends HitscanEmitter {
-    constructor(gameObject, projectiles, gameObjectArray){
+    constructor(gameObject, projectiles, factory){
         super(gameObject, projectiles);
-        this.gameObjectArray = gameObjectArray;
+        //this.gameObjectArray = gameObjectArray;
+        this.factory = factory;
         this._speed = 30;
     }
 
     emit(origin, direction){
         //console.log("emit projectile")
+        /*
         let size = new THREE.Vector3(0.25, 0.25, 0.25);
         let projectile = new GameObject(this.gameObject.root);
 
@@ -63,10 +65,11 @@ export class ProjectileEmitter extends HitscanEmitter {
        
         projectile.lifetime = 2;
         
+        */
+
+        let projectile = this.factory.createProjectile();
         projectile.velocity.copy(direction.clone().multiplyScalar(this._speed));
         projectile.position.copy(origin);
-        
-        this.gameObjectArray.add(projectile)
     }
 }
 
@@ -97,8 +100,6 @@ export class Inventory extends Component {
 export class Explosive extends Component {
     constructor(gameObject){
         super(gameObject);
-
-        //console.log("creating explosive")
 
         this.gameObject.subscribe("collision", (event) => {
             console.log("exploding now");
