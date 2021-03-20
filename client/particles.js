@@ -185,9 +185,15 @@ export class ParticleSystem {
 	}
 }
 
+export class Explosion extends ParticleSystem {
+    constructor(parent, texturePath){
+        super(parent, 100, 1, 1, texturePath);
+    }
+}
+
 export class BulletImpact extends ParticleSystem {
     constructor(parent, texturePath){
-        super(parent, 100, 1, 1,texturePath);
+        super(parent, 100, 1, 1, texturePath);
         this._gravity = true;
         this.alphaDegrading = 1;
         this.scaleValue = 0.05;
