@@ -4,7 +4,7 @@ import Stats from './three/examples/jsm/libs/stats.module.js'
 import { GameObject, GameObjectArray} from './game-object.js';
 import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
-import { BulletImpact, ParticleSystem, Smoke } from './particles.js';
+import { BulletImpact, Explosion, ParticleSystem, Smoke } from './particles.js';
 import { NetworkController } from './networking.js';
 
 const canvas  		= document.querySelector('#canvas');
@@ -69,10 +69,11 @@ const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
 const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 const network           = new NetworkController(websocket);
-const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid);
+const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid, network);
 var player              = undefined;
 var gameData            = undefined;
 let particleSystem      = new BulletImpact(scene,'./assets/textures/spark.png')
+let explosions          = new Explosion(scene,'./assets/textures/explosion2.png')
 let impactPoint         = new THREE.Vector3();
 let dead                = false;
 let then = 0, dt = 0;
@@ -205,7 +206,7 @@ const play = function(dt) {
         if (gameObject.lifetime != undefined){
             gameObject.lifetime -= dt;
             if (gameObject.lifetime <= 0){
-                console.log("removing gameObject");
+                //console.log("removing gameObject");
                 gameObjectArray.remove(gameObject);
                 gameObject.destroy();
             }
@@ -221,6 +222,11 @@ const play = function(dt) {
         }
     }
 
+    for (let explosion of network.explosions){
+        //console.log(explosion)
+        explosions.impact(explosion);
+    }
+
     for (let ray of network.rays){
         for (let aabb of hashGrid.possible_ray_collisions(ray)){
             let intersection = ray.intersectBox(aabb.box, impactPoint)
@@ -228,6 +234,7 @@ const play = function(dt) {
         }
     }
     particleSystem.update(dt);
+    explosions.update(dt);
 
     network.sync();
 	network.rays.length = network.explosions.length = 0;

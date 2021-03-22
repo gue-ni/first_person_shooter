@@ -49,7 +49,7 @@ export class ProjectileEmitter extends HitscanEmitter {
     }
 
     emit(origin, direction){
-        let projectile = this.factory.createProjectile();
+        let projectile = this.factory.createProjectile(this.factory.network);
         projectile.velocity.copy(direction.clone().multiplyScalar(this._speed));
         projectile.position.copy(origin);
     }
@@ -80,12 +80,14 @@ export class Inventory extends Component {
 }
 
 export class Explosive extends Component {
-    constructor(gameObject){
+    constructor(gameObject, explosions){
         super(gameObject);
+        this.explosions = explosions;
 
         this.gameObject.subscribe("collision", (event) => {
-            console.log("exploding now");
+            //console.log("exploding now");
             this.gameObject.lifetime = 0;
+            this.explosions.push(this.gameObject.position.clone());
         })
     }
 }

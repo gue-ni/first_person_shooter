@@ -73,7 +73,8 @@ export class ParticleSystem {
 			fragmentShader: _FS,
 			depthTest: 		true,
 			depthWrite: 	false,
-			blending: THREE.NormalBlending, // THREE.AdditiveBlending for fire
+			//blending: THREE.NormalBlending, // THREE.AdditiveBlending for fire
+			blending: params.blending, // THREE.AdditiveBlending for fire
 			transparent: 	true,
 			vertexColors: 	true
 		});
@@ -189,12 +190,40 @@ export class ParticleSystem {
 export class Explosion extends ParticleSystem {
     constructor(parent, texturePath){
         super(parent, {
-            numParticles: 100, 
-            particleLifetime: 1,
+            numParticles: 200, 
+            particleLifetime: 0.5,
             particlesPerSecond: 1, 
-            texture: texturePath
+            texture: texturePath,
+            blending: THREE.AdditiveBlending
         });
+
+        this._gravity = false;
+        this.alphaDegrading = 5;
+        this.scaleValue = 0.5;
+        this.particlesPerImpact = 200;
+
+
     }
+
+    impact(pos){
+        for (let i = 0; i < this.particlesPerImpact; i++){
+            let unused = this._findUnusedParticle();
+            this._particles[unused].position.copy(pos);
+
+            let t1 = 40, t2 = 20;
+            this._particles[unused].velocity.set(t1*Math.random()-t2, t1*Math.random()-t2, t1*Math.random()-t2);
+
+            this._particles[unused].lifetime    = this.particleLifetime;
+            this._particles[unused].size        = 0.5;
+            this._particles[unused].alpha       = 1;
+        }		
+    }
+
+	update(dt){
+        this._updateParticles(dt);
+        this._updateGeometry();
+	}
+
 }
 
 export class BulletImpact extends ParticleSystem {
@@ -203,7 +232,8 @@ export class BulletImpact extends ParticleSystem {
             numParticles: 100, 
             particleLifetime: 1,
             particlesPerSecond: 1, 
-            texture: texturePath
+            texture: texturePath,
+            blending: THREE.AdditiveBlending
         });
 
         this._gravity = true;
@@ -238,7 +268,8 @@ export class Smoke extends ParticleSystem {
             numParticles: 1000, 
             particleLifetime: 5,
             particlesPerSecond: 10, 
-            texture: './assets/textures/smoke.png'
+            texture: './assets/textures/smoke.png',
+            blending: THREE.NormalBlending
         });
         this._source = source;
     }

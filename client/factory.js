@@ -11,24 +11,16 @@ import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js
 import { AmmoDisplay, HealthDisplay, HitDisplay } from './ui.js';
 
 export class Factory {
-    constructor(scene, camera, listener, gameObjectArray, hashGrid){
+    constructor(scene, camera, listener, gameObjectArray, hashGrid, network){
         this.scene = scene;
         this.camera = camera;
         this.listener = listener;
         this.gameObjectArray = gameObjectArray;
         this.hashGrid = hashGrid;
+        this.network = network
     }
 
-    /*
-    createProjectile(){
-        let projectile = new GameObject(this.scene);
-        projectile.addComponent(new Box(projectile, new THREE.Vector3(0.25,0.25,0.25), 13882323, false, false));
-        projectile.addComponent(new Physics(projectile));
-        return projectile;
-    }
-    */
-
-    createProjectile(){
+    createProjectile(network){
         let projectile = new GameObject(this.scene);
 
         let size = new THREE.Vector3(0.25, 0.25, 0.25);
@@ -39,7 +31,7 @@ export class Factory {
 
         projectile.addComponent(new Physics(projectile));
         projectile.addComponent(new AABB(projectile, size));
-        projectile.addComponent(new Explosive(projectile));
+        projectile.addComponent(new Explosive(projectile, network.explosions));
         projectile.lifetime = 2;
         
         this.gameObjectArray.add(projectile);
