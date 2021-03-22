@@ -23,7 +23,7 @@ export class Factory {
     createProjectile(network){
         let projectile = new GameObject(this.scene);
 
-        let size = new THREE.Vector3(0.25, 0.25, 0.25);
+        let size = new THREE.Vector3(0.1, 0.1, 0.1);
         projectile.addComponent(new Box(projectile, {
             color: 0xffff00,
             size: size

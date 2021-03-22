@@ -73,7 +73,7 @@ const factory           = new Factory(scene, camera, listener, gameObjectArray, 
 var player              = undefined;
 var gameData            = undefined;
 let particleSystem      = new BulletImpact(scene,'./assets/textures/spark.png')
-let explosions          = new Explosion(scene,'./assets/textures/explosion2.png')
+let explosions          = new Explosion(scene,'./assets/textures/explosion2.png', listener)
 let impactPoint         = new THREE.Vector3();
 let dead                = false;
 let then = 0, dt = 0;

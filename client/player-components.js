@@ -77,7 +77,8 @@ export class PlayerInput extends Component{ // should also move the camera
         direction.setY(0);
         direction.normalize();
 
-        let speed = 7 
+        let speed = 200 * dt;
+
         if (this.keys.forward){         
             direction.multiplyScalar(speed)
             this.gameObject.velocity.x = direction.x
@@ -108,7 +109,7 @@ export class PlayerInput extends Component{ // should also move the camera
 
             for (let aabb of this.hashGrid.possible_point_collisions(p)){
                 if (aabb.box.containsPoint(p)){
-                    this.gameObject.velocity.y += 5;
+                    this.gameObject.velocity.y += 250 * dt;
                     break;
                 }
             }

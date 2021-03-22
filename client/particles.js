@@ -188,9 +188,9 @@ export class ParticleSystem {
 }
 
 export class Explosion extends ParticleSystem {
-    constructor(parent, texturePath){
+    constructor(parent, texturePath, listener){
         super(parent, {
-            numParticles: 200, 
+            numParticles: 1000, 
             particleLifetime: 0.5,
             particlesPerSecond: 1, 
             texture: texturePath,
@@ -202,10 +202,47 @@ export class Explosion extends ParticleSystem {
         this.scaleValue = 0.5;
         this.particlesPerImpact = 200;
 
+        this.light = new THREE.PointLight(0x000000, 5, 5, 2);
+		parent.add(this.light)
+        this.light.color.setHex(0x000000);
+        this.on = false;
+
+
+        this.counter = 0;
+        this.duration = 0.05;
+
+        (async () => {
+            const audioLoader = new THREE.AudioLoader();
+            const buffer = await new Promise((resolve, reject) => {
+                audioLoader.load('./assets/audio/explosion2.mp3', data => resolve(data), null, reject);
+            });
+            this.sound = new THREE.PositionalAudio(listener);
+            console.log(this.sound);
+            this.sound.setBuffer(buffer);
+            this.sound.setRefDistance(20);
+            //this.sound.play()
+            parent.add(this.sound);
+        })();
+
 
     }
 
     impact(pos){
+        this.light.position.copy(pos);
+        this.on = true;
+        this.counter = 0;
+        this.light.color.setHex(0xffffff);
+        
+        if (this.sound){
+            if (this.sound.isPlaying){
+                this.sound.stop();
+                this.sound.play();
+            } else {
+                this.sound.play();
+            }
+        }
+
+
         for (let i = 0; i < this.particlesPerImpact; i++){
             let unused = this._findUnusedParticle();
             this._particles[unused].position.copy(pos);
@@ -220,6 +257,15 @@ export class Explosion extends ParticleSystem {
     }
 
 	update(dt){
+        if (this.on){
+            this.counter += dt;
+            if (this.counter >= this.duration){
+                this.light.color.setHex(0x000000);
+                this.on = false;
+                this.counter = 0;
+            }
+        }
+
         this._updateParticles(dt);
         this._updateGeometry();
 	}
