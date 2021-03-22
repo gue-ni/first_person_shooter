@@ -67,7 +67,7 @@ const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
-const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+const websocket         = new WebSocket(false ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 const network           = new NetworkController(websocket);
 const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid, network);
 var player              = undefined;
@@ -236,7 +236,15 @@ const play = function(dt) {
     for (let explosion of network.explosions){
         explosions.impact(explosion);
         // TODO calculate damage
-        
+        let v = new THREE.Vector3();
+        v.subVectors(player.position, explosion)
+
+        let d = v.length();
+        if (d < 10){
+            let damage = Math.floor((10 - d) * 5);
+            //console.log(damage);
+            player.publish("damage", damage);
+        }
     }
 
     for (let ray of network.rays){
