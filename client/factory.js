@@ -3,7 +3,7 @@ import * as THREE from './three/build/three.module.js';
 import { GameObject, GameObjectArray } from './game-object.js';
 import { Box, EventRelay, HUD, Physics, SimpleGLTFModel, SimpleGunModel } from './components.js';
 import { AABB } from './collision.js';
-import { Smoke } from './particles.js';
+import { Explosion, Smoke } from './particles.js';
 import { FirstPersonCamera, Health, PlayerInput } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory, Explosive } from './weapon-components.js';
 import { LocalCC, NetworkCC } from './character-controller.js';
@@ -29,6 +29,7 @@ export class Factory {
             size: size
         }));
 
+        projectile.addComponent(new ActiveNetworkComponent(projectile, this.network, "projectile"));
         projectile.addComponent(new Physics(projectile));
         projectile.addComponent(new AABB(projectile, size));
         projectile.addComponent(new Explosive(projectile, network.explosions));
@@ -36,6 +37,21 @@ export class Factory {
         
         this.gameObjectArray.add(projectile);
         return projectile;
+    }
+
+    createNetworkProjectile(network, params){
+        let projectile = new GameObject(this.scene);
+        projectile.id = params.id;
+
+        let size = new THREE.Vector3(0.1, 0.1, 0.1);
+        projectile.addComponent(new Box(projectile, {
+            color: 0xffff00,
+            size: size
+        }));
+
+        projectile.addComponent(new Explosive(projectile, network.explosions))
+        projectile.addComponent(new PassiveNetworkComponent(projectile, network));
+        this.gameObjectArray.add(projectile);
     }
 
     createNetworkPlayer(network, params){

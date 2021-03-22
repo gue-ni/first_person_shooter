@@ -84,9 +84,11 @@ export class Explosive extends Component {
         super(gameObject);
         this.explosions = explosions;
 
-        this.gameObject.subscribe("collision", (event) => {
-            //console.log("exploding now");
+        this.gameObject.subscribe("collision", () => {
             this.gameObject.lifetime = 0;
+        })
+
+        this.gameObject.subscribe("destroy", () => {
             this.explosions.push(this.gameObject.position.clone());
         })
     }

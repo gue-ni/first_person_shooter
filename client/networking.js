@@ -14,8 +14,8 @@ export class NetworkController {
 
         // information concerning everyone
         this.projectiles = [];
-        this.rays       = [];
-        this.explosions = [];
+        this.rays        = [];
+        this.explosions  = [];
 
         this.w_objects    = {};
         this.r_objects    = {};
@@ -63,14 +63,26 @@ export class NetworkController {
             id : this.id,
             objects: this.w_objects
         }
+
+        let c = 0;
+        for (let _ of Object.entries(this.w_objects)){
+            c++;
+        }
+        //console.log(c);
         
         if (this.rays.length > 0){
             data.rays = this.rays;
         }
 
+        if (this.explosions.length > 0){
+            data.explosions = this.explosions;
+        }
+
 	    if (this.websocket.readyState === WebSocket.OPEN){
             this.websocket.send(JSON.stringify(data));
         }
+
+        this.w_objects = {};
     }
 
     write(id, value){
@@ -103,12 +115,18 @@ export class ActiveNetworkComponent extends Component {
         this.gameObject.subscribe("killed", (event) => {
             this.gameObject.position.set(0, -10, 0);
             this.update()
-        })
+        });
 
         this.gameObject.subscribe("spawn", () => {
             this.gameObject.position.set(0, 5, 0);
             this.update()
-        })
+        });
+
+        this.gameObject.subscribe("destroy", () => {
+            console.log("destroy event");
+            this.value.l = 0;
+            this.update();
+        });
 
         this.gameObject.subscribe("input", (event) => {
             let state = [];
@@ -131,7 +149,7 @@ export class ActiveNetworkComponent extends Component {
                 this.gameObject.publish("damage", r.damage);
             }
         }
-
+        
         this.value.pd = [
             this.gameObject.position.x,  this.gameObject.position.y, this.gameObject.position.z, 
             this.gameObject.direction.x, this.gameObject.direction.y, this.gameObject.direction.z
@@ -165,6 +183,10 @@ export class PassiveNetworkComponent extends Component {
                 let keys = {};
                 for (let state of this.value.s) keys[state] = true;
                 this.gameObject.publish("input", { 'keys': keys, 'direction': this.gameObject.direction.clone() })
+            }
+
+            if (this.value.l != undefined){
+                this.gameObject.lifetime = this.value.l;
             }
         }
     }

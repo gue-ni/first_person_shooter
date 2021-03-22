@@ -184,7 +184,18 @@ const play = function(dt) {
     // TODO: add network objects
     for (const [id, object] of Object.entries(network.connected)){
         console.log(`creating object ${id}`)
-        factory.createNetworkPlayer(network, {'id': id});
+        console.log(object);
+
+        switch (object.type){
+            case "player":
+                console.log("creating player")
+                factory.createNetworkPlayer(network, {'id': id});
+                break;
+            case "projectile":
+                console.log("creating projectile")
+                factory.createNetworkProjectile(network, {'id': id});
+                break;
+        }
     }
     network.connected = {};
 
@@ -206,8 +217,8 @@ const play = function(dt) {
         if (gameObject.lifetime != undefined){
             gameObject.lifetime -= dt;
             if (gameObject.lifetime <= 0){
-                //console.log("removing gameObject");
                 gameObjectArray.remove(gameObject);
+                gameObject.publish("destroy", {});
                 gameObject.destroy();
             }
         }
@@ -223,8 +234,9 @@ const play = function(dt) {
     }
 
     for (let explosion of network.explosions){
-        //console.log(explosion)
         explosions.impact(explosion);
+        // TODO calculate damage
+        
     }
 
     for (let ray of network.rays){

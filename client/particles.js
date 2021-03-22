@@ -217,7 +217,7 @@ export class Explosion extends ParticleSystem {
                 audioLoader.load('./assets/audio/explosion2.mp3', data => resolve(data), null, reject);
             });
             this.sound = new THREE.PositionalAudio(listener);
-            console.log(this.sound);
+            //console.log(this.sound);
             this.sound.setBuffer(buffer);
             this.sound.setRefDistance(20);
             //this.sound.play()

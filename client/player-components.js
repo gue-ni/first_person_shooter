@@ -77,7 +77,7 @@ export class PlayerInput extends Component{ // should also move the camera
         direction.setY(0);
         direction.normalize();
 
-        let speed = 200 * dt;
+        let speed = 150 * dt;
 
         if (this.keys.forward){         
             direction.multiplyScalar(speed)
@@ -90,12 +90,12 @@ export class PlayerInput extends Component{ // should also move the camera
             this.gameObject.velocity.z = direction.z
            
         } else if (this.keys.right){  
-            direction.multiplyScalar(speed)
+            direction.multiplyScalar(speed * 0.75)
             this.gameObject.velocity.x = -direction.z
             this.gameObject.velocity.z =  direction.x 
 
         } else if (this.keys.left){  
-            direction.multiplyScalar(speed)
+            direction.multiplyScalar(speed * 0.75)
             this.gameObject.velocity.x =  direction.z
             this.gameObject.velocity.z = -direction.x 
 

@@ -29,31 +29,37 @@ app.use(express.static('../client'));
 const OBJECTS = {};
 
 const PLAYERS = {};
-
+const PROJECTILES = {};
 const SOCKETS = {};
 
 wss.on('connection', (ws) => {
 	let cid = -1;
 
+    function notifyNewObjects(objects){
+        wss.clients.forEach( client => {
+            if (client !== ws && client.readyState === websocket.OPEN){
+                client.send(JSON.stringify({ 
+                    'connected': { 
+                        'ids': [cid], 
+                        'objects': objects
+                    }
+                }));
+            }
+        });
+    }
+
 	ws.on('message', message => {
 		let data = JSON.parse(message);
     	let response = {};
+
+        //console.log(data.objects)
 
 		if (cid == -1) { // first message
         	cid = data.id;            
             console.log(`new connection ${cid}`);
             SOCKETS[cid] = ws;
 
-            wss.clients.forEach( client => {
-                if (client !== ws && client.readyState === websocket.OPEN){
-                    client.send(JSON.stringify({ 
-                        'connected': { 
-                            'ids': [cid], 
-                            'objects': data.objects
-                        }
-                    }));
-                }
-            });
+            notifyNewObjects(data.objects);
 
             // notify user of other connected players
             let connected = []
@@ -70,16 +76,32 @@ wss.on('connection', (ws) => {
     	}
 
     	if (data.objects){
+            let newObjects = {};
+            let n = false;
+            
             for (const [id, object] of Object.entries(data.objects)){
+
+                if (!OBJECTS[id]){
+                    newObjects[id] = object;         
+                    n = true;
+                }
+
                 object.connection = cid;
                 OBJECTS[id] = object;
+
                 if (object.type == "player") {
                     PLAYERS[id] = object;
                 }
+                if (object.type == "projectile"){
+                    PROJECTILES[id] = object;
+                }
             }
             response.objects = OBJECTS;
-    	}
 
+            if (n){
+                notifyNewObjects(newObjects);
+            }
+    	}
         //console.log(PLAYERS)
 
     	if (data.rays){
@@ -153,6 +175,7 @@ wss.on('connection', (ws) => {
             if (object.connection == cid){
                 delete(OBJECTS[id]);
                 if (PLAYERS[id]) delete(PLAYERS[id]);
+                if (PROJECTILES[id]) delete(PROJECTILES[id]);
                 disconnected_objects.push(id);
             }
         }
