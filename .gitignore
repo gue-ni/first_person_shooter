@@ -6,7 +6,6 @@ doc/
 *.jpg
 *.zip
 *.sh
-*.png
 *.jpg
 *.jpeg
 *.gif 
@@ -14,5 +13,4 @@ doc/
 *.fbx
 *.blend
 *.blend1
-*.glb
 
