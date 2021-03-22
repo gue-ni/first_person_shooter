@@ -8,6 +8,7 @@ boxes: 0xff0051
 https://www.donmccurdy.com/2017/11/06/creating-animated-gltf-characters-with-mixamo-and-blender/
 https://unboring.net/workflows/animation.html
 https://gltf-viewer.donmccurdy.com/
+http://touchcontrols.kissr.com/
 
 ## TODO
 * improve physics

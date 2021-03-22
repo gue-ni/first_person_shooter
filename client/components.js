@@ -71,7 +71,75 @@ export class SimpleGLTFModel extends Component {
 		this.model.material.dispose()
 		this.model.parent.remove(this.model)
 	}
+}
 
+export class SimpleGunModel extends SimpleGLTFModel{
+    constructor(gameObject, path, params){
+        super(gameObject, path, params);
+
+        //this.targetRotation  = new THREE.Quaternion();
+        //this.oldRotation     = new THREE.Quaternion();
+
+        this.targetPosition = new THREE.Vector3();
+        this.oldPosition = new THREE.Vector3();
+
+        this.fire = undefined;
+        this.s = 1.0;
+        this.factor = 1.0;
+
+        this.gameObject.subscribe("fire", (event) => {
+
+            if (this.fire != undefined) {
+                //this.model.quaternion.copy(this.oldRotation);
+                this.model.position.copy(this.oldPosition);
+            }
+
+            this.fire = true;
+            this.s = 0.0;
+
+            /*
+            let e = new THREE.Euler(
+                this.model.rotation.x + 0.5,
+                this.model.rotation.y,
+                this.model.rotation.z,
+            );
+            this.targetRotation.setFromEuler(e);
+            */
+
+            this.targetPosition.set(
+                this.model.position.x,
+                this.model.position.y,
+                this.model.position.z + 0.3
+            )
+            
+            //this.oldRotation.copy(this.model.quaternion);
+            this.oldPosition.copy(this.model.position);
+        })
+    }
+
+    update(dt){
+        if (this.model){
+            if (this.fire && this.s <= 1.0){
+
+                //this.model.quaternion.slerp(this.targetRotation, this.s)
+                this.model.position.lerp(this.targetPosition, this.s);
+                this.s += 7 * dt;
+
+                if (this.s > 1.0){
+                    this.s = 0.0;
+                    this.fire = false;
+                }
+            }
+            
+            
+            if (this.fire == false && this.s <= 1.0){
+                //this.model.quaternion.slerp(this.oldRotation, this.s)
+                this.model.position.lerp(this.oldPosition, this.s);
+                this.s += 7 * dt;
+            }
+            
+        }
+    }
 }
 
 export class Box extends Component {

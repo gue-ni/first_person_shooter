@@ -49,24 +49,6 @@ export class ProjectileEmitter extends HitscanEmitter {
     }
 
     emit(origin, direction){
-        //console.log("emit projectile")
-        /*
-        let size = new THREE.Vector3(0.25, 0.25, 0.25);
-        let projectile = new GameObject(this.gameObject.root);
-
-        projectile.addComponent(new Box(projectile, {
-            color: 0xffff00,
-            size: size
-        }));
-
-        projectile.addComponent(new Physics(projectile));
-        projectile.addComponent(new AABB(projectile, size));
-        projectile.addComponent(new Explosive(projectile));
-       
-        projectile.lifetime = 2;
-        
-        */
-
         let projectile = this.factory.createProjectile();
         projectile.velocity.copy(direction.clone().multiplyScalar(this._speed));
         projectile.position.copy(origin);
@@ -119,7 +101,7 @@ export class MuzzleFlash extends Component {
         this._fired = false;
         this._flashDuration = 0.06;
         this._flashDurationCounter = 0;
-        this._flashStartingScale = new THREE.Vector3(1.5,1.5,1.5);
+        this._flashStartingScale = new THREE.Vector3(0.5,0.5,0.5);
 
         // muzzle flash light
         this.light = new THREE.PointLight(0x000000, 1, 5);

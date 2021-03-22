@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <title>Touch Controlls</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <span>Debug:<span id="display">?</span></span>
+   </body>
+    <script>
+        let debug = document.querySelector('#display')
+
+        document.addEventListener("touchstart", (event) => {
+            console.log("touchstart");
+            display.innerText = event.touches.length;
+
+            if (!document.fullscreenElement){
+                document.documentElement.requestFullscreen();
+            }
+
+
+        }, false);
+
+        document.addEventListener("touchmove", (event) => {
+            console.log("touchmove");
+        }, false);
+
+        document.addEventListener("touchcancel", (event) => {
+            console.log("touchcancel");
+
+        }, false);
+
+        document.addEventListener("touchend", (event) => {
+            console.log("touchend");
+        }, false);
+    </script>
+</html>

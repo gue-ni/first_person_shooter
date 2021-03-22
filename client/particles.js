@@ -28,17 +28,18 @@ void main() {
 }`;
 
 export class ParticleSystem {
-	constructor(parent, numParticles, particlesPerSecond, particleLifetime, texturePath){
+	//constructor(parent, numParticles, particlesPerSecond, particleLifetime, texturePath){
+	constructor(parent, params){
 		this._lastUsedParticle 	= 0;
 		this._elapsed  			= 0;
 		this._gravity 			= false;
-        this._particlePerSec    = particlesPerSecond;
-		this._duration 			= 1.0 / particlesPerSecond;  
+        this._particlePerSec    = params.particlesPerSecond;
+		this._duration 			= 1.0 / params.particlesPerSecond;  
 		this._cache 			= new THREE.Vector3(0, 0, 0);
 
-		this.numParticles 		= numParticles;
+		this.numParticles 		= params.numParticles;
         this.startSize          = 0.1;
-		this.particleLifetime   = particleLifetime;
+		this.particleLifetime   = params.particleLifetime;
         this.active             = true;
         this.alphaDegrading     = 0.5;
         this.scaleValue         = 0.1;
@@ -59,7 +60,7 @@ export class ParticleSystem {
 
 		const uniforms = {
 			diffuseTexture: {
-			    value: new THREE.TextureLoader().load(texturePath)
+			    value: new THREE.TextureLoader().load(params.texture)
 			},
 			pointMultiplier: {
 			    value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
@@ -187,13 +188,24 @@ export class ParticleSystem {
 
 export class Explosion extends ParticleSystem {
     constructor(parent, texturePath){
-        super(parent, 100, 1, 1, texturePath);
+        super(parent, {
+            numParticles: 100, 
+            particleLifetime: 1,
+            particlesPerSecond: 1, 
+            texture: texturePath
+        });
     }
 }
 
 export class BulletImpact extends ParticleSystem {
     constructor(parent, texturePath){
-        super(parent, 100, 1, 1, texturePath);
+        super(parent, {
+            numParticles: 100, 
+            particleLifetime: 1,
+            particlesPerSecond: 1, 
+            texture: texturePath
+        });
+
         this._gravity = true;
         this.alphaDegrading = 1;
         this.scaleValue = 0.05;
@@ -222,7 +234,12 @@ export class BulletImpact extends ParticleSystem {
 
 export class Smoke extends ParticleSystem {
     constructor(parent, source = new THREE.Vector3()){
-        super(parent, 1000, 10, 5,'./assets/textures/smoke.png');
+        super(parent, {
+            numParticles: 1000, 
+            particleLifetime: 5,
+            particlesPerSecond: 10, 
+            texture: './assets/textures/smoke.png'
+        });
         this._source = source;
     }
 
