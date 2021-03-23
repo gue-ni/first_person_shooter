@@ -9,6 +9,12 @@ export class HealthDisplay extends Component {
 
         this.gameObject.subscribe("damage", (event) => {
             this.display.innerText -= event;
+            if (this.display.innerText > 100){
+                this.display.innerText = 100;
+            }
+            if (this.display.innerText < 0){
+                this.display.innerText = 0;
+            }
         })
 
         this.gameObject.subscribe("spawn", (event) => {

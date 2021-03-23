@@ -7,6 +7,8 @@ import { Factory } from './factory.js';
 import { BulletImpact, Explosion, ParticleSystem, Smoke } from './particles.js';
 import { NetworkController } from './networking.js';
 import { SimpleGLTFModel } from './components.js';
+import { RectAreaLightUniformsLib } from './three/examples/jsm/lights/RectAreaLightUniformsLib.js';
+import { RectAreaLightHelper } from './three/examples/jsm/helpers/RectAreaLightHelper.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -45,7 +47,8 @@ camera.add(listener);
 menuCamera.position.set(20,20,20);
 menuCamera.lookAt(0,0,0);
 
-renderer.setClearColor("#6AB9D9");
+//renderer.setClearColor("#6AB9D9");
+renderer.setClearColor("#2A1559");
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -76,7 +79,7 @@ var gameData            = undefined;
 let particleSystem      = new BulletImpact(scene,'./assets/textures/spark.png')
 let explosions          = new Explosion(scene,'./assets/textures/explosion2.png', listener)
 let impactPoint         = new THREE.Vector3();
-let dead                = false;
+let dead                = true;
 let then = 0, dt = 0;
 
 const killPlayer = function(){
@@ -111,6 +114,7 @@ const init = async function(){
     });
 
     // create map skybox
+    /*
     let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
     let material 	= new THREE.MeshPhongMaterial({ 
         color: gameData.colorscheme.dark_grey, 
@@ -121,6 +125,7 @@ const init = async function(){
     mesh.position.set(0,24,0);
 	mesh.receiveShadow = true;
     scene.add(mesh);
+    */
 
     // create boxes
     for (let pos of gameData.boxes){
@@ -135,6 +140,7 @@ const init = async function(){
     gameObjectArray.add(testObject);
     */
 
+    /*
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
     pinkLight.position.set(-25, 50, -25);
@@ -142,6 +148,7 @@ const init = async function(){
     const blueLight = new THREE.PointLight(gameData.colorscheme.blue, 6, 100, 2);
     blueLight.position.set(25, 50, 25);
     scene.add(blueLight);
+
     scene.add(new THREE.AmbientLight(gameData.colorscheme.white, 0.2))
     const light = new THREE.DirectionalLight(gameData.colorscheme.white, 0.5, 100);
     light.position.set(0, 50, 25)
@@ -155,6 +162,42 @@ const init = async function(){
     light.shadow.camera.top  	=  50;
     light.shadow.camera.right	=  50;
     scene.add(light)
+    */
+
+    let r = 0xd90452;
+    let p = 0x0476D9;
+
+    let colors = {
+        c1: 0xd9048e,
+        c2: 0x8c035c,
+        c3: 0x40012a,
+        c4: 0x2964d9,
+        c5: 0x0597f2
+    }
+
+    {
+        const light = new THREE.HemisphereLight(colors.c1, colors.c5, 0.3);
+        //scene.add(light);
+    }
+    {
+        const light = new THREE.PointLight(colors.c1, 1, 100, 2)
+        light.position.set(0, 4.5, 4.5);
+        scene.add(light);
+    }
+    {
+        const light = new THREE.DirectionalLight(colors.c5, 1, 100, 2);
+        light.position.set(0, 50, 25)
+        light.castShadow 			=  true; 
+        light.shadow.mapSize.width 	=  512; 
+        light.shadow.mapSize.height =  512; 
+        light.shadow.camera.near 	=  0.5; 
+        light.shadow.camera.far 	=  100;
+        light.shadow.camera.left 	= -50;
+        light.shadow.camera.bottom 	= -50;
+        light.shadow.camera.top  	=  50;
+        light.shadow.camera.right	=  50;
+        scene.add(light)
+    }
 
 /*
     const pointlight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);

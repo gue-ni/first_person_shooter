@@ -238,9 +238,17 @@ export class Health extends Component {
     constructor(gameObject){
         super(gameObject);
         this.value = 100;
+        this.duration = 4;
+        this.counter  = 0;
 
         this.gameObject.subscribe("damage", (event) => {
             this.value -= event;
+            if (this.value > 100){
+                this.value = 100;
+            }
+            if (this.value < 0){
+                this.value = 0;
+            }
         })
 
         this.gameObject.subscribe("spawn", () => {
@@ -250,6 +258,16 @@ export class Health extends Component {
 
     reset(){
         this.value = 100;
+    }
+
+    update(dt){
+        if (this.value <= 100){
+            this.counter += dt;
+            if (this.counter >= this.duration){
+                this.gameObject.publish("damage", -10);
+                this.counter = 0;
+            }
+        }
     }
 }
 

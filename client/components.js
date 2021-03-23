@@ -160,7 +160,7 @@ export class Box extends Component {
 			flatShading: true, 
 			emissive: 0xffffff, 
 			emissiveIntensity: 0,
-			roughness: 0.5
+			roughness: 1.0
 		});
 		this.model 		= new THREE.Mesh(geometry, material)
 		
