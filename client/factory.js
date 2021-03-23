@@ -18,11 +18,6 @@ export class Factory {
         this.gameObjectArray = gameObjectArray;
         this.hashGrid = hashGrid;
         this.network = network;
-
-
-
-
-
     }
 
     createProjectile(network){
@@ -86,15 +81,12 @@ export class Factory {
         this.createSecondaryWeapon(player, network)
         
         player.position.set(0,0,0)
-        player.publish("spawn", {});
-        this.gameObjectArray.add(player)
+        player.active = player.transform.visible = false;
         return player;
     }
 
     createPrimaryWeapon(player, network){
-
         let fpv = player.getComponent("FirstPersonCamera");
- 
         let primary = new GameObject(fpv.transform);
         primary.addComponent(new HitscanEmitter(primary, network.rays, player.id));
         primary.addComponent(new AmmoDisplay(primary));
@@ -102,7 +94,7 @@ export class Factory {
         primary.addComponent(new EventRelay(primary, player, 
             ["trigger", "reload", "toggleGun", "spawn"]));
 
-        primary.addComponent(new MuzzleFlash(primary, new THREE.Vector3(0.1, -0.2, -0.5), this.listener, new Smoke(this.scene)));
+        primary.addComponent(new MuzzleFlash(primary, new THREE.Vector3(0.1, -0.2, -0.7), this.listener, new Smoke(this.scene)));
         primary.addComponent(new SimpleGunModel(primary, './assets/objects/AUG2.glb', {
             position: new THREE.Vector3(0.1,-0.4,-0.1),
             scale: new THREE.Vector3(0.1,0.1,0.1),

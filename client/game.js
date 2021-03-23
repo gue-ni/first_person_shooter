@@ -11,22 +11,12 @@ import { RectAreaLightUniformsLib } from './three/examples/jsm/lights/RectAreaLi
 import { RectAreaLightHelper } from './three/examples/jsm/helpers/RectAreaLightHelper.js';
 
 const canvas  		= document.querySelector('#canvas');
-const slider1 		= document.querySelector('#slider1');
-const slider2 		= document.querySelector('#slider2');
-const slider3 		= document.querySelector('#slider3');
-const hit 			= document.querySelector('#hit');
-const crosshair 	= document.querySelector('#crosshair');
-const taking_hits 	= document.querySelector('#taking_hits');
-const users 		= document.querySelector('#users');
-const debug         = document.querySelector('#debug')
-const checkbox      = document.querySelector('#state');
 const respawnBtn    = document.querySelector('#respawn');
-const hud           = document.querySelector('#hud');
+const hudEl           = document.querySelector('#hud');
 const menuEl        = document.querySelector('#menu');
-const button        = document.querySelector('#button');
 
-//canvas.height = window.innerHeight;
-//canvas.width 	= window.innerWidth;
+canvas.height  = window.innerHeight;
+canvas.width   = window.innerWidth;
 const window_width 	= canvas.width
 const window_height = canvas.height
 
@@ -85,18 +75,18 @@ let then = 0, dt = 0;
 const killPlayer = function(){
     player.publish("killed", {})
     dead = true;
-    hud.style.display       = 'none';
+    hudEl.style.display       = 'none';
     menuEl.style.display    = 'block';
-    player.transform.visible = false;
+    player.transform.visible = player.active = false;
     gameObjectArray.remove(player);
 }
 
-const respawnPlayer = function(){
+const spawnPlayer = function(){
     console.log("respawn")
     player.publish("spawn", {})
     dead = false;
-    player.transform.visible = true;
-    hud.style.display       = 'block';
+    player.transform.visible = player.active = true;
+    hudEl.style.display     = 'block';
     menuEl.style.display    = 'none';
     gameObjectArray.add(player);
 }
@@ -110,7 +100,7 @@ const init = async function(){
     console.log(player.id);
 
     respawnBtn.addEventListener("click", () => {
-        respawnPlayer();
+        spawnPlayer();
     });
 
     // create map skybox
@@ -140,30 +130,6 @@ const init = async function(){
     gameObjectArray.add(testObject);
     */
 
-    /*
-    // create lights
-    const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);
-    pinkLight.position.set(-25, 50, -25);
-    scene.add(pinkLight);
-    const blueLight = new THREE.PointLight(gameData.colorscheme.blue, 6, 100, 2);
-    blueLight.position.set(25, 50, 25);
-    scene.add(blueLight);
-
-    scene.add(new THREE.AmbientLight(gameData.colorscheme.white, 0.2))
-    const light = new THREE.DirectionalLight(gameData.colorscheme.white, 0.5, 100);
-    light.position.set(0, 50, 25)
-    light.castShadow 			=  true; 
-    light.shadow.mapSize.width 	=  512; 
-    light.shadow.mapSize.height =  512; 
-    light.shadow.camera.near 	=  0.5; 
-    light.shadow.camera.far 	=  100;
-    light.shadow.camera.left 	= -50;
-    light.shadow.camera.bottom 	= -50;
-    light.shadow.camera.top  	=  50;
-    light.shadow.camera.right	=  50;
-    scene.add(light)
-    */
-
     let r = 0xd90452;
     let p = 0x0476D9;
 
@@ -186,6 +152,25 @@ const init = async function(){
     }
     {
         const light = new THREE.DirectionalLight(colors.c5, 1, 100, 2);
+        light.position.set(0, 50, 15)
+        light.castShadow 			=  true; 
+        light.shadow.mapSize.width 	=  1024; 
+        light.shadow.mapSize.height =  1024; 
+        light.shadow.camera.near 	=  0.5; 
+        light.shadow.camera.far 	=  100;
+        light.shadow.camera.left 	= -50;
+        light.shadow.camera.bottom 	= -50;
+        light.shadow.camera.top  	=  50;
+        light.shadow.camera.right	=  50;
+        scene.add(light)
+    }
+    {
+        /*
+        const pointlight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);
+        pointlight.position.set(0, 50, -25);
+        scene.add(pointlight);
+        scene.add(new THREE.AmbientLight(gameData.colorscheme.purple, 0.4))
+        const light = new THREE.DirectionalLight(gameData.colorscheme.blue, 2, 100);
         light.position.set(0, 50, 25)
         light.castShadow 			=  true; 
         light.shadow.mapSize.width 	=  512; 
@@ -197,26 +182,8 @@ const init = async function(){
         light.shadow.camera.top  	=  50;
         light.shadow.camera.right	=  50;
         scene.add(light)
+        */
     }
-
-/*
-    const pointlight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);
-    pointlight.position.set(0, 50, -25);
-    scene.add(pointlight);
-    scene.add(new THREE.AmbientLight(gameData.colorscheme.purple, 0.4))
-    const light = new THREE.DirectionalLight(gameData.colorscheme.blue, 2, 100);
-    light.position.set(0, 50, 25)
-    light.castShadow 			=  true; 
-    light.shadow.mapSize.width 	=  512; 
-    light.shadow.mapSize.height =  512; 
-    light.shadow.camera.near 	=  0.5; 
-    light.shadow.camera.far 	=  100;
-    light.shadow.camera.left 	= -50;
-    light.shadow.camera.bottom 	= -50;
-    light.shadow.camera.top  	=  50;
-    light.shadow.camera.right	=  50;
-    scene.add(light)
-*/
 
     // prebake shadows
 	renderer.shadowMap.needsUpdate = true;
@@ -235,11 +202,11 @@ const play = function(dt) {
 
         switch (object.type){
             case "player":
-                console.log("creating player")
+                //console.log("creating player")
                 factory.createNetworkPlayer(network, {'id': id});
                 break;
             case "projectile":
-                console.log("creating projectile")
+                //console.log("creating projectile")
                 factory.createNetworkProjectile(network, {'id': id});
                 break;
         }
@@ -274,7 +241,6 @@ const play = function(dt) {
     let health = player.getComponent("Health");
     if (health){
         if (health.value <= 0 && !dead){
-            console.log("kill player")
             player.publish("killed", {});
             killPlayer();
         }
@@ -282,14 +248,12 @@ const play = function(dt) {
 
     for (let explosion of network.explosions){
         explosions.impact(explosion);
-        // TODO calculate damage
         let v = new THREE.Vector3();
         v.subVectors(player.position, explosion)
 
         let d = v.length();
         if (d < 10){
             let damage = Math.floor((10 - d) * 5);
-            //console.log(damage);
             player.publish("damage", damage);
         }
     }

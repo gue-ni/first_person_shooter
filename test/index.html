@@ -1,37 +1,66 @@
 <html>
     <head>
-        <title>Touch Controlls</title>
+        <title>Touch</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     </head>
     <body>
-        <span>Debug:<span id="display">?</span></span>
+        <div class="row">
+        <div class="column" style="background-color:#aaa;" id="left">
+            <h2>Left</h2>
+            <span>display1: <span id="display1">?</span></span>
+        </div>
+        <div class="column" style="background-color:#bbb;", id="right">
+            <h2>Right</h2>
+            <span>display2: <span id="display2">?</span></span>
+        </div>
+        </div>
    </body>
+    <style>
+
+    html,body{
+        height:100%;
+    }
+    
+    .row {
+        display: flex;
+    }
+
+    .column {
+        flex: 50%;
+        height: 100%; 
+    }
+
+    </style>
     <script>
-        let debug = document.querySelector('#display')
+        let debug1 = document.querySelector('#display1');
+        let debug2 = document.querySelector('#display2');
+        let left   = document.querySelector('#left');
 
-        document.addEventListener("touchstart", (event) => {
-            console.log("touchstart");
-            display.innerText = event.touches.length;
+        let w =  screen.width;
+        let h = screen.height;
+        console.log(w,h);
 
-            if (!document.fullscreenElement){
+        debug1.innerText = `w=${w}, h=${h}`
+
+        function process_touchstart(ev){
+            ev.preventDefault();
+
+            /*
+            if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
             }
+            */
 
+            console.log(ev.touches[0])
+        }
 
-        }, false);
+        function process_touchmove(ev){
+            ev.preventDefault();
+            let t = ev.touches[0];
+            debug2.innerText = `x=${Math.floor(t.screenX)}, y=${Math.floor(t.screenY)}`
+        }
 
-        document.addEventListener("touchmove", (event) => {
-            console.log("touchmove");
-        }, false);
-
-        document.addEventListener("touchcancel", (event) => {
-            console.log("touchcancel");
-
-        }, false);
-
-        document.addEventListener("touchend", (event) => {
-            console.log("touchend");
-        }, false);
+        left.addEventListener("touchstart", process_touchstart, {passive: false});
+        left.addEventListener("touchmove",  process_touchmove, {passive: false});
     </script>
 </html>

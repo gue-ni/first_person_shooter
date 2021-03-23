@@ -7,11 +7,14 @@ export class FirstPersonCamera extends Component {
         super(gameObject)
         this.camera = camera;
 		this._look = new THREE.Vector3()
+        this._tmp = new THREE.Vector3();
         
         this.transform = new THREE.Object3D();
         this.transform.translateY(0.7)
         this.transform.add(this.camera);
         this.gameObject.transform.add(this.transform)
+
+
     }
 
     get position(){
@@ -19,8 +22,12 @@ export class FirstPersonCamera extends Component {
     }
 
     update(dt){
-		this._look.subVectors(this.gameObject.position, this.gameObject.direction)
-		this.transform.lookAt(this._look)
+		
+        //this._look.subVectors(this.gameObject.position, this.gameObject.direction)
+        this.transform.getWorldPosition(this._tmp)
+        this._look.subVectors(this._tmp, this.gameObject.direction)
+
+        this.transform.lookAt(this._look)
     }
 }
 
@@ -135,15 +142,17 @@ export class PlayerInput extends Component{ // should also move the camera
         this._publishData();
    }
 
-   _mouseDownCallback(){
+    _mouseDownCallback(){
+        if (!this.gameObject.active) return;
         this.firing = true;
         this.gameObject.publish("trigger", { firing: true });
-   }
+    }
 
-   _mouseUpCallback(){
+    _mouseUpCallback(){
+        if (!this.gameObject.active) return;
         this.firing = false;
         this.gameObject.publish("trigger", { firing: false });
-   }
+    }
 
     _onKeyDown(event){
         switch (event.keyCode) {
@@ -271,3 +280,15 @@ export class Health extends Component {
     }
 }
 
+export class SpawnManager extends Component {
+    constructor(gameObject){
+        super(gameObject);
+        this.gameObject.subscribe("spawn", (event) => {
+
+        });
+
+        this.gameObject.subscribe("killed", (event) => {
+
+        });
+    }
+}

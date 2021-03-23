@@ -41,7 +41,7 @@ export class ParticleSystem {
         this.startSize          = 0.1;
 		this.particleLifetime   = params.particleLifetime;
         this.active             = true;
-        this.alphaDegrading     = 0.5;
+        this.alphaDegrading     = 1.0;
         this.scaleValue         = 0.1;
 
         this._particles = []
@@ -73,8 +73,7 @@ export class ParticleSystem {
 			fragmentShader: _FS,
 			depthTest: 		true,
 			depthWrite: 	false,
-			//blending: THREE.NormalBlending, // THREE.AdditiveBlending for fire
-			blending: params.blending, // THREE.AdditiveBlending for fire
+			blending: params.blending, 
 			transparent: 	true,
 			vertexColors: 	true
 		});
@@ -325,7 +324,7 @@ export class Smoke extends ParticleSystem {
         this._particles[unused].position.y = this._source.y + 0.25 * Math.random() - 0.125;
         this._particles[unused].position.z = this._source.z + 0.25 * Math.random() - 0.125;
 
-        this._particles[unused].velocity.set(0.25, 0.75, 0);
+        this._particles[unused].velocity.set(0.1, 0.3, 0);
         this._particles[unused].lifetime = this.particleLifetime;
         this._particles[unused].size = this.startSize;
         this._particles[unused].color = new THREE.Color();

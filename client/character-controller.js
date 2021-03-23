@@ -87,7 +87,7 @@ export class NetworkCC extends CharacterController {
                 } else if(this.input.backward){  this._setState("backward");
                 } else if(this.input.left){      this._setState("left");
                 } else if (this.input.right){    this._setState("right");
-                } else {                    this._setState("idle")
+                } else {                         this._setState("idle")
                 }
             }
             this.mixer.update(dt);
@@ -115,7 +115,7 @@ export class LocalCC extends CharacterController {
             } else if(this.input.backward){  this._setState("backward");
             } else if(this.input.left){      this._setState("left");
             } else if (this.input.right){    this._setState("right");
-            } else {                    this._setState("idle")
+            } else {                         this._setState("idle")
             }       
         }
     }
