@@ -4,7 +4,7 @@ import { GameObject, GameObjectArray } from './game-object.js';
 import { Box, EventRelay, HUD, Physics, SimpleGLTFModel, SimpleGunModel } from './components.js';
 import { AABB } from './collision.js';
 import { Explosion, Smoke } from './particles.js';
-import { FirstPersonCamera, Health, PlayerInput } from './player-components.js';
+import { FirstPersonCamera, Health, PlayerInput, TestInput } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory, Explosive } from './weapon-components.js';
 import { LocalCC, NetworkCC } from './character-controller.js';
 import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js';
@@ -17,7 +17,12 @@ export class Factory {
         this.listener = listener;
         this.gameObjectArray = gameObjectArray;
         this.hashGrid = hashGrid;
-        this.network = network
+        this.network = network;
+
+
+
+
+
     }
 
     createProjectile(network){
@@ -94,7 +99,9 @@ export class Factory {
         primary.addComponent(new HitscanEmitter(primary, network.rays, player.id));
         primary.addComponent(new AmmoDisplay(primary));
         primary.addComponent(new WeaponController(primary, 620, 30));
-        primary.addComponent(new EventRelay(primary, player, ["trigger", "reload", "toggleGun", "spawn"]));
+        primary.addComponent(new EventRelay(primary, player, 
+            ["trigger", "reload", "toggleGun", "spawn"]));
+
         primary.addComponent(new MuzzleFlash(primary, new THREE.Vector3(0.1, -0.2, -0.5), this.listener, new Smoke(this.scene)));
         primary.addComponent(new SimpleGunModel(primary, './assets/objects/AUG2.glb', {
             position: new THREE.Vector3(0.1,-0.4,-0.1),
@@ -114,7 +121,9 @@ export class Factory {
         secondary.addComponent(new WeaponController(secondary, 200, 10));
         secondary.addComponent(new MuzzleFlash(secondary, new THREE.Vector3(0.1,-0.4,-1.2), this.listener, new Smoke(this.scene)));
         secondary.addComponent(new ProjectileEmitter(secondary, network.projectiles, this));
-        secondary.addComponent(new EventRelay(secondary, player, ["trigger", "reload", "toggleGun", "spawn"]));
+        secondary.addComponent(new EventRelay(secondary, player, 
+            ["trigger", "reload", "toggleGun", "spawn"]));
+
         secondary.addComponent(new Box(secondary, {
             size: new THREE.Vector3(0.25,0.25,1), 
             color: 13882323, 

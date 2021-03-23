@@ -109,7 +109,7 @@ export class SimpleGunModel extends SimpleGLTFModel{
             this.targetPosition.set(
                 this.model.position.x,
                 this.model.position.y,
-                this.model.position.z + 0.3
+                this.model.position.z + 0.1
             )
             
             //this.oldRotation.copy(this.model.quaternion);

@@ -6,6 +6,7 @@ import { HashGrid } from './hashgrid.js';
 import { Factory } from './factory.js';
 import { BulletImpact, Explosion, ParticleSystem, Smoke } from './particles.js';
 import { NetworkController } from './networking.js';
+import { SimpleGLTFModel } from './components.js';
 
 const canvas  		= document.querySelector('#canvas');
 const slider1 		= document.querySelector('#slider1');
@@ -122,14 +123,18 @@ const init = async function(){
     scene.add(mesh);
 
     // create boxes
+    /*
     for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos, new THREE.Vector3(2,2,2));
-	}
+	}*/
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
     // testing
-    //let testObject = new GameObject(scene);
-    //gameObjectArray.add(testObject);
+    let testObject = new GameObject(scene);
+    testObject.addComponent(new SimpleGLTFModel(testObject, './assets/objects/map.glb', {
+        scale: new THREE.Vector3(0.5, 0.5, 0.5)
+    }))
+    gameObjectArray.add(testObject);
 
     // create lights
     const pinkLight = new THREE.PointLight(gameData.colorscheme.pink, 6, 100, 2);

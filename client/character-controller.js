@@ -56,7 +56,7 @@ export class NetworkCC extends CharacterController {
 
             this.model = object.scene;
             this.model.rotateY(Math.PI/2)
-            this.model.scale.set(0.4, 0.4, 0.4);
+            this.model.scale.set(0.5, 0.5, 0.5);
             this.gameObject.transform.add(this.model);
 
             const animations = object.animations;

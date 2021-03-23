@@ -9,7 +9,7 @@ export class FirstPersonCamera extends Component {
 		this._look = new THREE.Vector3()
         
         this.transform = new THREE.Object3D();
-        this.transform.translateY(0.5)
+        this.transform.translateY(0.7)
         this.transform.add(this.camera);
         this.gameObject.transform.add(this.transform)
     }
@@ -67,17 +67,13 @@ export class PlayerInput extends Component{ // should also move the camera
         }
     }
 
-    _publishData(){
-        this.gameObject.publish("input", { keys: this.keys, direction: this._direction });
-    }
-
     update(dt){
         // update velocities
         let direction = this._direction.clone();
         direction.setY(0);
         direction.normalize();
 
-        let speed = 150 * dt;
+        let speed = 7;
 
         if (this.keys.forward){         
             direction.multiplyScalar(speed)
@@ -90,12 +86,12 @@ export class PlayerInput extends Component{ // should also move the camera
             this.gameObject.velocity.z = direction.z
            
         } else if (this.keys.right){  
-            direction.multiplyScalar(speed * 0.75)
+            direction.multiplyScalar(speed)
             this.gameObject.velocity.x = -direction.z
             this.gameObject.velocity.z =  direction.x 
 
         } else if (this.keys.left){  
-            direction.multiplyScalar(speed * 0.75)
+            direction.multiplyScalar(speed)
             this.gameObject.velocity.x =  direction.z
             this.gameObject.velocity.z = -direction.x 
 
@@ -103,17 +99,22 @@ export class PlayerInput extends Component{ // should also move the camera
             this.gameObject.velocity.x = 0
             this.gameObject.velocity.z = 0
         }
+
         if (this.keys.jump){ // SPACE
             let p = this.gameObject.position.clone();
             p.setY(p.y-1.1)
 
             for (let aabb of this.hashGrid.possible_point_collisions(p)){
                 if (aabb.box.containsPoint(p)){
-                    this.gameObject.velocity.y += 250 * dt;
+                    this.gameObject.velocity.y = 10;
                     break;
                 }
             }
         }
+    }
+
+    _publishData(){
+        this.gameObject.publish("input", { keys: this.keys, direction: this._direction });
     }
 
     _mouseCallback(event){
@@ -188,6 +189,48 @@ export class PlayerInput extends Component{ // should also move the camera
             case 82:  this.keys.reload      = false; break;
         }
         this._publishData();
+    }
+}
+
+export class TestInput extends PlayerInput {
+    constructor(gameObject, network, hashGrid){
+        super(gameObject, network, hashGrid);
+
+    }
+
+    update(dt){
+        // update velocities
+        let direction = this._direction.clone();
+        
+        direction.normalize();
+
+        let speed = 7;
+
+        if (this.keys.forward){         
+            direction.multiplyScalar(speed)
+            this.gameObject.velocity.x = direction.x
+            this.gameObject.velocity.z = direction.z
+            this.gameObject.velocity.y = direction.y
+
+        } else if(this.keys.backward){   
+            direction.multiplyScalar(-speed)
+            this.gameObject.velocity.x = direction.x
+            this.gameObject.velocity.z = direction.z
+           
+        } else if (this.keys.right){  
+            direction.multiplyScalar(speed)
+            this.gameObject.velocity.x = -direction.z
+            this.gameObject.velocity.z =  direction.x 
+
+        } else if (this.keys.left){  
+            direction.multiplyScalar(speed)
+            this.gameObject.velocity.x =  direction.z
+            this.gameObject.velocity.z = -direction.x 
+
+        } else { 
+            this.gameObject.velocity.x = 0
+            this.gameObject.velocity.z = 0
+        }
     }
 }
 
