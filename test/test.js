@@ -2,6 +2,7 @@
 let _objectId = 0;
 
 function A(){
+
     Object.defineProperty( this, 'id', { value: _objectId ++ } );
 
     function f1(){
@@ -15,10 +16,10 @@ function A(){
 
 
 let a = new A();
-console.log(a);
+console.log(a.id);
 
 let b = new A();
-console.log(b);
+console.log(b.id);
 
 
 
