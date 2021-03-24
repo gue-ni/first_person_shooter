@@ -4,19 +4,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div class="row">
-        <div class="column" style="background-color:#aaa;" id="left">
-            <h2>Left</h2>
-            <span>display1: <span id="display1">?</span></span>
-            <div class="stick-base"></div>
-            <div class="stick" id="left-stick"></div>
-        </div>
-        <div class="column" style="background-color:#bbb;", id="right">
-            <h2>Right</h2>
-            <span>display2: <span id="display2">?</span></span>
-            <span>display3: <span id="display3">?</span></span>
-        </div>
-        </div>
+
+        <span class="ui-element" id="cross">+</span>
+        <span class="ui-element" id="health">Health</span>
+        <span class="ui-element" id="ammo">Ammo</span>
+
+        <div class="stick-base" id="left-stick-base"></div>
+        <div class="stick" id="left-stick"></div>
+
+        <div class="stick-base" id="right-stick-base"></div>
+        <div class="stick" id="right-stick"></div>
+
+        <div class="button" id="fire"></div>
    </body>
     <style>
     html, body {
@@ -39,49 +38,97 @@
         width:  15vw;
         height: 15vw;
         position: absolute;
-        left: 10vw;
-        top: 60vh;
         background-color: rgba(196, 84, 84, 0.445);
+        border-radius: 50%;
     }
 
     .stick {
         width: 10vw;
         height: 10vw;
         position: absolute;
+        background-color: red;
+        border-radius: 50%;
+    }
+
+    .button {
+        width:  10vw;
+        height: 10vw;
+        position: absolute;
+        background-color: blue;
+        border-radius: 50%;
+       
+    }
+
+    .ui-element {
+        position: absolute;
+    }
+
+    #left-stick-base {
+        left: 10vw;
+        top: 60vh;
+    }
+
+    #left-stick {
         left: 12.5vw;
         top: 64.5vh;
-        background-color: red;
+    }
+
+    #right-stick-base {
+        left: 75vw;
+        top: 60vh;
+    }
+
+    #right-stick {
+        left: 77.5vw;
+        top: 64.5vh;
+    }
+
+    #fire {
+        left: 10vw;
+        top:  15vh;
+    }
+
+    #health {
+        left: 5vw;
+        top: 90vh;
+    }
+
+    #ammo {
+        left: 5vw;
+        top: 85vh;
+    }
+
+    #cross {
+        left:  50vw;
+        top:   50vh;
     }
 
     </style>
     <script>
-        let debug1 = document.querySelector('#display1');
-        let debug2 = document.querySelector('#display2');
-        let debug3 = document.querySelector('#display3');
-        let left   = document.querySelector('#left-stick');
+        let left    = document.querySelector('#left-stick');
+        let right   = document.querySelector('#right-stick');
+        let fire    = document.querySelector('#fire');
         
-        debug1.innerText = `w=${screen.width}, h=${screen.height}`
-
         window.addEventListener("orientationchange", (event) => {
             debug1.innerText = `w=${screen.width}, h=${screen.height}`
         });
 
-        function process_touchstart(ev){
+        function stick_touchstart(ev, el){
             ev.preventDefault();
         }
 
-        function process_touchend(ev){
+        function stick_touchend(ev, el){
             ev.preventDefault();
-            left.style.transform = `translate(0px, 0px)`;
-            //console.log("cancel");
+            ev.target.style.transform = `translate(0px, 0px)`;
         }
 
-        function process_touchmove(ev){
+        function stick_touchmove(ev, el){
             ev.preventDefault();
 
-            let touch = ev.touches[0];
-
-            debug2.innerText = `x=${Math.floor(touch.clientX)}, y=${Math.floor(touch.clientY)}`
+            let touch = null;
+            for (let tmp of ev.touches){
+                if (el == tmp.target) touch = tmp;
+            }
             
             let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
             let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
@@ -92,9 +139,7 @@
             let length = Math.sqrt(transformX**2 + transformY**2);
             let factor = 1.0, max = 50;
 
-            if (length > max){
-                factor = max / length; 
-            }
+            if (length > max) factor = max / length; 
 
             transformX *= factor;
             transformY *= factor;
@@ -103,10 +148,21 @@
         }
 
         document.addEventListener("touchstart", () => {
-            //if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
         }, false);
-        left.addEventListener("touchstart", process_touchstart, {passive: false});
-        left.addEventListener("touchmove",  process_touchmove,  {passive: false});
-        left.addEventListener("touchend",   process_touchend,   {passive: false});
+
+        left.addEventListener("touchstart", (event) => stick_touchstart(event, left), {passive: false});
+        left.addEventListener("touchmove",  (event) => stick_touchmove(event, left),  {passive: false});
+        left.addEventListener("touchend",   (event) => stick_touchend(event, left),   {passive: false});
+        right.addEventListener("touchstart", (event) => stick_touchstart(event, right), {passive: false});
+        right.addEventListener("touchmove",  (event) => stick_touchmove(event, right),  {passive: false});
+        right.addEventListener("touchend",   (event) => stick_touchend(event, right),   {passive: false});
+
+        fire.addEventListener("touchstart", (event) => {
+            console.log("trigger down")
+        }, false);
+        fire.addEventListener("touchend", (event) => {
+            console.log("trigger up")
+        }, false);
     </script>
 </html>

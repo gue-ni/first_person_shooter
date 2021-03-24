@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			body { 
+				margin: 0; 
+			}
+			#crosshair {
+			  position: absolute;
+
+			  left: 313px;
+			  top:  231px;
+			  color: white;
+			}
+			#taking_hits {
+				position: absolute;
+				left: 200px;
+				top: 100px;
+				color: white;
+				size: 30px;
+			}
+            #health {
+                position: absolute;
+                left: 50px;
+                top: 370px;
+                color: white;
+            }
+            #ammo {
+                position: absolute;
+                left: 50px;
+                top: 400px;
+                color: white;
+            }
+
+            #respawn {
+                position: absolute;
+                left: 270px;
+                top: 170px;
+            }
+
+            #menu-text {
+                position: absolute;
+                left: 210px;
+                top: 100px;
+                color: white;
+            }
+		</style>
+	</head>
+	<body>
+		<canvas id="canvas" width="640" height="480"></canvas>
+        <div id="hud" style="display: none;">
+            <span id="crosshair">+</span>
+            <span id="debug"></span>
+            <span id="users"></span>
+            <span id="hit"></span>
+            <span id="taking_hits" style="display: none">you are being hit</span>
+            <span id="health">Health</span>
+            <span id="ammo">Ammo</span>
+        </div>
+        <div id="menu" style="display: block;">
+            <h1 id="menu-text">you are dead</h1>
+            <button id="respawn">respawn</button>
+        </div>
+        
+        <input type="checkbox" id="state">
+        <input type="range" min="-90" max="90" value="0" id="slider1">
+	  	<input type="range" min="-50" max="50" value="0" id="slider2">
+	  	<input type="range" min="-50" max="50" value="0" id="slider3">
+        <button id="button">button</button>
+
+		<script type="module" src="game.js"></script>
+	</body>
+</html>

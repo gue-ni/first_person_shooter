@@ -4,7 +4,8 @@ import { GameObject, GameObjectArray } from './game-object.js';
 import { Box, EventRelay, HUD, Physics, SimpleGLTFModel, SimpleGunModel } from './components.js';
 import { AABB } from './collision.js';
 import { Explosion, Smoke } from './particles.js';
-import { FirstPersonCamera, Health, PlayerInput, TestInput } from './player-components.js';
+import { PlayerInput, TouchInput} from './input.js';
+import { FirstPersonCamera, Health } from './player-components.js';
 import { HitscanEmitter, ProjectileEmitter, MuzzleFlash, WeaponController, Inventory, Explosive } from './weapon-components.js';
 import { LocalCC, NetworkCC } from './character-controller.js';
 import { ActiveNetworkComponent, PassiveNetworkComponent } from './networking.js';
@@ -69,7 +70,7 @@ export class Factory {
         player.addComponent(new HealthDisplay(player));
         player.addComponent(new HitDisplay(player));
 
-        player.addComponent(new PlayerInput(player, network, this.hashGrid))
+        player.addComponent(new TouchInput(player, network, this.hashGrid))
         player.addComponent(new LocalCC(player));
         player.addComponent(new ActiveNetworkComponent(player, network, "player"));
         player.addComponent(new Health(player))
