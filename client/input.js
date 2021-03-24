@@ -172,68 +172,179 @@ export class PlayerInput extends Component{ // should also move the camera
 }
 
 export class TouchInput extends Component {
-    constructor(gameObject){
+    constructor(gameObject, network, hashGrid){
         super(gameObject);
+
+        this.network = network;
+        this.hashGrid = hashGrid;
+
+        this.keys = {
+            forward: false,
+            backward: false,
+            right: false,
+            left: false,
+            jump: false,
+            reload: false
+        }
+
+        this._yaw   = 0.5 * Math.PI;
+        this._pitch = 0;
+        this._direction = new THREE.Vector3();
 
         let left    = document.querySelector('#left-stick');
         let right   = document.querySelector('#right-stick');
         let fire    = document.querySelector('#fire');
         
-        window.addEventListener("orientationchange", (event) => {
-            debug1.innerText = `w=${screen.width}, h=${screen.height}`
-        });
+        left.addEventListener("touchstart", (event) => this.stick_touchstart(event, left), {passive: false});
+        left.addEventListener("touchmove",  (event) => this.stick_move_touchmove(event, left),  {passive: false});
+        left.addEventListener("touchend",   (event) => this.stick_move_touchend(event, left),   {passive: false});
 
-        function stick_touchstart(ev, el){
-            ev.preventDefault();
-        }
-
-        function stick_touchend(ev, el){
-            ev.preventDefault();
-            ev.target.style.transform = `translate(0px, 0px)`;
-        }
-
-        function stick_touchmove(ev, el){
-            ev.preventDefault();
-
-            let touch = null;
-            for (let tmp of ev.touches){
-                if (el == tmp.target) touch = tmp;
-            }
-            
-            let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
-            let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
-
-            let transformX = touch.clientX - x;
-            let transformY = touch.clientY - y;
-
-            let length = Math.sqrt(transformX**2 + transformY**2);
-            let factor = 1.0, max = 50;
-
-            if (length > max) factor = max / length; 
-
-            transformX *= factor;
-            transformY *= factor;
-        
-            ev.target.style.transform = `translate(${transformX}px, ${transformY}px)`;
-        }
-
-        document.addEventListener("touchstart", () => {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        }, false);
-
-        left.addEventListener("touchstart", (event) => stick_touchstart(event, left), {passive: false});
-        left.addEventListener("touchmove",  (event) => stick_touchmove(event, left),  {passive: false});
-        left.addEventListener("touchend",   (event) => stick_touchend(event, left),   {passive: false});
-        right.addEventListener("touchstart", (event) => stick_touchstart(event, right), {passive: false});
-        right.addEventListener("touchmove",  (event) => stick_touchmove(event, right),  {passive: false});
-        right.addEventListener("touchend",   (event) => stick_touchend(event, right),   {passive: false});
+        right.addEventListener("touchstart", (event) => this.stick_touchstart(event, right), {passive: false});
+        right.addEventListener("touchmove",  (event) => this.stick_look_touchmove(event, right),  {passive: false});
+        right.addEventListener("touchend",   (event) => this.stick_touchend(event, right),   {passive: false});
 
         fire.addEventListener("touchstart", (event) => {
-            console.log("trigger down")
+            if (!this.gameObject.active) return;
+            this.gameObject.publish("trigger", { firing: true });
         }, false);
+
         fire.addEventListener("touchend", (event) => {
-            console.log("trigger up")
+            if (!this.gameObject.active) return;
+            this.gameObject.publish("trigger", { firing: false });
         }, false);
+    }
+
+    update(dt){
+        let direction = this._direction.clone();
+        direction.setY(0);
+        direction.normalize();
+
+        let speed = 7;
+
+        if (this.keys.forward){         
+            direction.multiplyScalar(speed)
+            this.gameObject.velocity.x = direction.x
+            this.gameObject.velocity.z = direction.z
+
+        } else if(this.keys.backward){   
+            direction.multiplyScalar(-speed)
+            this.gameObject.velocity.x = direction.x
+            this.gameObject.velocity.z = direction.z
+           
+        } else if (this.keys.right){  
+            direction.multiplyScalar(speed)
+            this.gameObject.velocity.x = -direction.z
+            this.gameObject.velocity.z =  direction.x 
+
+        } else if (this.keys.left){  
+            direction.multiplyScalar(speed)
+            this.gameObject.velocity.x =  direction.z
+            this.gameObject.velocity.z = -direction.x 
+
+        } else { 
+            this.gameObject.velocity.x = 0
+            this.gameObject.velocity.z = 0
+        }
+    }
+
+    _publishData(){
+        this.gameObject.publish("input", { keys: this.keys, direction: this._direction });
+    }
+
+    stick_touchstart(ev, el){
+        ev.preventDefault();
+    }
+
+    stick_touchend(ev, el){
+        ev.preventDefault();
+        ev.target.style.transform = `translate(0px, 0px)`;
+    }
+    stick_move_touchend(ev, el){
+        ev.preventDefault();
+        ev.target.style.transform = `translate(0px, 0px)`;
+        this.keys.left = this.keys.right = false;
+        this.keys.forward = this.keys.backward = false;
+        console.log("end")
+    }
+
+
+    stick_move_touchmove(ev, el){
+        ev.preventDefault();
+
+        let touch = null;
+        for (let tmp of ev.touches){
+            if (el == tmp.target) touch = tmp;
+        }
+        
+        let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
+        let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
+        let tx = touch.clientX - x;
+        let ty = touch.clientY - y;
+        let length = Math.sqrt(tx**2 + ty**2);
+        let factor = 1.0, max = 50;
+        if (length > max) factor = max / length; 
+        tx *= factor;
+        ty *= factor;
+        ev.target.style.transform = `translate(${tx}px, ${ty}px)`;
+
+        //console.log(tx / ty);
+        //console.log(tx)
+        //console.log("move")
+
+        if (tx < -10) {
+            this.keys.left = true;
+            this.keys.right = false;
+        } else if (tx >  10) {
+            this.keys.right = true;
+            this.keys.left = false;
+        } else {
+            this.keys.right = this.keys.left = false;
+        }
+
+        if (ty < -10) {
+            this.keys.forward = true;
+            this.keys.backward = false;
+        } else if (ty >  10) {
+            this.keys.backward = true;
+            this.keys.forward = false;
+        } else {
+            this.keys.backward = this.keys.forward = false;
+        }
+
+
+    }
+
+    stick_look_touchmove(ev, el){
+        ev.preventDefault();
+
+        let touch = null;
+        for (let tmp of ev.touches){
+            if (el == tmp.target) touch = tmp;
+        }
+        
+        let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
+        let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
+        let tx = touch.clientX - x;
+        let ty = touch.clientY - y;
+        let length = Math.sqrt(tx**2 + ty**2);
+        let factor = 1.0, max = 50;
+        if (length > max) factor = max / length; 
+        tx *= factor;
+        ty *= factor;
+
+        this._yaw   += (tx * 0.05);
+        this._pitch += (ty * 0.05);
+        let pitch = -this._pitch;
+        if (pitch >  89) pitch =  89
+        if (pitch < -89) pitch = -89
+        let yaw = this._yaw;
+        this._direction.x = Math.cos(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
+        this._direction.y = Math.sin(pitch*(Math.PI/180))
+        this._direction.z = Math.sin(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
+        this._direction.normalize()
+        this._publishData();
+
+        ev.target.style.transform = `translate(${tx}px, ${ty}px)`;
     }
 }
 

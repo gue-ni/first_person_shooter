@@ -15,10 +15,10 @@ const respawnBtn    = document.querySelector('#respawn');
 const hudEl           = document.querySelector('#hud');
 const menuEl        = document.querySelector('#menu');
 
-canvas.height  = window.innerHeight;
-canvas.width   = window.innerWidth;
-const window_width 	= canvas.width
-const window_height = canvas.height
+//canvas.height  = window.innerHeight;
+//canvas.width   = window.innerWidth;
+let window_width 	= canvas.width = window.innerWidth
+let window_height = canvas.height = window.innerHeight;
 
 const scene 	= new THREE.Scene();
 scene.name = "Scene";
@@ -48,12 +48,30 @@ renderer.shadowMap.type = THREE.BasicShadowMap;
 renderer.shadowMap.autoUpdate = false;
 
 window.addEventListener('resize', () => {
-	let width = window_width
-	let height = window_height
-	renderer.setSize(width, height)
-	camera.aspect = width / height
-	camera.updateProjectionMatrix()
+    console.log("resize") 
+    window_width = canvas.width = window.innerWidth
+    window_height = canvas.height = window.innerHeight;
+    renderer.setSize(window_width, window_height)
+    camera.aspect = window_width / window_height
+    camera.updateProjectionMatrix()
+
+
 })
+
+document.addEventListener("touchstart", () => {
+    if (!document.fullscreenElement) {
+        //document.documentElement.requestFullscreen();
+        
+        window_width = canvas.width = window.innerWidth
+        window_height = canvas.height = window.innerHeight;
+        renderer.setSize(window_width, window_height)
+        camera.aspect = window_width / window_height
+        camera.updateProjectionMatrix()
+        
+    }
+}, false);
+
+
 
 const map_width = 50, map_depth = 50, map_height = 80
 const rays         	    = []
