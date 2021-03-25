@@ -19,6 +19,12 @@
                 height: 100vh;
             }
 
+            .column2 {
+                position: absolute;
+                width: 50vw;
+                height: 100vh;
+            }
+
             .stick-base {
                 width:  15vw;
                 height: 15vw;
@@ -55,6 +61,15 @@
             .ui-element {
                 position: absolute;
                 color: white;
+            }
+
+            #left {
+                top: 0vh;
+            }
+
+            #right {
+                left: 50vw;
+                top: 0vh;
             }
 
             #left-stick-base {
@@ -122,8 +137,10 @@
     </head>
     <body>
         <canvas id="canvas"></canvas>
-
         <div class="hud-element" id="hud" style="display: none;">
+            <!--<div class="column2" id="left" style="background-color: lightblue"></div>-->
+            <div class="column2" id="right"></div>
+
             <span class="ui-element" id="crosshair">+</span>
             <span class="ui-element" id="hit"></span>
             <span class="ui-element" id="health">Health</span>
@@ -132,8 +149,8 @@
             <div class="stick-base" id="left-stick-base"></div>
             <div class="stick" id="left-stick"></div>
 
-            <div class="stick-base" id="right-stick-base"></div>
-            <div class="stick" id="right-stick"></div>
+            <!--<div class="stick-base" id="right-stick-base"></div>
+            <div class="stick" id="right-stick"></div>-->
 
             <div class="button-l" id="fire">f</div>
             
@@ -145,7 +162,7 @@
         <div id="menu" class="hud-element" style="display: block;">
             <div id="menu-text">
                 <div style="position: relative; left: -50%">
-                    <h1>Hello to my Game</h1><br>
+                    <h1>Vaporware</h1><br>
                     <button id="respawn">Play</button>
                 </div>
             </div>

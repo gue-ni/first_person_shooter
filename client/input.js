@@ -1,4 +1,5 @@
 import { Component } from './components.js';
+import {Utils} from './utils.js';
 import * as THREE from './three/build/three.module.js';
 
 export class PlayerInput extends Component{ // should also move the camera
@@ -193,21 +194,23 @@ export class TouchInput extends Component {
         this._pitch = 0;
         this._direction = new THREE.Vector3(1, 0, 0);
         this._stick = new THREE.Vector2();
+        this.oldX = 0;
+        this.oldY = 0;
 
         let left    = document.querySelector('#left-stick');
-        let right   = document.querySelector('#right-stick');
+        let right   = document.querySelector('#right');
         let fire    = document.querySelector('#fire');
         let reload    = document.querySelector('#reload');
         let switch_gun = document.querySelector('#switch');
         let jump = document.querySelector('#jump');
         
-        left.addEventListener("touchstart", (event) => this.stick_touchstart(event, left), {passive: false});
-        left.addEventListener("touchmove",  (event) => this.stick_move_touchmove(event, left),  {passive: false});
-        left.addEventListener("touchend",   (event) => this.stick_move_touchend(event, left),   {passive: false});
+        left.addEventListener("touchstart", (event) => this.move_touchstart(event, left), {passive: false});
+        left.addEventListener("touchmove",  (event) => this.move_touchmove(event, left),  {passive: false});
+        left.addEventListener("touchend",   (event) => this.move_touchend(event, left),   {passive: false});
 
-        right.addEventListener("touchstart", (event) => this.stick_touchstart(event, right), {passive: false});
-        right.addEventListener("touchmove",  (event) => this.stick_look_touchmove(event, right),  {passive: false});
-        right.addEventListener("touchend",   (event) => this.stick_touchend(event, right),   {passive: false});
+        right.addEventListener("touchstart", (event) => this.look_touchstart(event, right), {passive: false});
+        right.addEventListener("touchmove",  (event) => this.look_touchmove(event, right),  {passive: false});
+        right.addEventListener("touchend",   (event) => this.look_touchend(event, right),   {passive: false});
 
         fire.addEventListener("touchstart", (event) => {
             if (!this.gameObject.active) return;
@@ -223,7 +226,7 @@ export class TouchInput extends Component {
             if (!this.gameObject.active) return;
             this.keys.reload = true; 
             this.gameObject.publish("reload", { 'finished': false});
-        })
+        }, false)
 
         switch_gun.addEventListener("touchstart", () => {
             if (!this.gameObject.active) return;
@@ -261,37 +264,41 @@ export class TouchInput extends Component {
         this.gameObject.velocity.z += (-direction.x * speed * this._stick.x)
     }
 
-    _publishData(){
+    publish(){
         this.gameObject.publish("input", { keys: this.keys, direction: this._direction });
     }
-    stick_touchstart(ev, el){
+
+    move_touchstart(ev, el){
         ev.preventDefault();
     }
-    stick_touchend(ev, el){
+
+    look_touchend(ev, el){
         ev.preventDefault();
         ev.target.style.transform = `translate(0px, 0px)`;
     }
 
-    stick_move_touchend(ev, el){
+    move_touchend(ev, el){
         ev.preventDefault();
         ev.target.style.transform = `translate(0px, 0px)`;
         this.keys.left = this.keys.right = this.keys.forward = this.keys.backward = false;
         this._stick.set(0,0);
     }
 
-    stick_move_touchmove(ev, el){
+    move_touchmove(ev, el){
         ev.preventDefault();
         let touch = null;
         for (let tmp of ev.touches) if (el == tmp.target) touch = tmp;
-        let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
-        let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
-        let tx = touch.clientX - x;
-        let ty = touch.clientY - y;
-        let length = Math.sqrt(tx**2 + ty**2);
-        let factor = 1.0, max = 50;
+
+        let elx = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
+        let ely = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
+        let tx = touch.clientX - elx;
+        let ty = touch.clientY - ely;
+
+        let factor = 1.0, max = 50, length = Math.sqrt(tx**2 + ty**2);
         if (length > max) factor = max / length; 
         tx *= factor;
         ty *= factor;
+        
         ev.target.style.transform = `translate(${tx}px, ${ty}px)`;
 
         this._stick.x = -(tx / max);
@@ -319,34 +326,38 @@ export class TouchInput extends Component {
         }
     }
 
-    stick_look_touchmove(ev, el){
+    look_touchstart(ev, el){
         ev.preventDefault();
-
         let touch = null;
         for (let tmp of ev.touches) if (el == tmp.target) touch = tmp;
-        let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
-        let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
-        let tx = touch.clientX - x;
-        let ty = touch.clientY - y;
-        let length = Math.sqrt(tx**2 + ty**2);
-        let factor = 1.0, max = 50;
-        if (length > max) factor = max / length; 
-        tx *= factor;
-        ty *= factor;
 
-        this._yaw   += (tx * 0.05);
-        this._pitch += (ty * 0.05);
-        let pitch = -this._pitch;
-        if (pitch >  89) pitch =  89
-        if (pitch < -89) pitch = -89
-        let yaw = this._yaw;
-        this._direction.x = Math.cos(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
-        this._direction.y = Math.sin(pitch*(Math.PI/180))
-        this._direction.z = Math.sin(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
+        this.oldX = touch.clientX;
+        this.oldY = touch.clientY;
+    }
+
+    look_touchmove(ev, el){
+        ev.preventDefault();
+        let touch = null;
+        for (let tmp of ev.touches) if (el == tmp.target) touch = tmp;
+        
+        let tx = touch.clientX - this.oldX;
+        let ty = touch.clientY - this.oldY;
+        
+        const sensitivity = 0.03;
+        this._yaw   += (tx * sensitivity);
+        this._pitch -= (ty * sensitivity);
+
+        this._pitch = Utils.clamp(this._pitch, -89, 89);
+
+        let yaw   = this._yaw   * (Math.PI/180);
+        let pitch = this._pitch * (Math.PI/180);
+
+        this._direction.x = Math.cos(yaw) * Math.cos(pitch)
+        this._direction.y = Math.sin(pitch)
+        this._direction.z = Math.sin(yaw) * Math.cos(pitch)
         this._direction.normalize()
 
-        this._publishData();
-        ev.target.style.transform = `translate(${tx}px, ${ty}px)`;
+        this.publish();
     }
 }
 
