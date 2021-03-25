@@ -45,9 +45,11 @@ export class PlayerInput extends Component{ // should also move the camera
     }
 
     update(dt){
+        //console.log(this.gameObject.direction)
+
         // update velocities
         let direction = this._direction.clone();
-        direction.setY(0);
+        //direction.setY(0);
         direction.normalize();
 
         let speed = 7;
@@ -152,7 +154,7 @@ export class PlayerInput extends Component{ // should also move the camera
                 break;
 
             case 69: // e
-                this.gameObject.publish("toggleGun", "whatever");
+                this.gameObject.publish("toggleGun", {});
         }
 
         this._publishData();
@@ -189,11 +191,15 @@ export class TouchInput extends Component {
 
         this._yaw   = 0.5 * Math.PI;
         this._pitch = 0;
-        this._direction = new THREE.Vector3();
+        this._direction = new THREE.Vector3(1, 0, 0);
+        this._stick = new THREE.Vector2();
 
         let left    = document.querySelector('#left-stick');
         let right   = document.querySelector('#right-stick');
         let fire    = document.querySelector('#fire');
+        let reload    = document.querySelector('#reload');
+        let switch_gun = document.querySelector('#switch');
+        let jump = document.querySelector('#jump');
         
         left.addEventListener("touchstart", (event) => this.stick_touchstart(event, left), {passive: false});
         left.addEventListener("touchmove",  (event) => this.stick_move_touchmove(event, left),  {passive: false});
@@ -212,6 +218,29 @@ export class TouchInput extends Component {
             if (!this.gameObject.active) return;
             this.gameObject.publish("trigger", { firing: false });
         }, false);
+
+        reload.addEventListener("touchstart", () => {
+            if (!this.gameObject.active) return;
+            this.keys.reload = true; 
+            this.gameObject.publish("reload", { 'finished': false});
+        })
+
+        switch_gun.addEventListener("touchstart", () => {
+            if (!this.gameObject.active) return;
+            this.gameObject.publish("toggleGun", {})
+        })
+
+        jump.addEventListener("touchstart", () => {
+            if (!this.gameObject.active) return;
+            let p = this.gameObject.position.clone();
+            p.setY(p.y-1.1)
+            for (let aabb of this.hashGrid.possible_point_collisions(p)){
+                if (aabb.box.containsPoint(p)){
+                    this.gameObject.velocity.y = 10;
+                    break;
+                }
+            }
+        });
     }
 
     update(dt){
@@ -219,63 +248,41 @@ export class TouchInput extends Component {
         direction.setY(0);
         direction.normalize();
 
+        if (Math.abs(this._stick.y) < 0.1) this._stick.y = 0;
+        if (Math.abs(this._stick.x) < 0.1) this._stick.x = 0;
+
         let speed = 7;
-
-        if (this.keys.forward){         
-            direction.multiplyScalar(speed)
-            this.gameObject.velocity.x = direction.x
-            this.gameObject.velocity.z = direction.z
-
-        } else if(this.keys.backward){   
-            direction.multiplyScalar(-speed)
-            this.gameObject.velocity.x = direction.x
-            this.gameObject.velocity.z = direction.z
-           
-        } else if (this.keys.right){  
-            direction.multiplyScalar(speed)
-            this.gameObject.velocity.x = -direction.z
-            this.gameObject.velocity.z =  direction.x 
-
-        } else if (this.keys.left){  
-            direction.multiplyScalar(speed)
-            this.gameObject.velocity.x =  direction.z
-            this.gameObject.velocity.z = -direction.x 
-
-        } else { 
-            this.gameObject.velocity.x = 0
-            this.gameObject.velocity.z = 0
-        }
+        this.gameObject.velocity.x = 0;
+        this.gameObject.velocity.z = 0;
+    
+        this.gameObject.velocity.x += ( direction.x * speed * this._stick.y)
+        this.gameObject.velocity.z += ( direction.z * speed * this._stick.y)
+        this.gameObject.velocity.x += ( direction.z * speed * this._stick.x)
+        this.gameObject.velocity.z += (-direction.x * speed * this._stick.x)
     }
 
     _publishData(){
         this.gameObject.publish("input", { keys: this.keys, direction: this._direction });
     }
-
     stick_touchstart(ev, el){
         ev.preventDefault();
     }
-
     stick_touchend(ev, el){
         ev.preventDefault();
         ev.target.style.transform = `translate(0px, 0px)`;
     }
+
     stick_move_touchend(ev, el){
         ev.preventDefault();
         ev.target.style.transform = `translate(0px, 0px)`;
-        this.keys.left = this.keys.right = false;
-        this.keys.forward = this.keys.backward = false;
-        console.log("end")
+        this.keys.left = this.keys.right = this.keys.forward = this.keys.backward = false;
+        this._stick.set(0,0);
     }
-
 
     stick_move_touchmove(ev, el){
         ev.preventDefault();
-
         let touch = null;
-        for (let tmp of ev.touches){
-            if (el == tmp.target) touch = tmp;
-        }
-        
+        for (let tmp of ev.touches) if (el == tmp.target) touch = tmp;
         let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
         let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
         let tx = touch.clientX - x;
@@ -287,9 +294,9 @@ export class TouchInput extends Component {
         ty *= factor;
         ev.target.style.transform = `translate(${tx}px, ${ty}px)`;
 
-        //console.log(tx / ty);
-        //console.log(tx)
-        //console.log("move")
+        this._stick.x = -(tx / max);
+        this._stick.y = -(ty / max);
+        this._stick.normalize()
 
         if (tx < -10) {
             this.keys.left = true;
@@ -310,18 +317,13 @@ export class TouchInput extends Component {
         } else {
             this.keys.backward = this.keys.forward = false;
         }
-
-
     }
 
     stick_look_touchmove(ev, el){
         ev.preventDefault();
 
         let touch = null;
-        for (let tmp of ev.touches){
-            if (el == tmp.target) touch = tmp;
-        }
-        
+        for (let tmp of ev.touches) if (el == tmp.target) touch = tmp;
         let x = ev.target.offsetLeft+document.body.scrollLeft+ev.target.clientHeight/2;
         let y = ev.target.offsetTop +document.body.scrollTop +ev.target.clientWidth /2;
         let tx = touch.clientX - x;
@@ -342,8 +344,8 @@ export class TouchInput extends Component {
         this._direction.y = Math.sin(pitch*(Math.PI/180))
         this._direction.z = Math.sin(yaw  *(Math.PI/180))*Math.cos(pitch*(Math.PI/180))
         this._direction.normalize()
-        this._publishData();
 
+        this._publishData();
         ev.target.style.transform = `translate(${tx}px, ${ty}px)`;
     }
 }

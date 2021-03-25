@@ -13,8 +13,6 @@ export class FirstPersonCamera extends Component {
         this.transform.translateY(0.7)
         this.transform.add(this.camera);
         this.gameObject.transform.add(this.transform)
-
-
     }
 
     get position(){

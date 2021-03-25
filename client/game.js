@@ -60,8 +60,7 @@ window.addEventListener('resize', () => {
 
 document.addEventListener("touchstart", () => {
     if (!document.fullscreenElement) {
-        //document.documentElement.requestFullscreen();
-        
+        document.documentElement.requestFullscreen();
         window_width = canvas.width = window.innerWidth
         window_height = canvas.height = window.innerHeight;
         renderer.setSize(window_width, window_height)
