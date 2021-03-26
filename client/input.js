@@ -342,12 +342,14 @@ export class TouchInput extends Component {
         
         let tx = touch.clientX - this.oldX;
         let ty = touch.clientY - this.oldY;
+        this.oldX = touch.clientX;
+        this.oldY = touch.clientY;
         
-        const sensitivity = 0.03;
+        const sensitivity = 0.75;
         this._yaw   += (tx * sensitivity);
         this._pitch -= (ty * sensitivity);
 
-        this._pitch = Utils.clamp(this._pitch, -89, 89);
+        this._pitch = Utils.clamp(this._pitch, -89.9, 89.9);
 
         let yaw   = this._yaw   * (Math.PI/180);
         let pitch = this._pitch * (Math.PI/180);
