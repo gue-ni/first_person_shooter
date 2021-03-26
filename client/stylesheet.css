@@ -1,0 +1,130 @@
+html, body {
+    height: 100vh;
+    width:  100vw;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.row {
+    display: flex;
+}
+
+.column {
+    flex: 50%;
+    height: 100vh;
+}
+
+.column2 {
+    position: absolute;
+    width: 50vw;
+    height: 100vh;
+}
+
+.stick-base {
+    width:  15vw;
+    height: 15vw;
+    position: absolute;
+    background-color: rgba(196, 84, 84, 0.5);
+    border-radius: 50%;
+}
+
+.stick {
+    width: 10vw;
+    height: 10vw;
+    position: absolute;
+    background-color: rgba(255, 0, 0, 0.5);
+    border-radius: 50%;
+}
+
+.button-l {
+    width:  10vw;
+    height: 10vw;
+    position: absolute;
+    background-color: rgba(0, 0, 255, 0.5);
+    border-radius: 50%;
+}
+
+.button-m {
+    width:  7vw;
+    height: 7vw;
+    position: absolute;
+    background-color: rgba(0, 0, 255, 0.5);
+    border-radius: 50%;
+
+}
+
+.ui-element {
+    position: absolute;
+    color: white;
+}
+
+#left {
+    top: 0vh;
+}
+
+#right {
+    left: 50vw;
+    top: 0vh;
+}
+
+#left-stick-base {
+    left: 10vw;
+    top: 60vh;
+}
+
+#left-stick {
+    left: 12.5vw;
+    top: 64.5vh;
+}
+
+#right-stick-base {
+    left: 75vw;
+    top: 60vh;
+}
+
+#right-stick {
+    left: 77.5vw;
+    top: 64.5vh;
+}
+
+#fire {
+    left: 7vw;
+    top:  18vh;
+}
+
+#reload {
+    left: 90vw;
+    top: 30vh;
+}
+
+#switch {
+    left: 80vw;
+    top: 25vh;
+}
+
+#health {
+    left: 5vw;
+    top: 90vh;
+}
+
+#ammo {
+    left: 5vw;
+    top: 85vh;
+}
+
+#jump {
+    left: 70vw;
+    top: 25vh;
+}
+
+#crosshair {
+    left:  50vw;
+    top:   50vh;
+}
+
+#menu-text {
+    position: absolute;
+    text-align: center;
+    left: 50vw;
+    top:  50vh;
+}

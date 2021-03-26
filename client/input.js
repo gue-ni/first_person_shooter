@@ -225,7 +225,7 @@ export class TouchInput extends Component {
         reload.addEventListener("touchstart", () => {
             if (!this.gameObject.active) return;
             this.keys.reload = true; 
-            this.gameObject.publish("reload", { 'finished': false});
+            this.gameObject.publish("reload", { finished: false});
         }, false)
 
         switch_gun.addEventListener("touchstart", () => {
@@ -270,11 +270,6 @@ export class TouchInput extends Component {
 
     move_touchstart(ev, el){
         ev.preventDefault();
-    }
-
-    look_touchend(ev, el){
-        ev.preventDefault();
-        ev.target.style.transform = `translate(0px, 0px)`;
     }
 
     move_touchend(ev, el){
@@ -360,6 +355,10 @@ export class TouchInput extends Component {
         this._direction.normalize()
 
         this.publish();
+    }
+   
+    look_touchend(ev, el){
+        ev.preventDefault();
     }
 }
 
