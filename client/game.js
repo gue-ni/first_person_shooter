@@ -31,42 +31,40 @@ const renderer 	= new THREE.WebGLRenderer({
     powerPreference: "high-performance"
 });
 
+renderer.setClearColor("#2A1559");
+renderer.physicallyCorrectLights = false;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.BasicShadowMap;
+renderer.shadowMap.autoUpdate = false;
+
 const listener = new THREE.AudioListener();
 camera.add(listener);
 
 menuCamera.position.set(20,20,20);
 menuCamera.lookAt(0,0,0);
 
-//renderer.setClearColor("#6AB9D9");
-renderer.setClearColor("#2A1559");
-
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.BasicShadowMap;
-renderer.shadowMap.autoUpdate = false;
-
-window.addEventListener('resize', () => {
-    console.log("resize") 
+function resize(){
     window_width = canvas.width = window.innerWidth
     window_height = canvas.height = window.innerHeight;
+
     renderer.setSize(window_width, window_height)
+
     camera.aspect = window_width / window_height
     camera.updateProjectionMatrix()
 
+    menuCamera.aspect = window_width / window_height
+    menuCamera.updateProjectionMatrix()
+}
 
-})
+window.addEventListener('resize', resize, false);
 
 document.addEventListener("touchstart", () => {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
-        window_width = canvas.width = window.innerWidth
-        window_height = canvas.height = window.innerHeight;
-        renderer.setSize(window_width, window_height)
-        camera.aspect = window_width / window_height
-        camera.updateProjectionMatrix()
-        
+        resize();
     }
 }, false);
 
