@@ -75,7 +75,8 @@ document.addEventListener("touchstart", () => {
 
 
 const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
+const playPass = new RenderPass(scene, camera);
+const menuPass   = new RenderPass(scene, menuCamera);
 
 const bloomPass = new UnrealBloomPass(
     new THREE.Vector2( window.innerWidth, window.innerHeight ), 
@@ -83,7 +84,9 @@ const bloomPass = new UnrealBloomPass(
 bloomPass.threshold = 0;
 bloomPass.strength = 0.6;
 bloomPass.radius = 0;
-composer.addPass(bloomPass)
+
+composer.addPass(menuPass);
+composer.addPass(bloomPass);
 
 const map_width = 50, map_depth = 50, map_height = 80
 const rays         	    = []
@@ -103,6 +106,8 @@ let dead                = true;
 let then = 0, dt = 0;
 
 const killPlayer = function(){
+    composer.removePass(playPass);
+    composer.insertPass(menuPass, 0);
     player.publish("killed", {})
     dead = true;
     hudEl.style.display       = 'none';
@@ -112,6 +117,8 @@ const killPlayer = function(){
 }
 
 const spawnPlayer = function(){
+    composer.removePass(menuPass);
+    composer.insertPass(playPass, 0);
     console.log("respawn")
     player.publish("spawn", {})
     dead = false;
