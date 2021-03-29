@@ -9,10 +9,14 @@ import { NetworkController } from './networking.js';
 import { SimpleGLTFModel } from './components.js';
 import { RectAreaLightUniformsLib } from './three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { RectAreaLightHelper } from './three/examples/jsm/helpers/RectAreaLightHelper.js';
+import {EffectComposer} from './three/examples/jsm/postprocessing/EffectComposer.js';
+import {RenderPass}     from './three/examples/jsm/postprocessing/RenderPass.js';
+import {FilmPass}       from './three/examples/jsm/postprocessing/FilmPass.js';
+import { UnrealBloomPass } from './three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 const canvas  		= document.querySelector('#canvas');
 const respawnBtn    = document.querySelector('#respawn');
-const hudEl           = document.querySelector('#hud');
+const hudEl         = document.querySelector('#hud');
 const menuEl        = document.querySelector('#menu');
 
 //canvas.height  = window.innerHeight;
@@ -47,16 +51,17 @@ const stats = new Stats();
 document.body.appendChild(stats.dom);
 
 function resize(){
-    window_width = canvas.width = window.innerWidth
+    window_width  = canvas.width = window.innerWidth
     window_height = canvas.height = window.innerHeight;
 
     renderer.setSize(window_width, window_height)
+    composer.setSize(window_width, window_height)
 
     camera.aspect = window_width / window_height
     camera.updateProjectionMatrix()
 
-    menuCamera.aspect = window_width / window_height
-    menuCamera.updateProjectionMatrix()
+    //menuCamera.aspect = window_width / window_height
+    //menuCamera.updateProjectionMatrix()
 }
 
 window.addEventListener('resize', resize, false);
@@ -69,6 +74,16 @@ document.addEventListener("touchstart", () => {
 }, false);
 
 
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2( window.innerWidth, window.innerHeight ), 
+    1.5, 0.4, 0.85 );
+bloomPass.threshold = 0;
+bloomPass.strength = 0.6;
+bloomPass.radius = 0;
+composer.addPass(bloomPass)
 
 const map_width = 50, map_depth = 50, map_height = 80
 const rays         	    = []
@@ -118,32 +133,11 @@ const init = async function(){
         spawnPlayer();
     });
 
-    // create map skybox
-    /*
-    let geometry 	= new THREE.BoxBufferGeometry(map_width, map_height, map_depth);
-    let material 	= new THREE.MeshPhongMaterial({ 
-        color: gameData.colorscheme.dark_grey, 
-        flatShading: true,
-        side: THREE.BackSide 
-    })
-    let mesh = new THREE.Mesh(geometry, material)
-    mesh.position.set(0,24,0);
-	mesh.receiveShadow = true;
-    scene.add(mesh);
-    */
-
     // create boxes
     for (let pos of gameData.boxes){
         factory.createEnvironmentBox(pos, new THREE.Vector3(2,2,2));
 	}
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
-
-    // testing
-    /*
-    let testObject = new GameObject(scene);
-    testObject.addComponent(new SimpleGLTFModel(testObject, './assets/objects/concrete_cube.glb', {}))
-    gameObjectArray.add(testObject);
-    */
 
     let r = 0xd90452;
     let p = 0x0476D9;
@@ -202,7 +196,8 @@ const init = async function(){
 
     // prebake shadows
 	renderer.shadowMap.needsUpdate = true;
-	renderer.render(scene, camera)
+	//renderer.render(scene, camera)
+    composer.render(0);
 	renderer.shadowMap.needsUpdate = false;
 
 	requestAnimationFrame(game)
@@ -292,7 +287,8 @@ const play = function(dt) {
 	//camera.lookAt(player.position)
 	
 	stats.update()	
-	renderer.render(scene, dead ? menuCamera : camera)
+	//renderer.render(scene, dead ? menuCamera : camera)
+    composer.render(dt);
 }
 
 const game = function(now){
