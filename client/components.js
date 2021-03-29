@@ -91,13 +91,12 @@ export class SimpleGunModel extends Component{
             this.model.rotateX(rotation.x);
             this.model.rotateY(rotation.y);
             this.model.rotateZ(rotation.z);
-            this.model.scale.copy(scale)
-            this.gameObject.transform.add(this.model)
-            
-            this.old = new THREE.Vector3();
-            this.tmp = new THREE.Vector3();
-            this.tmp2 = new THREE.Vector3();
-            this.model.getWorldPosition(this.old);
+            this.model.scale.copy(scale);
+            this.gameObject.transform.add(this.model);
+            //this.old = new THREE.Vector3();
+            //this.tmp = new THREE.Vector3();
+            //this.tmp2 = new THREE.Vector3();
+            //this.model.getWorldPosition(this.old);
         })();
 
         this.targetPosition = new THREE.Vector3();
@@ -151,19 +150,22 @@ export class SimpleGunModel extends Component{
                 this.s += 7 * dt;
             }
 
-            this.model.getWorldPosition(this.tmp);
-            this.tmp2.subVectors(this.tmp, this.old);
-            this.old.copy(this.tmp);
+            //this.model.getWorldPosition(this.tmp);
+            //this.tmp2.subVectors(this.tmp, this.old);
+            //console.log(this.tmp2);
+            //this.model.position.addVectors(this.muzzlePosition, this.tmp2);
+            //this.model.getWorldPosition(this.old);
+            //console.log(this.model.position)
+            //this.old.copy(this.tmp);
 
-           
             
             let x = this.muzzlePosition.x, y = this.muzzlePosition.y;
             let vsa = 0.02, hsa = 0.02;
             let sp = 1.0;
             y += vsa * Math.sin((sp)     * this.time);
             x += hsa * Math.sin((sp * 2) * this.time);
-            this.model.position.setX(x + this.tmp2.x * 0.5);
-            this.model.position.setY(y + this.tmp2.y * 0.5);
+            this.model.position.setX(x);
+            this.model.position.setY(y);
             
         }
     }
