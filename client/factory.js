@@ -75,7 +75,7 @@ export class Factory {
         player.addComponent(new ActiveNetworkComponent(player, network, "player"));
         player.addComponent(new Health(player))
         player.addComponent(new Physics(player))
-        player.addComponent(new AABB(player, new THREE.Vector3(1,2,1)))
+        player.addComponent(new AABB(player, new THREE.Vector3(0.5,2,0.5)))
         player.addComponent(new FirstPersonCamera(player, this.camera))       
         
         this.createPrimaryWeapon(player, network)

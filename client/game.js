@@ -36,7 +36,7 @@ const renderer 	= new THREE.WebGLRenderer({
 });
 
 renderer.setClearColor("#2A1559");
-renderer.physicallyCorrectLights = false;
+renderer.physicallyCorrectLights = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap;
 renderer.shadowMap.autoUpdate = false;
@@ -75,13 +75,13 @@ document.addEventListener("touchstart", () => {
 
 const composer = new EffectComposer(renderer);
 const playPass = new RenderPass(scene, camera);
-const menuPass   = new RenderPass(scene, menuCamera);
+const menuPass = new RenderPass(scene, menuCamera);
 
 const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight), 
-    1.5, 0.4, 0.85 );
+    1.5, 0.4, 0.85);
 bloomPass.threshold = 0;
-bloomPass.strength  = 0.4;
+bloomPass.strength  = 0.5;
 bloomPass.radius    = 0;
 
 composer.addPass(menuPass);
@@ -93,7 +93,7 @@ const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
-const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+const websocket         = new WebSocket(true ? "ws://192.168.7.20:5000/" : "ws://bezirksli.ga/game/ws/");
 const network           = new NetworkController(websocket);
 const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid, network);
 var player              = undefined;
@@ -157,12 +157,25 @@ const init = async function(){
     }
 
     {
-        const light = new THREE.HemisphereLight(colors.c1, colors.c5, 0.3);
-        //scene.add(light);
+        const color = colors.c1;
+        const intensity = 1;
+        const light = new THREE.PointLight(color, intensity);
+        light.castShadow = true;
+        light.position.set(0, 4.5, 4.5);
+        light.power = 800;
+        light.decay = 2;
+        light.distance = Infinity;
+        scene.add(light);
     }
     {
-        const light = new THREE.PointLight(colors.c1, 1, 100, 2)
-        light.position.set(0, 4.5, 4.5);
+        const color = colors.c1;
+        const intensity = 1;
+        const light = new THREE.PointLight(color, intensity);
+        light.castShadow = true;
+        light.position.set(10, 4.5, -10.5);
+        light.power = 800;
+        light.decay = 2;
+        light.distance = Infinity;
         scene.add(light);
     }
     {
@@ -179,30 +192,9 @@ const init = async function(){
         light.shadow.camera.right	=  50;
         scene.add(light)
     }
-    {
-        /*
-        const pointlight = new THREE.PointLight(gameData.colorscheme.pink, 3, 100, 2);
-        pointlight.position.set(0, 50, -25);
-        scene.add(pointlight);
-        scene.add(new THREE.AmbientLight(gameData.colorscheme.purple, 0.4))
-        const light = new THREE.DirectionalLight(gameData.colorscheme.blue, 2, 100);
-        light.position.set(0, 50, 25)
-        light.castShadow 			=  true; 
-        light.shadow.mapSize.width 	=  512; 
-        light.shadow.mapSize.height =  512; 
-        light.shadow.camera.near 	=  0.5; 
-        light.shadow.camera.far 	=  100;
-        light.shadow.camera.left 	= -50;
-        light.shadow.camera.bottom 	= -50;
-        light.shadow.camera.top  	=  50;
-        light.shadow.camera.right	=  50;
-        scene.add(light)
-        */
-    }
-
+    
     // prebake shadows
 	renderer.shadowMap.needsUpdate = true;
-	//renderer.render(scene, camera)
     composer.render(0);
 	renderer.shadowMap.needsUpdate = false;
 
