@@ -60,8 +60,8 @@ function resize(){
     camera.aspect = window_width / window_height
     camera.updateProjectionMatrix()
 
-    //menuCamera.aspect = window_width / window_height
-    //menuCamera.updateProjectionMatrix()
+    menuCamera.aspect = window_width / window_height
+    menuCamera.updateProjectionMatrix()
 }
 
 window.addEventListener('resize', resize, false);
@@ -73,17 +73,16 @@ document.addEventListener("touchstart", () => {
     }
 }, false);
 
-
 const composer = new EffectComposer(renderer);
 const playPass = new RenderPass(scene, camera);
 const menuPass   = new RenderPass(scene, menuCamera);
 
 const bloomPass = new UnrealBloomPass(
-    new THREE.Vector2( window.innerWidth, window.innerHeight ), 
+    new THREE.Vector2(window.innerWidth, window.innerHeight), 
     1.5, 0.4, 0.85 );
 bloomPass.threshold = 0;
-bloomPass.strength = 0.6;
-bloomPass.radius = 0;
+bloomPass.strength  = 0.4;
+bloomPass.radius    = 0;
 
 composer.addPass(menuPass);
 composer.addPass(bloomPass);
@@ -94,7 +93,7 @@ const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
-const websocket         = new WebSocket(false ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
+const websocket         = new WebSocket(true ? "ws://localhost:5000/" : "ws://bezirksli.ga/game/ws/");
 const network           = new NetworkController(websocket);
 const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid, network);
 var player              = undefined;

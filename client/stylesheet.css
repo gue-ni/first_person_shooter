@@ -84,6 +84,11 @@ html, body {
     top:  18vh;
 }
 
+#fire2 {
+    left: 85vw;
+    top: 60vh;
+}
+
 #reload {
     left: 90vw;
     top: 30vh;

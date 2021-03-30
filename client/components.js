@@ -191,7 +191,22 @@ export class Box extends Component {
 			emissiveIntensity: 0,
 			roughness: 1.0
 		});
-		this.model 		= new THREE.Mesh(geometry, material)
+        
+        const loader = new THREE.TextureLoader();
+        let texture = loader.load('./assets/textures/tile3.jpg')
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.magFilter = THREE.NearestFilter;
+        const repeats = size.x / 2;
+        texture.repeat.set(repeats, repeats);
+
+        let material2 = new THREE.MeshStandardMaterial({ 
+            map: texture
+        });
+
+
+
+		this.model 		= new THREE.Mesh(geometry, material2)
 		
         this.model.castShadow 	= castShadow
 		this.model.receiveShadow = receiveShadow

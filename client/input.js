@@ -200,6 +200,7 @@ export class TouchInput extends Component {
         let left    = document.querySelector('#left-stick');
         let right   = document.querySelector('#right');
         let fire    = document.querySelector('#fire');
+        let fire2    = document.querySelector('#fire2');
         let reload    = document.querySelector('#reload');
         let switch_gun = document.querySelector('#switch');
         let jump = document.querySelector('#jump');
@@ -213,28 +214,31 @@ export class TouchInput extends Component {
         right.addEventListener("touchend",   (event) => this.look_touchend(event, right),   {passive: false});
 
         fire.addEventListener("touchstart", (event) => {
-            if (!this.gameObject.active) return;
             this.gameObject.publish("trigger", { firing: true });
         }, false);
 
         fire.addEventListener("touchend", (event) => {
-            if (!this.gameObject.active) return;
+            this.gameObject.publish("trigger", { firing: false });
+        }, false);
+
+        fire2.addEventListener("touchstart", (event) => {
+            this.gameObject.publish("trigger", { firing: true });
+        }, false);
+
+        fire2.addEventListener("touchend", (event) => {
             this.gameObject.publish("trigger", { firing: false });
         }, false);
 
         reload.addEventListener("touchstart", () => {
-            if (!this.gameObject.active) return;
             this.keys.reload = true; 
             this.gameObject.publish("reload", { finished: false});
         }, false)
 
         switch_gun.addEventListener("touchstart", () => {
-            if (!this.gameObject.active) return;
             this.gameObject.publish("toggleGun", {})
         })
 
         jump.addEventListener("touchstart", () => {
-            if (!this.gameObject.active) return;
             let p = this.gameObject.position.clone();
             p.setY(p.y-1.1)
             for (let aabb of this.hashGrid.possible_point_collisions(p)){
