@@ -3,7 +3,6 @@ resources/
 example/
 doc/
 
-*.jpg
 *.zip
 *.sh
 *.jpg
