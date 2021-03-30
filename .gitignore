@@ -5,8 +5,6 @@ doc/
 
 *.zip
 *.sh
-*.jpg
-*.jpeg
 *.gif 
 *.webp
 *.fbx
