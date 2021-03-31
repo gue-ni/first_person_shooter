@@ -93,7 +93,7 @@ const projectiles       = []
 let network_data        = []
 const hashGrid          = new HashGrid(2)
 const gameObjectArray   = new GameObjectArray()
-const websocket         = new WebSocket(true ? "ws://192.168.7.20:5000/" : "ws://bezirksli.ga/game/ws/");
+const websocket         = new WebSocket(false ? "ws://192.168.7.20:5000/" : "ws://bezirksli.ga/game/ws/");
 const network           = new NetworkController(websocket);
 const factory           = new Factory(scene, camera, listener, gameObjectArray, hashGrid, network);
 var player              = undefined;
@@ -118,12 +118,11 @@ const killPlayer = function(){
 const spawnPlayer = function(){
     composer.removePass(menuPass);
     composer.insertPass(playPass, 0);
-    console.log("respawn")
     player.publish("spawn", {})
     dead = false;
-    player.transform.visible = player.active = true;
     hudEl.style.display     = 'block';
     menuEl.style.display    = 'none';
+    player.transform.visible = player.active = true;
     gameObjectArray.add(player);
 }
 
@@ -145,9 +144,6 @@ const init = async function(){
 	}
     factory.createGroundBox(new THREE.Vector3(0,-2,0), new THREE.Vector3(60,2,60))
 
-    let r = 0xd90452;
-    let p = 0x0476D9;
-
     let colors = {
         c1: 0xd9048e,
         c2: 0x8c035c,
@@ -155,7 +151,6 @@ const init = async function(){
         c4: 0x2964d9,
         c5: 0x0597f2
     }
-
     {
         const color = colors.c1;
         const intensity = 1;
