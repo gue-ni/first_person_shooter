@@ -1,5 +1,5 @@
-three/
 resources/
+node_modules/
 example/
 doc/
 
@@ -10,4 +10,5 @@ doc/
 *.fbx
 *.blend
 *.blend1
+server.py
 

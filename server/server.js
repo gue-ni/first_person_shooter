@@ -1,27 +1,27 @@
-const express   = require('express');
-const http      = require('http');
-const websocket = require('ws');
-const fs        = require('fs');
+const express = require("express");
+const http = require("http");
+const websocket = require("ws");
+const fs = require("fs");
 
-const { Ray }       = require('./Ray.js')
-const { Box3 }      = require('./Box3.js')
-const { Vector3 }   = require('./Vector3.js');
-const { HashGrid }  = require('./HashGrid.js');
+const { Ray } = require("./Ray.js");
+const { Box3 } = require("./Box3.js");
+const { Vector3 } = require("./Vector3.js");
+const { HashGrid } = require("./HashGrid.js");
 
-const app 	    = express();
-const server 	= http.createServer(app);
-const wss 	    = new websocket.Server({ server });
+const app = express();
+const server = http.createServer(app);
+const wss = new websocket.Server({ server });
 
 const hashGrid = new HashGrid(2);
 
-// serve frontend 
-app.use(express.static('../client'));
+// serve frontend
+app.use(express.static("../client"));
 
-let gameData = JSON.parse(fs.readFileSync('./game_data.json'));
-for(let pos of gameData.boxes){
-    let box = new Box3(new Vector3(-1,-1,-1), new Vector3(1, 1, 1));
-    box.translate(pos);
-    hashGrid.insert(box);
+let gameData = JSON.parse(fs.readFileSync("./game_data.json"));
+for (let pos of gameData.boxes) {
+	let box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
+	box.translate(pos);
+	hashGrid.insert(box);
 }
 
 //   id     pos    dir
@@ -29,42 +29,43 @@ for(let pos of gameData.boxes){
 const OBJECTS = {};
 const SOCKETS = {};
 
-wss.on('connection', (ws) => {
+wss.on("connection", (ws) => {
 	let id = -1;
-    console.log("new connection");
+	console.log("new connection");
 
-	ws.on('message', message => {
+	ws.on("message", (message) => {
 		let data = JSON.parse(message);
-    	let response = {};
+		let response = {};
 
-		if (id == -1) { // first message
-        	id = data.id;
-            SOCKETS[id] = ws;
+		if (id == -1) {
+			// first message
+			id = data.id;
+			SOCKETS[id] = ws;
 
-        	// notify users of new player
-            wss.clients.forEach( client => {
-                if (client !== ws && client.readyState === websocket.OPEN){
-                    client.send(JSON.stringify({connected: [{ 'id': id, 'player_data': data.player_data}]}))
-                }
-            })
+			// notify users of new player
+			wss.clients.forEach((client) => {
+				if (client !== ws && client.readyState === websocket.OPEN) {
+					client.send(JSON.stringify({ connected: [{ id: id, player_data: data.player_data }] }));
+				}
+			});
 
-            // notify user of other connected players
-            let connected_players = []
+			// notify user of other connected players
+			let connected_players = [];
 
-            for (let player_id in OBJECTS){
-                connected_players.push({'id': player_id, 'player_data': OBJECTS[player_id]})
-            }
+			for (let player_id in OBJECTS) {
+				connected_players.push({ id: player_id, player_data: OBJECTS[player_id] });
+			}
 
-            if (connected_players.length > 0){
-                ws.send(JSON.stringify({connected: connected_players}))
-            }
-    	}
+			if (connected_players.length > 0) {
+				ws.send(JSON.stringify({ connected: connected_players }));
+			}
+		}
 
-    	if (data.player_data){
-    		OBJECTS[id] = data.player_data;
-            response.players = OBJECTS;
-    	}
-        /*
+		if (data.player_data) {
+			OBJECTS[id] = data.player_data;
+			response.players = OBJECTS;
+		}
+		/*
     	if (data.bullets){
             let ray = new Ray();
             let impactPoint = new Vector3();
@@ -113,22 +114,22 @@ wss.on('connection', (ws) => {
     	}    
         */
 
-        console.log(OBJECTS)
-        ws.send(JSON.stringify(response));
+		console.log(OBJECTS);
+		ws.send(JSON.stringify(response));
 	});
 
-	ws.on('close',() => {
-    	// notify the others of disconnected player
-        wss.clients.forEach( client => {
-            if (client !== ws && client.readyState === websocket.OPEN){
-                client.send(JSON.stringify({disconnected: id}))
-            }
-        });
-		delete(OBJECTS[id]);
-        delete(SOCKETS[id]);
-	})
+	ws.on("close", () => {
+		// notify the others of disconnected player
+		wss.clients.forEach((client) => {
+			if (client !== ws && client.readyState === websocket.OPEN) {
+				client.send(JSON.stringify({ disconnected: id }));
+			}
+		});
+		delete OBJECTS[id];
+		delete SOCKETS[id];
+	});
 });
 
-server.listen(process.env.PORT || 5000, () => {
- 	console.log(`Multiplayer server started at http://localhost:${server.address().port}`);
+server.listen(process.env.PORT || 5001, () => {
+	console.log(`Multiplayer server started at http://localhost:${server.address().port}`);
 });
